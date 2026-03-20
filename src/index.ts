@@ -51,9 +51,9 @@ client.once("clientReady", async (c) => {
 
   const statuses = [
     "💸 Make your money",
-    "Gerenciando tickets",
-    "Suporte 24/7",
-    "Aqui para ajudar",
+    "🎫 Gerenciando tickets",
+    "📍 Suporte 24/7",
+    "😁 Aqui para ajudar",
   ];
 
   let statusIndex = 0;
