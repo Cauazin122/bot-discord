@@ -157,7 +157,6 @@ export async function handleCloseTicketInteraction(
             .setTitle("📝 Ticket Fechado")
             .addFields(
               { name: "👤 Usuário", value: `${interaction.user.tag}` },
-              { name: "🤵‍♂️ Staff", value: `${staffName}` },
               { name: "⭐ Avaliação", value: userRating },
               { name: "💬 Feedback", value: userFeedback || "Sem feedback" }
             )
