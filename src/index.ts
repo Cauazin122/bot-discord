@@ -6,6 +6,7 @@ import {
   Routes,
   StringSelectMenuInteraction,
   ButtonInteraction,
+  ActivityType,
 } from "discord.js";
 import { commands } from "./commands/index.js";
 import { handleInteraction } from "./events/interactionCreate.js";
@@ -47,6 +48,25 @@ client.once("clientReady", async (c) => {
   } catch (err) {
     console.error("Falha ao registrar comandos slash:", err);
   }
+
+  const statuses = [
+    "🎫 Tickets",
+    "👥 Suporte",
+    "💬 Dúvidas",
+    "/help para ajuda",
+  ];
+  let statusIndex = 0;
+
+  const setStatus = () => {
+    client.user?.setPresence({
+      activities: [{ name: statuses[statusIndex], type: ActivityType.Playing }],
+      status: "online",
+    });
+    statusIndex = (statusIndex + 1) % statuses.length;
+  };
+
+  setStatus();
+  setInterval(setStatus, 10_000);
 });
 
 client.on("interactionCreate", async (interaction) => {
