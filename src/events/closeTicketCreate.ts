@@ -17,7 +17,8 @@ export async function handleCloseTicketInteraction(
 ) {
   if (interaction.customId !== "close_ticket") return;
 
-  const guildConfig = getGuildConfig(interaction.guild?.id || "");
+  const guild = interaction.guild;
+  const guildConfig = getGuildConfig(guild?.id || "");
   const staffRoles = guildConfig.STAFF_ROLES;
 
   if (!interaction.member || !("roles" in interaction.member)) {
@@ -39,9 +40,6 @@ export async function handleCloseTicketInteraction(
     });
     return;
   }
-
-  const guild = interaction.guild;
-  const guildConfig = getGuildConfig(guild?.id || "");
 
   if (!guild || !guildConfig.LOG_CHANNEL) {
     await interaction.reply({
