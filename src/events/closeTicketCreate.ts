@@ -156,7 +156,7 @@ export async function handleCloseTicketInteraction(
             .setColor("#95a5a6")
             .setTitle("📝 Ticket Fechado")
             .addFields(
-              { name: "👤 Usuário", value: `${user.tag}` },
+              { name: "👤 Usuário", value: `${interaction.user.tag}` },
               { name: "🤵‍♂️ Staff", value: `${staffName}` },
               { name: "⭐ Avaliação", value: userRating },
               { name: "💬 Feedback", value: userFeedback || "Sem feedback" }
