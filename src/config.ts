@@ -21,10 +21,10 @@ const GUILD_CONFIGS: Record<string, GuildConfig> = {
   },
   // Servidor de testes (usa LOG_CHANNEL como transcript)
   "1074821077303304292": {
-    STAFF_ROLES: (process.env.STAFF_ROLE_ID || "").split(",").filter(Boolean),
-    CATEGORY_ID: process.env.TICKET_CATEGORY_ID || "",
-    LOG_CHANNEL: process.env.LOG_CHANNEL_ID || "",
-    TRANSCRIPT_CHANNEL: process.env.LOG_CHANNEL_ID || "",
+    STAFF_ROLES: ["1107467847061471333"],
+    CATEGORY_ID: "1483282512716369941",
+    LOG_CHANNEL: "1463602167460921547",
+    TRANSCRIPT_CHANNEL: "1463602167460921547",
   },
   // Novo servidor (transcript vai para canal fixo)
   "1475319429322510418": {
