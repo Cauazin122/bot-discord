@@ -17,6 +17,29 @@ export async function handleCloseTicketInteraction(
 ) {
   if (interaction.customId !== "close_ticket") return;
 
+  const guildConfig = getGuildConfig(interaction.guild?.id || "");
+  const staffRoles = guildConfig.STAFF_ROLES;
+
+  if (!interaction.member || !("roles" in interaction.member)) {
+    await interaction.reply({
+      content: "Não foi possível verificar suas permissões.",
+      flags: 64,
+    });
+    return;
+  }
+
+  const hasStaffRole = staffRoles.some((roleId) =>
+    interaction.member!.roles.cache.has(roleId)
+  );
+
+  if (!hasStaffRole) {
+    await interaction.reply({
+      content: "Apenas staffs podem fechar tickets.",
+      flags: 64,
+    });
+    return;
+  }
+
   const guild = interaction.guild;
   const guildConfig = getGuildConfig(guild?.id || "");
 
