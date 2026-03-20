@@ -62,7 +62,7 @@ client.once("clientReady", async (c) => {
       activities: [
         {
           name: statuses[statusIndex],
-          type: ActivityType.Playing,
+          type: ActivityType.Watching,
         },
       ],
       status: "online",
