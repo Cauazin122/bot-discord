@@ -9,7 +9,8 @@ import { TICKET_TYPES } from "../config.js";
 
 export const data = new SlashCommandBuilder()
   .setName("ticket")
-  .setDescription("Envia o painel para criar um ticket de suporte neste canal");
+  .setDescription("Envia o painel para criar um ticket de suporte neste canal")
+  .setDefaultMemberPermissions(0);
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   try {
