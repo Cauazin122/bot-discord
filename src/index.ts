@@ -2,6 +2,7 @@ import express from "express";
 import {
   Client,
   GatewayIntentBits,
+  ActivityType,
   REST,
   Routes,
   StringSelectMenuInteraction,
@@ -47,6 +48,27 @@ client.once("clientReady", async (c) => {
   } catch (err) {
     console.error("Falha ao registrar comandos slash:", err);
   }
+
+  const statuses = [
+    ":money_with_wings: Make your money",
+    "Gerenciando tickets",
+    "Suporte 24/7",
+    "Aqui para ajudar",
+  ];
+
+  let statusIndex = 0;
+  setInterval(() => {
+    c.user.setPresence({
+      activities: [
+        {
+          name: statuses[statusIndex],
+          type: ActivityType.Playing,
+        },
+      ],
+      status: "online",
+    });
+    statusIndex = (statusIndex + 1) % statuses.length;
+  }, 10000);
 });
 
 client.on("interactionCreate", async (interaction) => {
