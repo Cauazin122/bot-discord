@@ -9,7 +9,7 @@ import {
 export const data = new SlashCommandBuilder()
   .setName("top")
   .setDescription("Mostra o ranking dos usuários com melhores avaliações")
-  .setDefaultMemberPermissions(0);
+  .setDefaultMemberPermissions(1);
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   try {
