@@ -13,10 +13,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       { name: "/ping", value: "Verifica a latência do bot", inline: true },
       { name: "/ajuda", value: "Mostra esta mensagem de ajuda", inline: true },
       { name: "/eco", value: "Repete uma mensagem para você", inline: true },
-      { name: "/info", value: "Mostra informações sobre o servidor", inline: true },
-      { name: "/ticket", value: "Envia o botão para criar um ticket", inline: true },
-      { name: "/avaliacoes", value: "Mostra suas avaliações", inline: true },
-      { name: "/top", value: "Ranking dos mais avaliados", inline: true }
+      { name: "/info", value: "Mostra informações sobre o servidor", inline: true }
     )
     .setFooter({ text: `Solicitado por ${interaction.user.username}` })
     .setTimestamp();
