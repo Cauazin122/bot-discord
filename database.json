@@ -1,0 +1,16 @@
+{
+  "avaliacoes": [
+    {
+      "user": "fake_noob",
+      "estrelas": "5",
+      "feedback": "Testes KK",
+      "data": "2026-03-18T01:54:06.192Z"
+    },
+    {
+      "user": "fake_noob",
+      "estrelas": "5",
+      "feedback": "Testes KK",
+      "data": "2026-03-18T01:54:06.193Z"
+    }
+  ]
+}
