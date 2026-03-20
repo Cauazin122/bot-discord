@@ -13,6 +13,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       { name: "/ping", value: "Verifica a latência do bot", inline: true },
       { name: "/ajuda", value: "Mostra esta mensagem de ajuda", inline: true },
       { name: "/eco", value: "Repete uma mensagem para você", inline: true },
+      { name: "/info", value: "Mostra informações sobre o servidor", inline: true },
       { name: "/info", value: "Mostra informações sobre o servidor", inline: true }
     )
     .setFooter({ text: `Solicitado por ${interaction.user.username}` })
