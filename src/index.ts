@@ -50,7 +50,7 @@ client.once("clientReady", async (c) => {
   }
 
   const statuses = [
-    ":money_with_wings: Make your money",
+    "💸 Make your money",
     "Gerenciando tickets",
     "Suporte 24/7",
     "Aqui para ajudar",
