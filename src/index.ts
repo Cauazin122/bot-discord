@@ -50,25 +50,28 @@ client.once("clientReady", async (c) => {
   }
 
   const statuses = [
-    "💸 Make your money",
-    "🎫 Gerenciando tickets",
-    "📍 Suporte 24/7",
-    "😁 Aqui para ajudar",
-  ];
+  { text: "💸 Make your money", type: ActivityType.Watching },
+  { text: "🎫 Gerenciando tickets", type: ActivityType.Watching },
+  { text: "📍 Suporte 24/7", type: ActivityType.Watching },
+  { text: "😁 Aqui para ajudar", type: ActivityType.Watching },
+  { text: "GTA 6 🚗💨", type: ActivityType.Playing }
+];
 
-  let statusIndex = 0;
-  setInterval(() => {
-    c.user.setPresence({
-      activities: [
-        {
-          name: statuses[statusIndex],
-          type: ActivityType.Watching,
-        },
-      ],
-      status: "online",
-    });
-    statusIndex = (statusIndex + 1) % statuses.length;
-  }, 10000);
+let statusIndex = 0;
+
+setInterval(() => {
+  c.user.setPresence({
+    activities: [
+      {
+        name: statuses[statusIndex].text,
+        type: statuses[statusIndex].type,
+      },
+    ],
+    status: "online",
+  });
+
+  statusIndex = (statusIndex + 1) % statuses.length;
+}, 10000);
 });
 
 client.on("interactionCreate", async (interaction) => {
