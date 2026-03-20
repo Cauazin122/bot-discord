@@ -51,10 +51,10 @@ client.once("clientReady", async (c) => {
 
   const statuses = [
   { text: "💸 Make your money", type: ActivityType.Watching },
+  { text: "Jogando GTA 6 🚗💨", type: ActivityType.Playing },
   { text: "🎫 Gerenciando tickets", type: ActivityType.Watching },
   { text: "📍 Suporte 24/7", type: ActivityType.Watching },
   { text: "😁 Aqui para ajudar", type: ActivityType.Watching },
-  { text: "GTA 6 🚗💨", type: ActivityType.Playing }
 ];
 
 let statusIndex = 0;
