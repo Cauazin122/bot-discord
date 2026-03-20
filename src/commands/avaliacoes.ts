@@ -9,7 +9,7 @@ import {
 export const data = new SlashCommandBuilder()
   .setName("avaliacoes")
   .setDescription("Mostra suas avaliações de tickets")
-  .setDefaultMemberPermissions(1);
+  .setDefaultMemberPermissions(0);
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   try {
