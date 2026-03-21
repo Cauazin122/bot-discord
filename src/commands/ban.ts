@@ -1,10 +1,4 @@
-import fs from "fs";
-import path from "path";
-import {
-  SlashCommandBuilder,
-  ChatInputCommandInteraction,
-  EmbedBuilder,
-} from "discord.js";
+import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -28,13 +22,6 @@ export default {
     if (!member) {
       return interaction.reply({ content: '❌ Usuário não encontrado.', ephemeral: true });
     }
-
-     if (!member.bannable) {
-    return interaction.reply({
-      content: '❌ Não posso banir esse usuário.',
-      ephemeral: true
-    });
-   }
 
     await member.ban({ reason });
 
