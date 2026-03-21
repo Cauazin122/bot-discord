@@ -15,6 +15,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       { name: "/kick", value: "Comando usado para expulsar membros do servidor", inline: true },
       { name: "/mute", value: "Comando usado para silenciar um membro", inline: true },
       { name: "/warn", value: "Comando usado para dar um aviso em um membro", inline: true },
+      { name: "/warns", value: "Comando usado para ver as warns de um membro",inline: true },
       { name: "/removewarn", value: "Comando usado para remover o aviso de um membro", inline: true}
     )
     .setFooter({ text: `Solicitado por ${interaction.user.username}` })
