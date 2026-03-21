@@ -1,3 +1,12 @@
+import fs from "fs";
+import path from "path";
+import {
+  SlashCommandBuilder,
+  ChatInputCommandInteraction,
+  EmbedBuilder,
+} from "discord.js";
+
+
 import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
 
 export default {
