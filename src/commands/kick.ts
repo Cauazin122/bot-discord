@@ -12,7 +12,7 @@ export default {
     .addStringOption(option =>
       option.setName('motivo')
         .setDescription('Motivo do kick')
-        .setRequired(false)
+        .setRequired(true)
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers),
 
