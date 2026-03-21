@@ -12,7 +12,7 @@ import mute from "./mute.js";
 import warn from "./warn.js";
 import * as helpadm from "./helpadm.js";
 import removewarn from "./removewarn.js";
-import warns from "./warns.jd";
+import warns from "./warns.js";
 
 export interface Command {
   data: SlashCommandBuilder;
