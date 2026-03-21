@@ -13,7 +13,7 @@ export default {
     .addIntegerOption(option =>
       option.setName('numero')
     .setDescription('Número do warn (opcional)')
-    .setRequired(true)
+    .setRequired(false)
 )
     .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
 
