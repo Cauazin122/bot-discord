@@ -6,7 +6,6 @@ import * as info from "./info.js";
 import * as ticket from "./ticket.js";
 import * as avaliacoes from "./avaliacoes.js";
 import * as top from "./top.js";
-import * as ban from "./ban.js";
 
 export interface Command {
   data: SlashCommandBuilder;
@@ -21,5 +20,4 @@ export const commands: Record<string, Command> = {
   ticket,
   avaliacoes,
   top,
-  ban,
 };
