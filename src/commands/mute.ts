@@ -31,7 +31,7 @@ export default {
 
     await member.timeout(ms);
     
-    await sendLog(interaction.guild, {
+    await sendLog(interaction.guild!, {
       action: 'Mute',
       user,
       staff: interaction.user,
