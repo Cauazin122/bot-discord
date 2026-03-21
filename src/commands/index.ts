@@ -10,6 +10,8 @@ import ban from "./ban.js";
 import kick from "./kick.js";
 import mute from "./mute.js";
 import warn from "./warn.js";
+import helpadm from "./helpadm";
+import removewarn from "./removewarn";
 
 export interface Command {
   data: SlashCommandBuilder;
@@ -27,5 +29,7 @@ export const commands: Record<string, Command> = {
   ban,
   kick,
   mute,
-  warn
+  warn,
+  helpadm,
+  removewarn
 };
