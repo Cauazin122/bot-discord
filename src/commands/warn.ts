@@ -1,8 +1,5 @@
 import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
-import { sendLog } from '../utils/logs';
 import { readDB, writeDB } from '../utils/database';
-
-const warns = new Map();
 
 export default {
   data: new SlashCommandBuilder()
@@ -23,60 +20,49 @@ export default {
   async execute(interaction) {
     const user = interaction.options.getUser('usuario');
     const reason = interaction.options.getString('motivo');
+
     const db = readDB();
-const guildId = interaction.guild.id;
+    const guildId = interaction.guild.id;
 
-// cria servidor
-if (!db.warns[guildId]) {
-  db.warns[guildId] = {};
-}
+    // cria servidor
+    if (!db.warns[guildId]) {
+      db.warns[guildId] = {};
+    }
 
-// cria usuário
-if (!db.warns[guildId][user.id]) {
-  db.warns[guildId][user.id] = [];
-}
+    // cria usuário
+    if (!db.warns[guildId][user.id]) {
+      db.warns[guildId][user.id] = [];
+    }
 
-// adiciona warn
-db.warns[guildId][user.id].push({
-  reason,
-  staff: interaction.user.id,
-  date: new Date().toISOString()
-});
+    // adiciona warn
+    db.warns[guildId][user.id].push({
+      reason,
+      staff: interaction.user.id,
+      date: new Date().toISOString()
+    });
 
-writeDB(db);
+    writeDB(db);
 
-// contar warns
-const count = db.warns[guildId][user.id].length;
-
-    const userWarns = warns.get(user.id) || 0;
-    warns.set(user.id, userWarns + 1);
+    const count = db.warns[guildId][user.id].length;
 
     await interaction.reply(`⚠️ ${user.tag} recebeu um aviso (${count}/3)`);
 
-    await sendLog(interaction.guild!, {
-      action: 'Aviso',
-      user,
-      staff: interaction.user,
-      reason
-    });
+    // 🔥 SISTEMA AUTOMÁTICO
+    const member = await interaction.guild.members.fetch(user.id);
 
-    // Sistema automático
-    if (count >= 3) {
-  const member = await interaction.guild.members.fetch(user.id);
+    if (count === 3) {
+      await member.timeout(10 * 60 * 1000);
+      await interaction.followUp(`🔇 ${user.tag} foi mutado (3 avisos).`);
+    }
 
-if (count === 3) {
-  await member.timeout(10 * 60 * 1000);
-  await interaction.followUp(`🔇 ${user.tag} foi mutado (3 avisos).`);
-}
+    if (count === 5) {
+      await member.kick(reason);
+      await interaction.followUp(`👢 ${user.tag} foi expulso (5 avisos).`);
+    }
 
-if (count === 5) {
-  await member.kick(reason);
-  await interaction.followUp(`👢 ${user.tag} foi expulso (5 avisos).`);
-}
-
-if (count >= 7) {
-  await member.ban({ reason });
-  await interaction.followUp(`🔨 ${user.tag} foi banido (7 avisos).`);
-   }
+    if (count >= 7) {
+      await member.ban({ reason });
+      await interaction.followUp(`🔨 ${user.tag} foi banido (7 avisos).`);
+    }
   }
 };
