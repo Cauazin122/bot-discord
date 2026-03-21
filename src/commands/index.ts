@@ -10,8 +10,8 @@ import ban from "./ban.js";
 import kick from "./kick.js";
 import mute from "./mute.js";
 import warn from "./warn.js";
-import * as helpadm from "./helpadm";
-import removewarn from "./removewarn";
+import * as helpadm from "./helpadm.js";
+import removewarn from "./removewarn.js";
 
 export interface Command {
   data: SlashCommandBuilder;
