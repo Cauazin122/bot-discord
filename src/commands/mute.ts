@@ -32,11 +32,11 @@ export default {
     await member.timeout(ms);
     
     await sendLog(interaction.guild, {
-  action: 'Mute',
-  user,
-  staff: interaction.user,
-  reason: `Tempo: ${tempo} minutos`
-});
+      action: 'Mute',
+      user,
+      staff: interaction.user,
+      reason: `Tempo: ${tempo} minutos`
+ });
 
     await interaction.reply(`🔇 ${user.tag} foi mutado por ${tempo} minutos.`);
   }
