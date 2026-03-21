@@ -9,6 +9,7 @@ import * as top from "./top.js";
 import ban from "./ban.js";
 import kick from "./kick.js";
 import mute from "./mute.js";
+import warn from "./warn.js";
 
 export interface Command {
   data: SlashCommandBuilder;
@@ -25,5 +26,6 @@ export const commands: Record<string, Command> = {
   top,
   ban,
   kick,
-  mute
+  mute,
+  warn
 };
