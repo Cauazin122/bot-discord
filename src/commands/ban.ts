@@ -14,7 +14,7 @@ export default {
       option
         .setName('motivo')
         .setDescription('Motivo do ban')
-        .setRequired(false)
+        .setRequired(true)
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
 
