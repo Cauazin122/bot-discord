@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
-import { sendLog } from '../utils/logs';
+import { sendLog } from '../utils/logs.ts';
 
 const warns = new Map();
 
