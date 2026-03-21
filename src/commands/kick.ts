@@ -32,6 +32,12 @@ export default {
     }
 
     await member.kick(reason);
+    await sendLog(interaction.guild, {
+  action: 'Expulsão',
+  user,
+  staff: interaction.user,
+  reason
+});
 
     await interaction.reply(`👢 ${user.tag} foi expulso.\nMotivo: ${reason}`);
   }
