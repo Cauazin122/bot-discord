@@ -2,7 +2,7 @@ import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder } from "
 
 export const data = new SlashCommandBuilder()
   .setName("helpadm")
-  .setDescription("Lista todos os comandos disponíveis para administradores");
+  .setDescription("Lista todos os comandos disponíveis para administradores")
   .setDefaultMemberPermissions(0);
 
 export async function execute(interaction: ChatInputCommandInteraction) {
