@@ -19,15 +19,24 @@ export default {
 
   async execute(interaction) {
     const user = interaction.options.getUser('usuario');
-    const db = readDB();
-    const guildId = interaction.guild.id;
+    const numero = interaction.options.getInteger('numero');
+const db = readDB();
+const guildId = interaction.guild.id;
 
-    if (db.warns[guildId] && db.warns[guildId][user.id]) {
-      db.warns[guildId][user.id] = [];
-    }
+if (!db.warns[guildId]?.[user.id]) {
+  return interaction.reply('Esse usuário não tem avisos.');
+}
 
-    writeDB(db);
+if (numero) {
+  db.warns[guildId][user.id].splice(numero - 1, 1);
 
-    await interaction.reply(`🧹 Avisos de ${user.tag} foram removidos.`);
+  await interaction.reply(`🧹 Warn ${numero} removido de ${user.tag}`);
+} else {
+  db.warns[guildId][user.id] = [];
+
+  await interaction.reply(`🧹 Todos os warns removidos de ${user.tag}`);
+}
+
+writeDB(db);
   }
 };
