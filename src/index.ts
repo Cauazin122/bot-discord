@@ -32,7 +32,10 @@ if (!token) {
 }
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds],
+  intents: [
+  GatewayIntentBits.Guilds,
+  GatewayIntentBits.GuildMembers
+],
 });
 
 client.once("clientReady", async (c) => {
