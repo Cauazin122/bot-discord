@@ -1,4 +1,5 @@
 import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
+import { sendLog } from '../utils/logs.js';
 
 export default {
   data: new SlashCommandBuilder()
