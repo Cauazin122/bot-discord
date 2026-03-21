@@ -30,6 +30,7 @@ export default {
     const ms = tempo * 60 * 1000;
 
     await member.timeout(ms);
+    
     await sendLog(interaction.guild, {
   action: 'Mute',
   user,
