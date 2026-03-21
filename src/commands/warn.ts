@@ -28,7 +28,7 @@ export default {
 
     await interaction.reply(`⚠️ ${user.tag} recebeu um aviso (${userWarns + 1}/3)`);
 
-    await sendLog(interaction.guild, {
+    await sendLog(interaction.guild!, {
       action: 'Aviso',
       user,
       staff: interaction.user,
