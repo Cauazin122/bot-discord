@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from 'discord.js';
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import { readDB } from '../utils/database';
 
 export default {
@@ -22,10 +22,21 @@ export default {
       return interaction.reply(`✅ ${user.tag} não tem avisos.`);
     }
 
-    const list = warns
-      .map((w, i) => `**${i + 1}.** ${w.reason}`)
-      .join('\n');
+    const description = warns.map((w, i) => {
+      const date = new Date(w.date).toLocaleString('pt-BR');
 
-    await interaction.reply(`⚠️ Avisos de ${user.tag}:\n${list}`);
+      return `**${i + 1}.** 📄 Motivo: ${w.reason}
+👮 Staff: <@${w.staff}>
+📅 Data: ${date}`;
+    }).join('\n\n');
+
+    const embed = new EmbedBuilder()
+      .setTitle(`⚠️ Avisos de ${user.tag}`)
+      .setDescription(description)
+      .setColor('Orange')
+      .setFooter({ text: `Total de warns: ${warns.length}` })
+      .setTimestamp();
+
+    await interaction.reply({ embeds: [embed] });
   }
 };
