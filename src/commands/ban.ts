@@ -34,6 +34,12 @@ export default {
     }
 
     await member.ban({ reason });
+    await sendLog(interaction.guild, {
+  action: 'Banimento',
+  user,
+  staff: interaction.user,
+  reason
+});
 
     await interaction.reply(`✅ ${user.tag} foi banido.\nMotivo: ${reason}`);
   }
