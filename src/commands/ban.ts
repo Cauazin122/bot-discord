@@ -6,9 +6,6 @@ import {
   EmbedBuilder,
 } from "discord.js";
 
-
-import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
-
 export default {
   data: new SlashCommandBuilder()
     .setName('ban')
