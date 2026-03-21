@@ -35,7 +35,7 @@ export default {
 
     await member.ban({ reason });
     
-    await sendLog(interaction.guild, {
+    await sendLog(interaction.guild!, {
       action: 'Banimento',
       user,
       staff: interaction.user,
