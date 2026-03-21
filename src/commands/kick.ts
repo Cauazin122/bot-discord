@@ -33,7 +33,7 @@ export default {
 
     await member.kick(reason);
     
-    await sendLog(interaction.guild, {
+    await sendLog(interaction.guild!, {
       action: 'Expulsão',
       user,
       staff: interaction.user,
