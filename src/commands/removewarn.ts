@@ -10,6 +10,11 @@ export default {
         .setDescription('Usuário')
         .setRequired(true)
     )
+    .addIntegerOption(option =>
+      option.setName('numero')
+    .setDescription('Número do warn (opcional)')
+    .setRequired(true)
+)
     .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
 
   async execute(interaction) {
