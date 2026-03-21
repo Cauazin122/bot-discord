@@ -63,9 +63,20 @@ const count = db.warns[guildId][user.id].length;
     // Sistema automático
     if (count >= 3) {
   const member = await interaction.guild.members.fetch(user.id);
-  await member.timeout(10 * 60 * 1000);
 
-      await interaction.followUp(`🔇 ${user.tag} foi mutado automaticamente por excesso de avisos.`);
-    }
+if (count === 3) {
+  await member.timeout(10 * 60 * 1000);
+  await interaction.followUp(`🔇 ${user.tag} foi mutado (3 avisos).`);
+}
+
+if (count === 5) {
+  await member.kick(reason);
+  await interaction.followUp(`👢 ${user.tag} foi expulso (5 avisos).`);
+}
+
+if (count >= 7) {
+  await member.ban({ reason });
+  await interaction.followUp(`🔨 ${user.tag} foi banido (7 avisos).`);
+   }
   }
 };
