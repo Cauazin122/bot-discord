@@ -1,5 +1,5 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
 import { sendLog } from '../utils/logs.js';
+import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -34,6 +34,7 @@ export default {
     }
 
     await member.ban({ reason });
+    
     await sendLog(interaction.guild, {
   action: 'Banimento',
   user,
