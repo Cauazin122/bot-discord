@@ -30,6 +30,12 @@ export default {
     const ms = tempo * 60 * 1000;
 
     await member.timeout(ms);
+    await sendLog(interaction.guild, {
+  action: 'Mute',
+  user,
+  staff: interaction.user,
+  reason: `Tempo: ${tempo} minutos`
+});
 
     await interaction.reply(`🔇 ${user.tag} foi mutado por ${tempo} minutos.`);
   }
