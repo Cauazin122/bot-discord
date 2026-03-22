@@ -10,21 +10,15 @@ import {
 export default {
   data: new SlashCommandBuilder()
     .setName('config')
-    .setDescription('Painel de configurações do servidor')
+    .setDescription('Painel de configuração do bot')
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
   async execute(interaction) {
 
     const embed = new EmbedBuilder()
       .setTitle('⚙️ Painel de Configuração')
-      .setDescription(
-        'Use os botões abaixo para configurar o sistema do bot:\n\n' +
-        '🔗 **Anti-Link**\n' +
-        '🚫 **Anti-Spam**\n' +
-        '📜 **Logs**'
-      )
-      .setColor('Blue')
-      .setFooter({ text: 'Sistema de configuração' });
+      .setDescription('Escolha uma opção abaixo:')
+      .setColor('Blue');
 
     const row = new ActionRowBuilder<ButtonBuilder>()
       .addComponents(
@@ -34,13 +28,18 @@ export default {
           .setStyle(ButtonStyle.Primary),
 
         new ButtonBuilder()
-          .setCustomId('config_antispam')
-          .setLabel('Anti-Spam')
+          .setCustomId('config_logs')
+          .setLabel('Logs')
           .setStyle(ButtonStyle.Secondary),
 
         new ButtonBuilder()
-          .setCustomId('config_logs')
-          .setLabel('Logs')
+          .setCustomId('config_antispam')
+          .setLabel('Anti-Spam')
+          .setStyle(ButtonStyle.Danger),
+
+        new ButtonBuilder()
+          .setCustomId('config_automod')
+          .setLabel('AutoMod')
           .setStyle(ButtonStyle.Success)
       );
 
