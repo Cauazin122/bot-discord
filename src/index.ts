@@ -14,6 +14,7 @@ import { handleButtonInteraction } from "./events/buttonCreate.js";
 import { handleSelectMenuInteraction } from "./events/selectMenuCreate.js";
 import { handleClaimTicketInteraction } from "./events/claimTicketCreate.js";
 import antiSpam from "./events/antiSpam.js";
+import antiLink from "./events/antiLink.js";
 
 const app = express();
 const PORT = 3000;
@@ -95,5 +96,8 @@ client.on("interactionCreate", async (interaction) => {
 
 import antiSpam from "./events/antiSpam.js";
 client.on(antiSpam.name, (...args) => antiSpam.execute(...args));
+
+import antiLink from "./events/antiLink.js";
+client.on(antiLink.name, (...args) => antiLink.execute(...args));
 
 client.login(token);
