@@ -80,45 +80,47 @@ export default {
       // 🔗 ANTI LINK
       if (interaction.customId === 'select_antilink') {
 
-        if (!db.antiLink[guildId]) db.antiLink[guildId] = [];
+  if (!db.antiLink[guildId]) db.antiLink[guildId] = [];
 
-        if (interaction.values[0] === 'on') {
-          if (!db.antiLink[guildId].includes(channelId)) {
-            db.antiLink[guildId].push(channelId);
-          }
-        } else {
-          db.antiLink[guildId] =
-            db.antiLink[guildId].filter(id => id !== channelId);
-        }
+  if (interaction.values[0] === 'on') {
+    if (!db.antiLink[guildId].includes(channelId)) {
+      db.antiLink[guildId].push(channelId);
+    }
+  } else {
+    db.antiLink[guildId] =
+      db.antiLink[guildId].filter(id => id !== channelId);
+  }
 
-        writeDB(db);
+  writeDB(db);
 
-        // 🔥 CORREÇÃO AQUI
-        return interaction.update({
-          content: '✅ Configuração salva.',
-          embeds: [],
-          components: []
-        });
-      }
+  // 🔥 CORREÇÃO
+  await interaction.deferUpdate();
+
+  return interaction.followUp({
+    content: '✅ Anti-Link atualizado com sucesso.',
+    ephemeral: true
+  });
+}
 
       // 📜 LOGS
       if (interaction.customId === 'select_logs') {
 
-        if (interaction.values[0] === 'set') {
-          db.logs[guildId] = channelId;
-        } else {
-          delete db.logs[guildId];
-        }
+  if (interaction.values[0] === 'set') {
+    db.logs[guildId] = channelId;
+  } else {
+    delete db.logs[guildId];
+  }
 
-        writeDB(db);
+  writeDB(db);
 
-        // 🔥 CORREÇÃO AQUI
-        return interaction.update({
-          content: '✅ Configuração de logs atualizada.',
-          embeds: [],
-          components: []
-        });
-      }
+  // 🔥 CORREÇÃO
+  await interaction.deferUpdate();
+
+  return interaction.followUp({
+    content: '✅ Sistema de logs atualizado.',
+    ephemeral: true
+  });
+}
     }
   }
 };
