@@ -14,7 +14,6 @@ import * as helpadm from "./helpadm.js";
 import removewarn from "./removewarn.js";
 import warns from "./warns.js";
 import antilink from "./antilink.js";
-import config from "./config.js";
 import * as unmute from "./unmute.js";
 
 export interface Command {
@@ -38,6 +37,5 @@ export const commands: Record<string, Command> = {
   removewarn,
   warns,
   antilink,
-  config,
   unmute
 };
