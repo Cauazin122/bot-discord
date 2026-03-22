@@ -16,6 +16,9 @@ import { handleClaimTicketInteraction } from "./events/claimTicketCreate.js";
 import antiSpam from "./events/antiSpam.js";
 import antiLink from "./events/antiLink.js";
 
+// 🔥 ADICIONADO
+import configPanel from "./events/configPanel.js";
+
 const app = express();
 const PORT = 3000;
 
@@ -39,20 +42,19 @@ const client = new Client({
   ],
 });
 
-// ✅ Evento correto é 'ready'
+// ✅ READY
 client.once("ready", async () => {
   console.log(`✅ Conectado como ${client.user?.tag}`);
   console.log(`📡 Servindo ${client.guilds.cache.size} servidor(es)`);
 
-  // Evita crash se algum comando estiver undefined
   const commandData = Object.values(commands)
-    .filter(cmd => cmd.data)       // filtra comandos sem .data
+    .filter(cmd => cmd.data)
     .map(cmd => cmd.data.toJSON());
 
   try {
     const rest = new REST().setToken(token);
     await rest.put(Routes.applicationCommands(client.user!.id), { body: commandData });
-    console.log(`🔧 Registrados ${commandData.length} comando(s) slash global(ais)`);
+    console.log(`🔧 Registrados ${commandData.length} comando(s)`);
   } catch (err) {
     console.error("Falha ao registrar comandos slash:", err);
   }
@@ -72,18 +74,42 @@ client.once("ready", async () => {
       activities: [{ name: statuses[statusIndex].text, type: statuses[statusIndex].type }],
       status: "online",
     });
+
     statusIndex = (statusIndex + 1) % statuses.length;
   }, 10000);
 });
 
+// ✅ INTERAÇÕES (CORRIGIDO)
 client.on("interactionCreate", async (interaction) => {
+
+  // 🔥 SELECT MENU
   if (interaction.isStringSelectMenu()) {
-    await handleSelectMenuInteraction(interaction as StringSelectMenuInteraction);
-  } else if (interaction.isButton()) {
+
+    // 👉 CONFIG PANEL (ANTES DO RESTO)
+    if (interaction.customId.startsWith('select_')) {
+      return configPanel.execute(interaction);
+    }
+
+    return handleSelectMenuInteraction(
+      interaction as StringSelectMenuInteraction
+    );
+  }
+
+  // 🔘 BOTÕES
+  else if (interaction.isButton()) {
+
+    // 👉 CONFIG PANEL
+    if (interaction.customId.startsWith('config_')) {
+      return configPanel.execute(interaction);
+    }
+
     await handleClaimTicketInteraction(interaction as ButtonInteraction);
-    await handleButtonInteraction(interaction as ButtonInteraction);
-  } else {
-    await handleInteraction(interaction, commands);
+    return handleButtonInteraction(interaction as ButtonInteraction);
+  }
+
+  // 💬 COMANDOS
+  else {
+    return handleInteraction(interaction, commands);
   }
 });
 
