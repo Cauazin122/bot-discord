@@ -3,5 +3,6 @@
   "warns":{},
   "antiLink": {},
   "logs": {},
-  "antiSpam":{}
+  "antiSpam":{},
+  "autoMod": {}
 }
