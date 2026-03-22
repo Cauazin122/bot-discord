@@ -66,11 +66,29 @@ export default {
         }
 
         if (interaction.customId === 'config_antispam') {
-          return interaction.reply({
-            content: '🚧 Anti-Spam em desenvolvimento...',
-            ephemeral: true
-          });
-        }
+
+  const embed = new EmbedBuilder()
+    .setTitle('🚫 Anti-Spam')
+    .setDescription('Ative ou desative o sistema anti-spam.')
+    .setColor('Red');
+
+  const row = new ActionRowBuilder<StringSelectMenuBuilder>()
+    .addComponents(
+      new StringSelectMenuBuilder()
+        .setCustomId('select_antispam')
+        .setPlaceholder('Escolha uma opção')
+        .addOptions([
+          { label: 'Ativar', value: 'on' },
+          { label: 'Desativar', value: 'off' }
+        ])
+    );
+
+  return interaction.reply({
+    embeds: [embed],
+    components: [row],
+    ephemeral: true
+  });
+}
       }
 
       // ================= SELECT =================
@@ -107,6 +125,27 @@ export default {
             ephemeral: true
           });
         }
+
+        // 🚫 ANTI SPAM
+if (interaction.customId === 'select_antispam') {
+
+  if (!db.antiSpam) db.antiSpam = {};
+
+  if (interaction.values[0] === 'on') {
+    db.antiSpam[guildId] = { enabled: true };
+  } else {
+    db.antiSpam[guildId] = { enabled: false };
+  }
+
+  writeDB(db);
+
+  await interaction.deferUpdate();
+
+  return interaction.followUp({
+    content: '✅ Anti-Spam atualizado.',
+    ephemeral: true
+  });
+}
 
         // 📜 LOGS
         if (interaction.customId === 'select_logs') {
