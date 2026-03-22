@@ -24,7 +24,7 @@ export default {
 
   async execute(interaction) {
     const user = interaction.options.getUser('usuario');
-    const reason = interaction.options.getString('motivo') || 'Não informado'
+    const reason = interaction.options.getString('motivo');
     const time = interaction.options.getInteger('tempo');
 
     const member = interaction.guild.members.cache.get(user.id);
