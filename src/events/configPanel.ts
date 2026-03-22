@@ -14,7 +14,6 @@ export default {
     // ================= BOTÕES =================
     if (interaction.isButton()) {
 
-      // 🔗 ANTI LINK
       if (interaction.customId === 'config_antilink') {
 
         const embed = new EmbedBuilder()
@@ -39,7 +38,6 @@ export default {
         });
       }
 
-      // 📜 LOGS
       if (interaction.customId === 'config_logs') {
 
         const embed = new EmbedBuilder()
@@ -64,7 +62,6 @@ export default {
         });
       }
 
-      // 🚫 ANTI SPAM (placeholder)
       if (interaction.customId === 'config_antispam') {
         return interaction.reply({
           content: '🚧 Anti-Spam em desenvolvimento...',
@@ -96,9 +93,11 @@ export default {
 
         writeDB(db);
 
-        return interaction.reply({
+        // 🔥 CORREÇÃO AQUI
+        return interaction.update({
           content: '✅ Configuração salva.',
-          ephemeral: true
+          embeds: [],
+          components: []
         });
       }
 
@@ -113,9 +112,11 @@ export default {
 
         writeDB(db);
 
-        return interaction.reply({
+        // 🔥 CORREÇÃO AQUI
+        return interaction.update({
           content: '✅ Configuração de logs atualizada.',
-          ephemeral: true
+          embeds: [],
+          components: []
         });
       }
     }
