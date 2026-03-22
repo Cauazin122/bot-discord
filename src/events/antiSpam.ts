@@ -30,7 +30,7 @@ export default {
 
       await member.timeout(5 * 60 * 1000);
 
-      await message.channel.send(`🚫 ${message.author} foi mutado por spam.`);
+      await message.reply('🚫 Você foi mutado por spam.');
 
       // limpa histórico pra não mutar várias vezes
       messages.set(userId, []);
