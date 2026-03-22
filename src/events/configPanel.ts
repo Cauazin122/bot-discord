@@ -30,9 +30,22 @@ if (interaction.isButton()) {
 
   // 📜 LOGS (TEMPORÁRIO)
   if (interaction.customId === 'config_logs') {
-    return interaction.reply({
-      content: '⚠️ Configuração de Logs ainda não implementada.',
-      ephemeral: true
-    });
+  const row = new ActionRowBuilder<StringSelectMenuBuilder>()
+    .addComponents(
+      new StringSelectMenuBuilder()
+        .setCustomId('select_logs')
+        .setPlaceholder('Escolha uma opção')
+        .addOptions([
+          { label: 'Definir este canal como logs', value: 'set' },
+          { label: 'Remover canal de logs', value: 'remove' },
+        ])
+    );
+
+  return interaction.reply({
+    content: '📜 Configurar logs:',
+    components: [row],
+    ephemeral: true
+  });
+   }
   }
 }
