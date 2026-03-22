@@ -2,6 +2,14 @@ import { readDB, writeDB } from './database.js';
 import { sendLog } from './logs.js';
 
 export async function addWarnAuto(member, reason, staff) {
+
+  // 🔥 IGNORA STAFF
+  if (
+    member.permissions.has('Administrator') ||
+    member.permissions.has('ManageMessages') ||
+    member.permissions.has('KickMembers')
+  ) return;
+
   const db = readDB();
   const guildId = member.guild.id;
   const userId = member.id;
@@ -31,6 +39,7 @@ export async function addWarnAuto(member, reason, staff) {
     reason: `${reason} (Total: ${total})`
   });
 
+  // 🔇 MUTE
   if (total === config.mute) {
     await member.timeout(10 * 60 * 1000);
 
@@ -42,8 +51,9 @@ export async function addWarnAuto(member, reason, staff) {
     });
   }
 
+  // 👢 KICK
   if (total === config.kick) {
-    await member.kick();
+    await member.kick('Limite de warns atingido');
 
     await sendLog(member.guild, {
       action: 'Auto Kick',
