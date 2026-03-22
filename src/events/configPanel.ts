@@ -4,7 +4,7 @@ import {
   EmbedBuilder
 } from 'discord.js';
 
-import { readDB, writeDB } from '../utils/database';
+import { readDB, writeDB } from '../utils/database.js';
 
 export default {
   name: 'interactionCreate',
@@ -15,46 +15,38 @@ export default {
       // ================= BOTÕES =================
       if (interaction.isButton()) {
 
-        if (interaction.customId === 'config_antilink') {
+        // ⚙️ AUTOMOD
+        if (interaction.customId === 'config_automod') {
+
+          const db = readDB();
+          const guildId = interaction.guild.id;
+
+          if (!db.autoMod) db.autoMod = {};
+
+          const config = db.autoMod[guildId] || {
+            mute: 3,
+            kick: 5
+          };
 
           const embed = new EmbedBuilder()
-            .setTitle('🔗 Anti-Link')
-            .setDescription('Ative ou desative o anti-link neste canal.')
-            .setColor('Blue');
-
-          const row = new ActionRowBuilder<StringSelectMenuBuilder>()
-            .addComponents(
-              new StringSelectMenuBuilder()
-                .setCustomId('select_antilink')
-                .setPlaceholder('Escolha uma opção')
-                .addOptions([
-                  { label: 'Ativar', value: 'on' },
-                  { label: 'Desativar', value: 'off' }
-                ])
-            );
-
-          return interaction.reply({
-            embeds: [embed],
-            components: [row],
-            ephemeral: true
-          });
-        }
-
-        if (interaction.customId === 'config_logs') {
-
-          const embed = new EmbedBuilder()
-            .setTitle('📜 Sistema de Logs')
-            .setDescription('Configure o canal de logs.')
+            .setTitle('⚙️ AutoMod')
+            .setDescription(
+              `Configure as punições automáticas:\n\n🔇 Mute: ${config.mute} warns\n👢 Kick: ${config.kick} warns`
+            )
             .setColor('Green');
 
           const row = new ActionRowBuilder<StringSelectMenuBuilder>()
             .addComponents(
               new StringSelectMenuBuilder()
-                .setCustomId('select_logs')
+                .setCustomId('select_automod')
                 .setPlaceholder('Escolha uma opção')
                 .addOptions([
-                  { label: 'Definir canal atual', value: 'set' },
-                  { label: 'Remover canal', value: 'remove' }
+                  { label: 'Mute: 3 warns', value: 'mute_3' },
+                  { label: 'Mute: 5 warns', value: 'mute_5' },
+                  { label: 'Mute: 7 warns', value: 'mute_7' },
+                  { label: 'Kick: 5 warns', value: 'kick_5' },
+                  { label: 'Kick: 7 warns', value: 'kick_7' },
+                  { label: 'Kick: 10 warns', value: 'kick_10' }
                 ])
             );
 
@@ -64,96 +56,30 @@ export default {
             ephemeral: true
           });
         }
-
-        if (interaction.customId === 'config_antispam') {
-
-  const embed = new EmbedBuilder()
-    .setTitle('🚫 Anti-Spam')
-    .setDescription('Ative ou desative o sistema anti-spam.')
-    .setColor('Red');
-
-  const row = new ActionRowBuilder<StringSelectMenuBuilder>()
-    .addComponents(
-      new StringSelectMenuBuilder()
-        .setCustomId('select_antispam')
-        .setPlaceholder('Escolha uma opção')
-        .addOptions([
-          { label: 'Ativar', value: 'on' },
-          { label: 'Desativar', value: 'off' }
-        ])
-    );
-
-  return interaction.reply({
-    embeds: [embed],
-    components: [row],
-    ephemeral: true
-  });
-}
       }
 
       // ================= SELECT =================
       if (interaction.isStringSelectMenu()) {
 
         const db = readDB();
-
-        if (!db.antiLink) db.antiLink = {};
-        if (!db.logs) db.logs = {};
-
         const guildId = interaction.guild.id;
-        const channelId = interaction.channel.id;
 
-        // 🔗 ANTI LINK
-        if (interaction.customId === 'select_antilink') {
-
-          if (!db.antiLink[guildId]) db.antiLink[guildId] = [];
-
-          if (interaction.values[0] === 'on') {
-            if (!db.antiLink[guildId].includes(channelId)) {
-              db.antiLink[guildId].push(channelId);
-            }
-          } else {
-            db.antiLink[guildId] =
-              db.antiLink[guildId].filter(id => id !== channelId);
-          }
-
-          writeDB(db);
-
-          await interaction.deferUpdate();
-
-          return interaction.followUp({
-            content: '✅ Anti-Link atualizado com sucesso.',
-            ephemeral: true
-          });
+        if (!db.autoMod) db.autoMod = {};
+        if (!db.autoMod[guildId]) {
+          db.autoMod[guildId] = { mute: 3, kick: 5 };
         }
 
-        // 🚫 ANTI SPAM
-if (interaction.customId === 'select_antispam') {
+        // ⚙️ AUTOMOD
+        if (interaction.customId === 'select_automod') {
 
-  if (!db.antiSpam) db.antiSpam = {};
+          const value = interaction.values[0];
 
-  if (interaction.values[0] === 'on') {
-    db.antiSpam[guildId] = { enabled: true };
-  } else {
-    db.antiSpam[guildId] = { enabled: false };
-  }
+          if (value.startsWith('mute')) {
+            db.autoMod[guildId].mute = parseInt(value.split('_')[1]);
+          }
 
-  writeDB(db);
-
-  await interaction.deferUpdate();
-
-  return interaction.followUp({
-    content: '✅ Anti-Spam atualizado.',
-    ephemeral: true
-  });
-}
-
-        // 📜 LOGS
-        if (interaction.customId === 'select_logs') {
-
-          if (interaction.values[0] === 'set') {
-            db.logs[guildId] = channelId;
-          } else {
-            delete db.logs[guildId];
+          if (value.startsWith('kick')) {
+            db.autoMod[guildId].kick = parseInt(value.split('_')[1]);
           }
 
           writeDB(db);
@@ -161,7 +87,7 @@ if (interaction.customId === 'select_antispam') {
           await interaction.deferUpdate();
 
           return interaction.followUp({
-            content: '✅ Sistema de logs atualizado.',
+            content: `✅ AutoMod atualizado!\n🔇 Mute: ${db.autoMod[guildId].mute}\n👢 Kick: ${db.autoMod[guildId].kick}`,
             ephemeral: true
           });
         }
@@ -171,12 +97,10 @@ if (interaction.customId === 'select_antispam') {
       console.error('Erro no configPanel:', err);
 
       if (!interaction.replied) {
-        try {
-          await interaction.reply({
-            content: '❌ Ocorreu um erro.',
-            ephemeral: true
-          });
-        } catch {}
+        await interaction.reply({
+          content: '❌ Ocorreu um erro.',
+          ephemeral: true
+        });
       }
     }
   }
