@@ -58,7 +58,7 @@ client.once("clientReady", async (c) => {
 
     // 🔥 USE ISSO PRA TESTE (ATUALIZA NA HORA)
     await rest.put(
-      Routes.applicationGuildCommands(c.user.id, "SEU_SERVER_ID_AQUI"),
+      Routes.applicationGuildCommands(c.user.id, "1074821077303304292"),
       { body: commandData }
     );
 
