@@ -1,53 +1,26 @@
 import { EmbedBuilder } from 'discord.js';
-import { readDB } from './database';
+
+const logChannels = {
+  "1475319429322510418": "1483071071627378718",
+  "1074821077303304292": "1463602167460921547"
+};
 
 export async function sendLog(guild, data) {
-  try {
-    const db = readDB();
+  const channelId = logChannels[guild.id];
+  if (!channelId) return;
 
-    const channelId = db.logs?.[guild.id];
-    if (!channelId) return;
+  const channel = guild.channels.cache.get(channelId);
+  if (!channel) return;
 
-    const channel = guild.channels.cache.get(channelId);
-    if (!channel) return;
+  const embed = new EmbedBuilder()
+    .setTitle(`📋 ${data.action}`)
+    .addFields(
+      { name: '👤 Usuário', value: `${data.user.tag} (${data.user.id})` },
+      { name: '🛡️ Staff', value: `${data.staff.tag}` },
+      { name: '📄 Motivo', value: data.reason }
+    )
+    .setColor('Red')
+    .setTimestamp();
 
-    // 📋 Campos padrão
-    const fields = [
-      {
-        name: '👤 Usuário',
-        value: `${data.user.tag} (${data.user.id})`,
-        inline: false
-      },
-      {
-        name: '🛡️ Staff',
-        value: `${data.staff.tag}`,
-        inline: false
-      },
-      {
-        name: '📄 Motivo',
-        value: data.reason || 'Não informado',
-        inline: false
-      }
-    ];
-
-    // ⏱️ Campo de tempo (se existir)
-    if (data.time) {
-      fields.push({
-        name: '⏱️ Tempo',
-        value: data.time,
-        inline: false
-      });
-    }
-
-    const embed = new EmbedBuilder()
-      .setTitle(`📋 ${data.action}`)
-      .addFields(fields)
-      .setColor('Red')
-      .setTimestamp();
-
-    await channel.send({ embeds: [embed] });
-
-  } catch (err) {
-    console.error('Erro ao enviar log:', err);
-  }
+  await channel.send({ embeds: [embed] });
 }
