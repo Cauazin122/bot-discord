@@ -26,6 +26,8 @@ export default {
     if (msgCount >= 5) {
       const member = message.member;
 
+      if (member.permissions.has('ManageMessages')) return;
+
       if (!member.moderatable) return;
 
       await member.timeout(5 * 60 * 1000);
