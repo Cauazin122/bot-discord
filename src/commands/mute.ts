@@ -39,13 +39,17 @@ export default {
 
     await member.timeout(time * 60 * 1000, reason);
 
-    await interaction.reply(`🔇 ${user.tag} foi mutado por ${time} minutos.`);
+    // ✅ RESPOSTA MELHORADA
+    await interaction.reply(
+      `🔇 ${user.tag} foi mutado por ${time} minutos.\n📄 Motivo: ${reason}`
+    );
 
+    // ✅ LOG COM TEMPO
     await sendLog(interaction.guild, {
       action: 'Usuário mutado',
       user,
       staff: interaction.user,
-      reason
+      reason: `${reason} | Tempo: ${time} min`
     });
   }
 };
