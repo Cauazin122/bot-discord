@@ -1,10 +1,14 @@
-import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
-import { readDB } from '../utils/database';
+import {
+  SlashCommandBuilder,
+  EmbedBuilder
+} from 'discord.js';
+
+import { readDB } from '../utils/database.js';
 
 export default {
   data: new SlashCommandBuilder()
     .setName('warns')
-    .setDescription('Ver avisos de um usuário')
+    .setDescription('Ver os avisos de um usuário')
     .addUserOption(option =>
       option.setName('usuario')
         .setDescription('Usuário')
@@ -13,28 +17,34 @@ export default {
 
   async execute(interaction) {
     const user = interaction.options.getUser('usuario');
-    const db = readDB();
     const guildId = interaction.guild.id;
 
-    const warns = db.warns[guildId]?.[user.id] || [];
+    const db = readDB();
+
+    const warns = db.warns?.[guildId]?.[user.id] || [];
+    const config = db.autoMod?.[guildId] || { mute: 3, kick: 5 };
 
     if (warns.length === 0) {
-      return interaction.reply(`✅ ${user.tag} não tem avisos.`);
+      return interaction.reply({
+        content: '❌ Esse usuário não possui warns.',
+        ephemeral: true
+      });
     }
 
-    const description = warns.map((w, i) => {
-      const date = new Date(w.date).toLocaleString('pt-BR');
-
-      return `**${i + 1}.** 📄 Motivo: ${w.reason}
-👮 Staff: <@${w.staff}>
-📅 Data: ${date}`;
-    }).join('\n\n');
+    const description = warns
+      .map((w, i) =>
+        `**${i + 1}.** 📄 Motivo: ${w.reason}\n👮 Staff: ${w.staff}\n📅 ${w.date}`
+      )
+      .join('\n\n');
 
     const embed = new EmbedBuilder()
-      .setTitle(`⚠️ Avisos de ${user.tag}`)
+      .setTitle(`⚠️ Avisos de ${user.username}`)
       .setDescription(description)
+      .addFields({
+        name: '⚙️ AutoMod',
+        value: `🔇 Mute: ${config.mute} warns\n👢 Kick: ${config.kick} warns`
+      })
       .setColor('Orange')
-      .setFooter({ text: `Total de warns: ${warns.length}` })
       .setTimestamp();
 
     await interaction.reply({ embeds: [embed] });
