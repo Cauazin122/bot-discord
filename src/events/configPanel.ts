@@ -79,9 +79,14 @@ export default {
       // ================= SELECT =================
       if (interaction.isStringSelectMenu()) {
 
-        const db = readDB();
-        const guildId = interaction.guild.id;
-        const channelId = interaction.channel.id;
+  const db = readDB();
+
+  // 🔥 CORREÇÃO PRINCIPAL
+  if (!db.antiLink) db.antiLink = {};
+  if (!db.logs) db.logs = {};
+
+  const guildId = interaction.guild.id;
+  const channelId = interaction.channel.id;
 
         // 🔗 ANTI LINK
         if (interaction.customId === 'select_antilink') {
