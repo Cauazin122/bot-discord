@@ -1,41 +1,60 @@
-const messages = new Map();
+import { readDB, writeDB } from '../utils/database';
+
+const userMessages = new Map();
 
 export default {
   name: 'messageCreate',
 
   async execute(message) {
-    if (message.author.bot) return;
+    if (!message.guild || message.author.bot) return;
 
-    const userId = message.author.id;
+    const db = readDB();
+
+    // Se não tiver config, cria
+    if (!db.antiSpam) db.antiSpam = {};
+
+    const guildId = message.guild.id;
+
+    // Se anti-spam não estiver ativo
+    if (!db.antiSpam[guildId]?.enabled) return;
+
+    // Ignorar staff
+    if (message.member.permissions.has('Administrator')) return;
+
     const now = Date.now();
+    const userId = message.author.id;
 
-    if (!messages.has(userId)) {
-      messages.set(userId, []);
+    if (!userMessages.has(userId)) {
+      userMessages.set(userId, []);
     }
 
-    const userMessages = messages.get(userId);
+    const timestamps = userMessages.get(userId);
 
-    userMessages.push(now);
+    // Remove mensagens antigas (5s)
+    const filtered = timestamps.filter(time => now - time < 5000);
 
-    // remove mensagens antigas (5 segundos)
-    messages.set(userId, userMessages.filter(t => now - t < 5000));
+    filtered.push(now);
+    userMessages.set(userId, filtered);
 
-    const msgCount = messages.get(userId).length;
+    // Se mandou 5 mensagens em 5 segundos
+    if (filtered.length >= 5) {
 
-    // 🚨 SPAM DETECTADO
-    if (msgCount >= 5) {
-      const member = message.member;
+      try {
+        // Deleta mensagens
+        await message.channel.bulkDelete(5, true);
 
-      if (member.permissions.has('ManageMessages')) return;
+        // Timeout 10 minutos
+        await message.member.timeout(10 * 60 * 1000, 'Spam');
 
-      if (!member.moderatable) return;
+        message.channel.send({
+          content: `🚫 ${message.author}, você foi mutado por spam.`,
+        });
 
-      await member.timeout(5 * 60 * 1000);
+      } catch (err) {
+        console.error('Erro anti-spam:', err);
+      }
 
-      await message.reply('🚫 Você foi mutado por spam.');
-
-      // limpa histórico pra não mutar várias vezes
-      messages.set(userId, []);
+      userMessages.delete(userId);
     }
   }
 };
