@@ -1,11 +1,22 @@
 import fs from 'fs';
+import path from 'path';
 
-const path = './src/database.json';
+const dbPath = path.join(process.cwd(), 'src', 'database.json');
 
 export function readDB() {
-  return JSON.parse(fs.readFileSync(path, 'utf8'));
+  if (!fs.existsSync(dbPath)) {
+    return {
+      avaliacoes: [],
+      warns: {},
+      antiLink: {},
+      logs: {}
+    };
+  }
+
+  const data = fs.readFileSync(dbPath, 'utf8');
+  return JSON.parse(data);
 }
 
 export function writeDB(data) {
-  fs.writeFileSync(path, JSON.stringify(data, null, 2));
+  fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
 }
