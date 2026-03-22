@@ -3,43 +3,49 @@ import { sendLog } from '../utils/logs';
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('kick')
-    .setDescription('Expulsar um membro')
+    .setName('mute')
+    .setDescription('Mutar um usuário')
     .addUserOption(option =>
       option.setName('usuario')
-        .setDescription('Usuário a ser expulso')
+        .setDescription('Usuário')
+        .setRequired(true)
+    )
+    .addIntegerOption(option =>
+      option.setName('tempo')
+        .setDescription('Tempo em minutos')
         .setRequired(true)
     )
     .addStringOption(option =>
       option.setName('motivo')
-        .setDescription('Motivo do kick')
+        .setDescription('Motivo do mute')
         .setRequired(true)
     )
-    .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers),
+    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
 
   async execute(interaction) {
     const user = interaction.options.getUser('usuario');
+    const time = interaction.options.getInteger('tempo');
     const reason = interaction.options.getString('motivo');
 
-    const member = await interaction.guild.members.fetch(user.id).catch(() => null);
+    const member = interaction.guild.members.cache.get(user.id);
 
     if (!member) {
       return interaction.reply({ content: 'Usuário não encontrado.', ephemeral: true });
     }
 
-    if (!member.kickable) {
-      return interaction.reply({ content: 'Não posso expulsar esse usuário.', ephemeral: true });
+    if (!member.moderatable) {
+      return interaction.reply({ content: 'Não posso mutar esse usuário.', ephemeral: true });
     }
 
-    await member.kick(reason);
-    
-    await sendLog(interaction.guild!, {
-      action: 'Expulsão',
+    await member.timeout(time * 60 * 1000, reason);
+
+    await interaction.reply(`🔇 ${user.tag} foi mutado por ${time} minutos.`);
+
+    await sendLog(interaction.guild, {
+      action: 'Usuário mutado',
       user,
       staff: interaction.user,
       reason
- });
-
-    await interaction.reply(`👢 ${user.tag} foi expulso.\nMotivo: ${reason}`);
+    });
   }
 };
