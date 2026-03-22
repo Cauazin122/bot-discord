@@ -20,6 +20,7 @@ export default {
       if (!db.antiLink) db.antiLink = {};
       if (!db.logs) db.logs = {};
       if (!db.autoMod) db.autoMod = {};
+      if (!db.antispam) db.antispam = {};
 
       if (!db.autoMod[guildId]) {
         db.autoMod[guildId] = { mute: 3, kick: 5 };
@@ -45,6 +46,7 @@ export default {
             .addComponents(
               new StringSelectMenuBuilder()
                 .setCustomId('select_antilink')
+                .setPlaceholder('Escolha uma opção')
                 .addOptions([
                   { label: 'Ativar', value: 'on' },
                   { label: 'Desativar', value: 'off' }
@@ -74,9 +76,40 @@ export default {
             .addComponents(
               new StringSelectMenuBuilder()
                 .setCustomId('select_logs')
+                .setPlaceholder('Escolha uma opção')
                 .addOptions([
                   { label: 'Definir canal atual', value: 'set' },
                   { label: 'Remover canal', value: 'remove' }
+                ])
+            );
+
+          return interaction.reply({
+            embeds: [embed],
+            components: [row],
+            ephemeral: true
+          });
+        }
+
+        // 🚫 ANTI SPAM
+        if (interaction.customId === 'config_antispam') {
+
+          const isActive = db.antispam[guildId] === true;
+
+          const embed = new EmbedBuilder()
+            .setTitle('🚫 Anti-Spam')
+            .setDescription(
+              `Status: **${isActive ? '🟢 ATIVO' : '🔴 DESATIVADO'}**`
+            )
+            .setColor('Red');
+
+          const row = new ActionRowBuilder<StringSelectMenuBuilder>()
+            .addComponents(
+              new StringSelectMenuBuilder()
+                .setCustomId('select_antispam')
+                .setPlaceholder('Escolha uma opção')
+                .addOptions([
+                  { label: 'Ativar', value: 'on' },
+                  { label: 'Desativar', value: 'off' }
                 ])
             );
 
@@ -103,11 +136,14 @@ export default {
             .addComponents(
               new StringSelectMenuBuilder()
                 .setCustomId('select_automod')
+                .setPlaceholder('Escolha uma opção')
                 .addOptions([
-                  { label: 'Mute: 3', value: 'mute_3' },
-                  { label: 'Mute: 5', value: 'mute_5' },
-                  { label: 'Kick: 5', value: 'kick_5' },
-                  { label: 'Kick: 7', value: 'kick_7' }
+                  { label: 'Mute: 3 warns', value: 'mute_3' },
+                  { label: 'Mute: 5 warns', value: 'mute_5' },
+                  { label: 'Mute: 7 warns', value: 'mute_7' },
+                  { label: 'Kick: 5 warns', value: 'kick_5' },
+                  { label: 'Kick: 7 warns', value: 'kick_7' },
+                  { label: 'Kick: 10 warns', value: 'kick_10' }
                 ])
             );
 
@@ -165,6 +201,21 @@ export default {
           });
         }
 
+        // 🚫 ANTI SPAM
+        if (interaction.customId === 'select_antispam') {
+
+          db.antispam[guildId] = interaction.values[0] === 'on';
+
+          writeDB(db);
+
+          await interaction.deferUpdate();
+
+          return interaction.followUp({
+            content: `✅ Anti-Spam ${db.antispam[guildId] ? 'ativado' : 'desativado'}!`,
+            ephemeral: true
+          });
+        }
+
         // ⚙️ AUTOMOD
         if (interaction.customId === 'select_automod') {
 
@@ -190,7 +241,7 @@ export default {
       }
 
     } catch (err) {
-      console.error(err);
+      console.error('Erro no configPanel:', err);
 
       if (!interaction.replied) {
         await interaction.reply({
