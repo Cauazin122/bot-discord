@@ -21,18 +21,14 @@ export default {
           const db = readDB();
           const guildId = interaction.guild.id;
 
-          if (!db.autoMod) db.autoMod = {};
-
-          const config = db.autoMod[guildId] || {
+          const config = db.autoMod?.[guildId] || {
             mute: 3,
             kick: 5
           };
 
           const embed = new EmbedBuilder()
             .setTitle('⚙️ AutoMod')
-            .setDescription(
-              `Configure as punições automáticas:\n\n🔇 Mute: ${config.mute} warns\n👢 Kick: ${config.kick} warns`
-            )
+            .setDescription(`Configure os warns automáticos\n\n🔇 Mute: ${config.mute}\n👢 Kick: ${config.kick}`)
             .setColor('Green');
 
           const row = new ActionRowBuilder<StringSelectMenuBuilder>()
@@ -43,10 +39,8 @@ export default {
                 .addOptions([
                   { label: 'Mute: 3 warns', value: 'mute_3' },
                   { label: 'Mute: 5 warns', value: 'mute_5' },
-                  { label: 'Mute: 7 warns', value: 'mute_7' },
                   { label: 'Kick: 5 warns', value: 'kick_5' },
-                  { label: 'Kick: 7 warns', value: 'kick_7' },
-                  { label: 'Kick: 10 warns', value: 'kick_10' }
+                  { label: 'Kick: 7 warns', value: 'kick_7' }
                 ])
             );
 
@@ -87,18 +81,18 @@ export default {
           await interaction.deferUpdate();
 
           return interaction.followUp({
-            content: `✅ AutoMod atualizado!\n🔇 Mute: ${db.autoMod[guildId].mute}\n👢 Kick: ${db.autoMod[guildId].kick}`,
+            content: '✅ AutoMod atualizado!',
             ephemeral: true
           });
         }
       }
 
     } catch (err) {
-      console.error('Erro no configPanel:', err);
+      console.error(err);
 
       if (!interaction.replied) {
         await interaction.reply({
-          content: '❌ Ocorreu um erro.',
+          content: '❌ Erro no painel.',
           ephemeral: true
         });
       }
