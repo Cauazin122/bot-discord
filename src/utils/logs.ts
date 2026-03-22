@@ -12,12 +12,17 @@ export async function sendLog(guild, data) {
   const channel = guild.channels.cache.get(channelId);
   if (!channel) return;
 
+  const isMute = data.action === 'Mute';
+
   const embed = new EmbedBuilder()
     .setTitle(`📋 ${data.action}`)
     .addFields(
       { name: '👤 Usuário', value: `${data.user.tag} (${data.user.id})` },
       { name: '🛡️ Staff', value: `${data.staff.tag}` },
-      { name: '📄 Motivo', value: data.reason || 'Não informado' }
+      {
+        name: isMute ? '⏱️ Tempo' : '📄 Motivo',
+        value: data.reason
+      }
     )
     .setColor('Red')
     .setTimestamp();
