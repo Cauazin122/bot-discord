@@ -1,63 +1,50 @@
-import { readDB } from '../utils/database';
+import { addWarnAuto } from '../utils/autoMod.js';
 
-const userMessages = new Map();
+const messageMap = new Map();
 
 export default {
   name: 'messageCreate',
 
   async execute(message) {
-    if (!message.guild || message.author.bot) return;
+    if (!message.guild) return;
+    if (message.author.bot) return;
 
-    console.log('📩 Mensagem recebida:', message.content);
-
-    const db = readDB();
-
-    if (!db.antiSpam) db.antiSpam = {};
-
-    const guildId = message.guild.id;
-
-    // 🔥 DEBUG
-    console.log('Config antiSpam:', db.antiSpam[guildId]);
-
-    if (!db.antiSpam[guildId]?.enabled) return;
-
-    // Ignora staff
+    // 🔥 Ignora staff
     if (message.member.permissions.has('Administrator')) return;
 
-    const now = Date.now();
     const userId = message.author.id;
+    const now = Date.now();
 
-    if (!userMessages.has(userId)) {
-      userMessages.set(userId, []);
+    if (!messageMap.has(userId)) {
+      messageMap.set(userId, []);
     }
 
-    const timestamps = userMessages.get(userId);
+    const timestamps = messageMap.get(userId);
 
-    // mantém apenas últimos 5s
+    // 🔥 remove mensagens antigas (5s)
     const filtered = timestamps.filter(t => now - t < 5000);
 
     filtered.push(now);
-    userMessages.set(userId, filtered);
+    messageMap.set(userId, filtered);
 
-    console.log(`📊 ${filtered.length} mensagens em 5s`);
-
+    // 🔥 limite (5 mensagens em 5s)
     if (filtered.length >= 5) {
-      console.log('🚫 SPAM DETECTADO');
 
       try {
-        await message.channel.bulkDelete(5, true);
+        await message.delete();
+      } catch {}
 
-        await message.member.timeout(10 * 60 * 1000, 'Spam');
+      await addWarnAuto(
+        message.member,
+        'Spam detectado',
+        message.client.user
+      );
 
-        await message.channel.send({
-          content: `🚫 ${message.author}, você foi mutado por spam.`
-        });
+      await message.channel.send({
+        content: `⚠️ ${message.author}, pare de spammar!`,
+      });
 
-      } catch (err) {
-        console.error('Erro anti-spam:', err);
-      }
-
-      userMessages.delete(userId);
+      messageMap.set(userId, []); // reset
     }
   }
 };
