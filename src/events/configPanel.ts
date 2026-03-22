@@ -15,7 +15,6 @@ export default {
       // ================= BOTÕES =================
       if (interaction.isButton()) {
 
-        // 🔗 ANTI LINK
         if (interaction.customId === 'config_antilink') {
 
           const embed = new EmbedBuilder()
@@ -41,7 +40,6 @@ export default {
           });
         }
 
-        // 📜 LOGS
         if (interaction.customId === 'config_logs') {
 
           const embed = new EmbedBuilder()
@@ -67,7 +65,6 @@ export default {
           });
         }
 
-        // 🚫 ANTI SPAM
         if (interaction.customId === 'config_antispam') {
           return interaction.reply({
             content: '🚧 Anti-Spam em desenvolvimento...',
@@ -79,14 +76,13 @@ export default {
       // ================= SELECT =================
       if (interaction.isStringSelectMenu()) {
 
-  const db = readDB();
+        const db = readDB();
 
-  // 🔥 CORREÇÃO PRINCIPAL
-  if (!db.antiLink) db.antiLink = {};
-  if (!db.logs) db.logs = {};
+        if (!db.antiLink) db.antiLink = {};
+        if (!db.logs) db.logs = {};
 
-  const guildId = interaction.guild.id;
-  const channelId = interaction.channel.id;
+        const guildId = interaction.guild.id;
+        const channelId = interaction.channel.id;
 
         // 🔗 ANTI LINK
         if (interaction.customId === 'select_antilink') {
@@ -104,7 +100,6 @@ export default {
 
           writeDB(db);
 
-          // 🔥 resolve loading infinito
           await interaction.deferUpdate();
 
           return interaction.followUp({
@@ -116,8 +111,6 @@ export default {
         // 📜 LOGS
         if (interaction.customId === 'select_logs') {
 
-          if (!db.logs) db.logs = {};
-
           if (interaction.values[0] === 'set') {
             db.logs[guildId] = channelId;
           } else {
@@ -126,7 +119,6 @@ export default {
 
           writeDB(db);
 
-          // 🔥 resolve loading infinito
           await interaction.deferUpdate();
 
           return interaction.followUp({
