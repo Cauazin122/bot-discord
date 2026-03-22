@@ -93,7 +93,6 @@ client.on("interactionCreate", async (interaction) => {
     await handleInteraction(interaction, commands);
   }
 });
-
 import antiSpam from "./events/antiSpam.js";
 client.on(antiSpam.name, (...args) => antiSpam.execute(...args));
 
