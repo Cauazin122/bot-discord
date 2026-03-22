@@ -1,18 +1,12 @@
 import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
-import { sendLog } from '../utils/logs';
 
 export default {
   data: new SlashCommandBuilder()
     .setName('mute')
-    .setDescription('Mutar um usuário')
+    .setDescription('Mutar um membro')
     .addUserOption(option =>
       option.setName('usuario')
         .setDescription('Usuário a ser mutado')
-        .setRequired(true)
-    )
-    .addStringOption(option =>
-      option.setName('motivo')
-        .setDescription('Motivo do mute')
         .setRequired(true)
     )
     .addIntegerOption(option =>
@@ -24,42 +18,18 @@ export default {
 
   async execute(interaction) {
     const user = interaction.options.getUser('usuario');
-    const reason = interaction.options.getString('motivo');
-    const time = interaction.options.getInteger('tempo');
+    const tempo = interaction.options.getInteger('tempo');
 
-    const member = interaction.guild.members.cache.get(user.id);
+    const member = await interaction.guild.members.fetch(user.id).catch(() => null);
 
-    // ❌ usuário não encontrado
     if (!member) {
-      return interaction.reply({
-        content: '❌ Usuário não encontrado.',
-        ephemeral: true
-      });
+      return interaction.reply({ content: 'Usuário não encontrado.', ephemeral: true });
     }
 
-    // ❌ não pode mutar
-    if (!member.moderatable) {
-      return interaction.reply({
-        content: '❌ Não posso mutar esse usuário.',
-        ephemeral: true
-      });
-    }
+    const ms = tempo * 60 * 1000;
 
-    // 🔇 aplica mute
-    await member.timeout(time * 60 * 1000, reason);
+    await member.timeout(ms);
 
-    // ✅ resposta correta (COM MOTIVO)
-    await interaction.reply(
-      `🔇 ${user.tag} foi mutado por ${time} minutos.\n📄 Motivo: ${reason}`
-    );
-
-    // 📜 log (COM TEMPO SEPARADO)
-    await sendLog(interaction.guild, {
-      action: 'Usuário mutado',
-      user,
-      staff: interaction.user,
-      reason,
-      time: `${time} minutos`
-    });
+    await interaction.reply(`🔇 ${user.tag} foi mutado por ${tempo} minutos.`);
   }
 };
