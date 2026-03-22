@@ -4,10 +4,10 @@ import { sendLog } from '../utils/logs';
 export default {
   data: new SlashCommandBuilder()
     .setName('mute')
-    .setDescription('Mutar um membro')
+    .setDescription('Mutar um usuário')
     .addUserOption(option =>
       option.setName('usuario')
-        .setDescription('Usuário a ser mutado')
+        .setDescription('Usuário')
         .setRequired(true)
     )
     .addIntegerOption(option =>
@@ -15,29 +15,37 @@ export default {
         .setDescription('Tempo em minutos')
         .setRequired(true)
     )
+    .addStringOption(option =>
+      option.setName('motivo')
+        .setDescription('Motivo do mute')
+        .setRequired(true)
+    )
     .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
 
   async execute(interaction) {
     const user = interaction.options.getUser('usuario');
-    const tempo = interaction.options.getInteger('tempo');
+    const time = interaction.options.getInteger('tempo');
+    const reason = interaction.options.getString('motivo');
 
-    const member = await interaction.guild.members.fetch(user.id).catch(() => null);
+    const member = interaction.guild.members.cache.get(user.id);
 
     if (!member) {
       return interaction.reply({ content: 'Usuário não encontrado.', ephemeral: true });
     }
 
-    const ms = tempo * 60 * 1000;
+    if (!member.moderatable) {
+      return interaction.reply({ content: 'Não posso mutar esse usuário.', ephemeral: true });
+    }
 
-    await member.timeout(ms);
-    
-    await sendLog(interaction.guild!, {
-      action: 'Mute',
+    await member.timeout(time * 60 * 1000, reason);
+
+    await interaction.reply(`🔇 ${user.tag} foi mutado por ${time} minutos.`);
+
+    await sendLog(interaction.guild, {
+      action: 'Usuário mutado',
       user,
       staff: interaction.user,
-      reason: `Tempo: ${tempo} minutos`
- });
-
-    await interaction.reply(`🔇 ${user.tag} foi mutado por ${tempo} minutos.`);
+      reason
+    });
   }
 };
