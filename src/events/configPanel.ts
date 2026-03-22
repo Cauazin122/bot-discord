@@ -10,7 +10,6 @@ export default {
   name: 'interactionCreate',
 
   async execute(interaction) {
-
     try {
 
       // ================= BOTÕES =================
@@ -80,8 +79,6 @@ export default {
       // ================= SELECT =================
       if (interaction.isStringSelectMenu()) {
 
-        await interaction.deferReply({ ephemeral: true });
-
         const db = readDB();
         const guildId = interaction.guild.id;
         const channelId = interaction.channel.id;
@@ -102,8 +99,12 @@ export default {
 
           writeDB(db);
 
-          return interaction.editReply({
-            content: '✅ Anti-Link atualizado com sucesso.'
+          // 🔥 resolve loading infinito
+          await interaction.deferUpdate();
+
+          return interaction.followUp({
+            content: '✅ Anti-Link atualizado com sucesso.',
+            ephemeral: true
           });
         }
 
@@ -120,8 +121,12 @@ export default {
 
           writeDB(db);
 
-          return interaction.editReply({
-            content: '✅ Sistema de logs atualizado.'
+          // 🔥 resolve loading infinito
+          await interaction.deferUpdate();
+
+          return interaction.followUp({
+            content: '✅ Sistema de logs atualizado.',
+            ephemeral: true
           });
         }
       }
