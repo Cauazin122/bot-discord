@@ -13,9 +13,6 @@ import { handleInteraction } from "./events/interactionCreate.js";
 import { handleButtonInteraction } from "./events/buttonCreate.js";
 import { handleSelectMenuInteraction } from "./events/selectMenuCreate.js";
 import { handleClaimTicketInteraction } from "./events/claimTicketCreate.js";
-import antiSpam from './events/antiSpam.js';
-
-client.on(antiSpam.name, (...args) => antiSpam.execute(...args));
 
 const app = express();
 const PORT = 3000;
