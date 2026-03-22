@@ -9,15 +9,10 @@ export async function addWarnAuto(member, reason, staff) {
   if (!db.warns[guildId]) db.warns[guildId] = {};
   if (!db.warns[guildId][userId]) db.warns[guildId][userId] = [];
 
-  // 🔥 CONFIG PADRÃO
   if (!db.autoMod[guildId]) {
-    db.autoMod[guildId] = {
-      mute: 3,
-      kick: 5
-    };
+    db.autoMod[guildId] = { mute: 3, kick: 5 };
   }
 
-  // ➕ adiciona warn
   db.warns[guildId][userId].push({
     reason,
     staff: staff.tag,
@@ -29,15 +24,13 @@ export async function addWarnAuto(member, reason, staff) {
 
   writeDB(db);
 
-  // 📜 LOG
   await sendLog(member.guild, {
-    action: 'Warn',
+    action: 'Auto Warn',
     user: member.user,
     staff,
     reason: `${reason} (Total: ${total})`
   });
 
-  // 🔇 MUTE
   if (total === config.mute) {
     await member.timeout(10 * 60 * 1000);
 
@@ -49,9 +42,8 @@ export async function addWarnAuto(member, reason, staff) {
     });
   }
 
-  // 👢 KICK
   if (total === config.kick) {
-    await member.kick('Limite de warns atingido');
+    await member.kick();
 
     await sendLog(member.guild, {
       action: 'Auto Kick',
