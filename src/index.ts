@@ -15,8 +15,6 @@ import { handleSelectMenuInteraction } from "./events/selectMenuCreate.js";
 import { handleClaimTicketInteraction } from "./events/claimTicketCreate.js";
 import antiSpam from "./events/antiSpam.js";
 import antiLink from "./events/antiLink.js";
-
-// 🔥 ADICIONADO
 import configPanel from "./events/configPanel.js";
 
 const app = express();
@@ -42,8 +40,8 @@ const client = new Client({
   ],
 });
 
-// ✅ READY
-client.once("ready", async () => {
+// ✅ READY (corrigido aviso também)
+client.once("clientReady", async () => {
   console.log(`✅ Conectado como ${client.user?.tag}`);
   console.log(`📡 Servindo ${client.guilds.cache.size} servidor(es)`);
 
@@ -79,17 +77,22 @@ client.once("ready", async () => {
   }, 10000);
 });
 
-// ✅ INTERAÇÕES (CORRIGIDO)
+// ✅ INTERAÇÕES CORRIGIDAS (SEM CONFLITO)
 client.on("interactionCreate", async (interaction) => {
 
-  // 🔥 SELECT MENU
+  // 🔽 SELECT MENU
   if (interaction.isStringSelectMenu()) {
 
-    // 👉 CONFIG PANEL (ANTES DO RESTO)
-    if (interaction.customId.startsWith('select_')) {
+    // 🔥 APENAS IDS DO CONFIG
+    if (
+      interaction.customId === 'select_antilink' ||
+      interaction.customId === 'select_logs' ||
+      interaction.customId === 'select_automod'
+    ) {
       return configPanel.execute(interaction);
     }
 
+    // 🎫 TICKET
     return handleSelectMenuInteraction(
       interaction as StringSelectMenuInteraction
     );
@@ -98,8 +101,12 @@ client.on("interactionCreate", async (interaction) => {
   // 🔘 BOTÕES
   else if (interaction.isButton()) {
 
-    // 👉 CONFIG PANEL
-    if (interaction.customId.startsWith('config_')) {
+    if (
+      interaction.customId === 'config_antilink' ||
+      interaction.customId === 'config_logs' ||
+      interaction.customId === 'config_antispam' ||
+      interaction.customId === 'config_automod'
+    ) {
       return configPanel.execute(interaction);
     }
 
@@ -113,7 +120,7 @@ client.on("interactionCreate", async (interaction) => {
   }
 });
 
-// Anti-spam e Anti-link
+// 🔥 EVENTOS
 client.on(antiSpam.name, (...args) => antiSpam.execute(...args));
 client.on(antiLink.name, (...args) => antiLink.execute(...args));
 
