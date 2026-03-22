@@ -1,7 +1,6 @@
 import {
   SlashCommandBuilder,
-  PermissionFlagsBits,
-  ChatInputCommandInteraction
+  PermissionFlagsBits
 } from 'discord.js';
 
 import { readDB, writeDB } from '../utils/database.js';
@@ -17,28 +16,33 @@ export default {
     )
     .addIntegerOption(option =>
       option.setName('numero')
-        .setDescription('Número do warn (opcional)')
+        .setDescription('Número do warn')
         .setRequired(false)
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers),
 
-  async execute(interaction: ChatInputCommandInteraction) {
+  async execute(interaction) {
     const user = interaction.options.getUser('usuario');
     const numero = interaction.options.getInteger('numero');
 
     const db = readDB();
+    const guildId = interaction.guild.id;
 
-    if (!db.warns[user.id] || db.warns[user.id].length === 0) {
+    if (!db.warns[guildId]) db.warns[guildId] = {};
+    if (!db.warns[guildId][user.id]) db.warns[guildId][user.id] = [];
+
+    const userWarns = db.warns[guildId][user.id];
+
+    if (userWarns.length === 0) {
       return interaction.reply({
         content: '❌ Esse usuário não possui warns.',
         ephemeral: true
       });
     }
 
-    // 🔥 REMOVE TODOS OS WARNS
+    // 🔥 remover todos
     if (!numero) {
-      db.warns[user.id] = [];
-
+      db.warns[guildId][user.id] = [];
       writeDB(db);
 
       return interaction.reply({
@@ -46,18 +50,16 @@ export default {
       });
     }
 
-    // 🔥 REMOVE WARN ESPECÍFICO
     const index = numero - 1;
 
-    if (!db.warns[user.id][index]) {
+    if (!userWarns[index]) {
       return interaction.reply({
         content: '❌ Warn inválido.',
         ephemeral: true
       });
     }
 
-    db.warns[user.id].splice(index, 1);
-
+    userWarns.splice(index, 1);
     writeDB(db);
 
     return interaction.reply({
