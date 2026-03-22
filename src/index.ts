@@ -8,13 +8,11 @@ import {
   StringSelectMenuInteraction,
   ButtonInteraction,
 } from "discord.js";
-
 import { commands } from "./commands/index.js";
 import { handleInteraction } from "./events/interactionCreate.js";
 import { handleButtonInteraction } from "./events/buttonCreate.js";
 import { handleSelectMenuInteraction } from "./events/selectMenuCreate.js";
 import { handleClaimTicketInteraction } from "./events/claimTicketCreate.js";
-
 import antiSpam from "./events/antiSpam.js";
 import antiLink from "./events/antiLink.js";
 import configPanel from "./events/configPanel.js";
@@ -38,64 +36,72 @@ if (!token) {
 
 const client = new Client({
   intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent
-  ],
+  GatewayIntentBits.Guilds,
+  GatewayIntentBits.GuildMembers,
+  GatewayIntentBits.GuildMessages,
+  GatewayIntentBits.MessageContent
+],
 });
 
-// ✅ READY
 client.once("clientReady", async (c) => {
   console.log(`✅ Conectado como ${c.user.tag}`);
+  console.log(`📡 Servindo ${c.guilds.cache.size} servidor(es)`);
 
-  const commandData = Object.values(commands).map(cmd => cmd.data.toJSON());
+  const commandData = Object.values(commands).map((cmd) => cmd.data.toJSON());
 
-  const rest = new REST().setToken(token!);
+  try {
+    const rest = new REST().setToken(token!);
+    await rest.put(Routes.applicationCommands(c.user.id), { body: commandData });
+    console.log(`🔧 Registrados ${commandData.length} comando(s) slash global(ais)`);
+  } catch (err) {
+    console.error("Falha ao registrar comandos slash:", err);
+  }
 
-  // 🔥 USE GUILD PRA TESTE
-  await rest.put(
-    Routes.applicationCommands(c.user.id),
-    { body: commandData }
-  );
+  const statuses = [
+  { text: "💸 Make your money", type: ActivityType.Watching },
+  { text: "Jogando GTA 6 🚗💨", type: ActivityType.Playing },
+  { text: "🎫 Gerenciando tickets", type: ActivityType.Watching },
+  { text: "📍 Suporte 24/7", type: ActivityType.Watching },
+  { text: "😁 Aqui para ajudar", type: ActivityType.Watching },
+];
+
+let statusIndex = 0;
+
+setInterval(() => {
+  c.user.setPresence({
+    activities: [
+      {
+        name: statuses[statusIndex].text,
+        type: statuses[statusIndex].type,
+      },
+    ],
+    status: "online",
+  });
+
+  statusIndex = (statusIndex + 1) % statuses.length;
+}, 10000);
 });
 
-// ✅ INTERAÇÕES (SEU PADRÃO ORIGINAL + CONFIG INTEGRADO)
 client.on("interactionCreate", async (interaction) => {
-
-  // 🔥 SELECT MENU
   if (interaction.isStringSelectMenu()) {
-
-    // 👉 CONFIG PANEL PRIMEIRO (MAS SEM BLOQUEAR)
-    if (interaction.customId.startsWith('select_')) {
-      return configPanel.execute(interaction);
-    }
-
-    return handleSelectMenuInteraction(
+    await handleSelectMenuInteraction(
       interaction as StringSelectMenuInteraction
     );
-  }
-
-  // 🔘 BOTÕES
-  else if (interaction.isButton()) {
-
-    // 👉 CONFIG PANEL
-    if (interaction.customId.startsWith('config_')) {
-      return configPanel.execute(interaction);
-    }
-
+  } else if (interaction.isButton()) {
     await handleClaimTicketInteraction(interaction as ButtonInteraction);
-    return handleButtonInteraction(interaction as ButtonInteraction);
-  }
-
-  // 💬 COMANDOS
-  else {
-    return handleInteraction(interaction, commands);
+    await handleButtonInteraction(interaction as ButtonInteraction);
+  } else {
+    await handleInteraction(interaction, commands);
   }
 });
 
-// ✅ EVENTOS DE MENSAGEM (SEM MEXER)
+import antiSpam from "./events/antiSpam.js";
 client.on(antiSpam.name, (...args) => antiSpam.execute(...args));
+
+import antiLink from "./events/antiLink.js";
 client.on(antiLink.name, (...args) => antiLink.execute(...args));
+
+import configPanel from "./events/configPanel.js";
+client.on(configPanel.name, (...args) => configPanel.execute(...args));
 
 client.login(token);
