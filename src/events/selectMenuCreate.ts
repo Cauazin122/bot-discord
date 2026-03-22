@@ -20,11 +20,10 @@ export async function handleSelectMenuInteraction(
   const guildConfig = getGuildConfig(guild?.id || "");
 
   if (!guild || !guildConfig.CATEGORY_ID || guildConfig.STAFF_ROLES.length === 0) {
-    await interaction.reply({
+    return interaction.reply({
       content: "Configuração do bot incompleta. Contate um administrador.",
-      flags: 64,
+      ephemeral: true,
     });
-    return;
   }
 
   try {
@@ -83,6 +82,7 @@ export async function handleSelectMenuInteraction(
     );
 
     const typeInfo = TICKET_TYPES[ticketType as keyof typeof TICKET_TYPES];
+
     const embed = new EmbedBuilder()
       .setColor("#2ecc71")
       .setTitle("🎫 Ticket Aberto")
@@ -92,21 +92,27 @@ export async function handleSelectMenuInteraction(
       .setTimestamp();
 
     const staffMentions = guildConfig.STAFF_ROLES.map((id) => `<@&${id}>`).join(" ");
+
     await ticketChannel.send({
       content: staffMentions,
       embeds: [embed],
       components: [row],
     });
 
+    // 🔥 RESPOSTA CORRETA
     await interaction.reply({
-      content: `Ticket criado: ${ticketChannel}`,
-      flags: 64,
+      content: `✅ Ticket criado: ${ticketChannel}`,
+      ephemeral: true,
     });
+
   } catch (error) {
     console.error("Erro ao criar ticket:", error);
-    await interaction.reply({
-      content: "Falha ao criar ticket. Tente novamente mais tarde.",
-      flags: 64,
-    });
+
+    if (!interaction.replied) {
+      await interaction.reply({
+        content: "❌ Falha ao criar ticket. Tente novamente.",
+        ephemeral: true,
+      });
+    }
   }
 }
