@@ -15,7 +15,6 @@ import { handleSelectMenuInteraction } from "./events/selectMenuCreate.js";
 import { handleClaimTicketInteraction } from "./events/claimTicketCreate.js";
 import antiSpam from "./events/antiSpam.js";
 import antiLink from "./events/antiLink.js";
-import configPanel from "./events/configPanel.js";
 
 const app = express();
 const PORT = 3000;
@@ -100,8 +99,5 @@ client.on(antiSpam.name, (...args) => antiSpam.execute(...args));
 
 import antiLink from "./events/antiLink.js";
 client.on(antiLink.name, (...args) => antiLink.execute(...args));
-
-import configPanel from "./events/configPanel.js";
-client.on(configPanel.name, (...args) => configPanel.execute(...args));
 
 client.login(token);
