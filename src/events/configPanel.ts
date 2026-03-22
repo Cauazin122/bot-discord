@@ -16,6 +16,7 @@ export default {
       // ================= BOTÕES =================
       if (interaction.isButton()) {
 
+        // 🔗 ANTI LINK
         if (interaction.customId === 'config_antilink') {
 
           const embed = new EmbedBuilder()
@@ -41,6 +42,7 @@ export default {
           });
         }
 
+        // 📜 LOGS
         if (interaction.customId === 'config_logs') {
 
           const embed = new EmbedBuilder()
@@ -66,6 +68,7 @@ export default {
           });
         }
 
+        // 🚫 ANTI SPAM
         if (interaction.customId === 'config_antispam') {
           return interaction.reply({
             content: '🚧 Anti-Spam em desenvolvimento...',
@@ -77,7 +80,6 @@ export default {
       // ================= SELECT =================
       if (interaction.isStringSelectMenu()) {
 
-        // 🔥 RESPONDE IMEDIATO (ANTI ERRO)
         await interaction.deferReply({ ephemeral: true });
 
         const db = readDB();
@@ -85,4 +87,56 @@ export default {
         const channelId = interaction.channel.id;
 
         // 🔗 ANTI LINK
-        if (interaction.customId ===
+        if (interaction.customId === 'select_antilink') {
+
+          if (!db.antiLink[guildId]) db.antiLink[guildId] = [];
+
+          if (interaction.values[0] === 'on') {
+            if (!db.antiLink[guildId].includes(channelId)) {
+              db.antiLink[guildId].push(channelId);
+            }
+          } else {
+            db.antiLink[guildId] =
+              db.antiLink[guildId].filter(id => id !== channelId);
+          }
+
+          writeDB(db);
+
+          return interaction.editReply({
+            content: '✅ Anti-Link atualizado com sucesso.'
+          });
+        }
+
+        // 📜 LOGS
+        if (interaction.customId === 'select_logs') {
+
+          if (!db.logs) db.logs = {};
+
+          if (interaction.values[0] === 'set') {
+            db.logs[guildId] = channelId;
+          } else {
+            delete db.logs[guildId];
+          }
+
+          writeDB(db);
+
+          return interaction.editReply({
+            content: '✅ Sistema de logs atualizado.'
+          });
+        }
+      }
+
+    } catch (err) {
+      console.error('Erro no configPanel:', err);
+
+      if (!interaction.replied) {
+        try {
+          await interaction.reply({
+            content: '❌ Ocorreu um erro.',
+            ephemeral: true
+          });
+        } catch {}
+      }
+    }
+  }
+};
