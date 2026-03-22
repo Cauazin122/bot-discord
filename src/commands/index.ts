@@ -14,6 +14,7 @@ import * as helpadm from "./helpadm.js";
 import removewarn from "./removewarn.js";
 import warns from "./warns.js";
 import antilink from "./antilink.js";
+import config from "./config.js";
 
 export interface Command {
   data: SlashCommandBuilder;
@@ -35,5 +36,6 @@ export const commands: Record<string, Command> = {
   helpadm,
   removewarn,
   warns,
-  antilink
+  antilink,
+  config
 };
