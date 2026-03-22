@@ -14,7 +14,6 @@ import { handleInteraction } from "./events/interactionCreate.js";
 import { handleButtonInteraction } from "./events/buttonCreate.js";
 import { handleSelectMenuInteraction } from "./events/selectMenuCreate.js";
 import { handleClaimTicketInteraction } from "./events/claimTicketCreate.js";
-
 import antiSpam from "./events/antiSpam.js";
 import antiLink from "./events/antiLink.js";
 import configPanel from "./events/configPanel.js";
@@ -115,7 +114,9 @@ client.on("interactionCreate", async (interaction) => {
 });
 
 // ✅ EVENTOS DE MENSAGEM
+import antiSpam from "./events/antiSpam.js";
 client.on(antiSpam.name, (...args) => antiSpam.execute(...args));
+import antiLink from "./events/antiLink.js";
 client.on(antiLink.name, (...args) => antiLink.execute(...args));
 
 // ✅ LOGIN
