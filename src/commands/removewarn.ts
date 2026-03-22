@@ -1,6 +1,7 @@
 import {
   SlashCommandBuilder,
-  PermissionFlagsBits
+  PermissionFlagsBits,
+  ChatInputCommandInteraction
 } from 'discord.js';
 
 import { readDB, writeDB } from '../utils/database.js';
@@ -8,37 +9,59 @@ import { readDB, writeDB } from '../utils/database.js';
 export default {
   data: new SlashCommandBuilder()
     .setName('removewarn')
-    .setDescription('Remove warns de um usuário')
+    .setDescription('Remover warns de um usuário')
     .addUserOption(option =>
       option.setName('usuario')
         .setDescription('Usuário')
         .setRequired(true)
     )
     .addIntegerOption(option =>
-      option.setName('quantidade')
-        .setDescription('Quantidade de warns para remover')
-        .setRequired(true)
+      option.setName('numero')
+        .setDescription('Número do warn (opcional)')
+        .setRequired(false)
     )
-    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
+    .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers),
 
-  async execute(interaction) {
-
+  async execute(interaction: ChatInputCommandInteraction) {
     const user = interaction.options.getUser('usuario');
-    const quantidade = interaction.options.getInteger('quantidade');
+    const numero = interaction.options.getInteger('numero');
 
     const db = readDB();
 
-    if (!db.warns) db.warns = {};
-    if (!db.warns[user.id]) db.warns[user.id] = 0;
+    if (!db.warns[user.id] || db.warns[user.id].length === 0) {
+      return interaction.reply({
+        content: '❌ Esse usuário não possui warns.',
+        ephemeral: true
+      });
+    }
 
-    db.warns[user.id] -= quantidade;
+    // 🔥 REMOVE TODOS OS WARNS
+    if (!numero) {
+      db.warns[user.id] = [];
 
-    if (db.warns[user.id] < 0) db.warns[user.id] = 0;
+      writeDB(db);
+
+      return interaction.reply({
+        content: `✅ Todos os warns de ${user.tag} foram removidos.`
+      });
+    }
+
+    // 🔥 REMOVE WARN ESPECÍFICO
+    const index = numero - 1;
+
+    if (!db.warns[user.id][index]) {
+      return interaction.reply({
+        content: '❌ Warn inválido.',
+        ephemeral: true
+      });
+    }
+
+    db.warns[user.id].splice(index, 1);
 
     writeDB(db);
 
     return interaction.reply({
-      content: `⚠️ Foram removidos ${quantidade} warn(s) de ${user.tag}. Agora ele tem ${db.warns[user.id]} warn(s).`
+      content: `✅ Warn ${numero} removido de ${user.tag}.`
     });
   }
 };
