@@ -55,7 +55,7 @@ client.once("clientReady", async (c) => {
 
   // 🔥 USE GUILD PRA TESTE
   await rest.put(
-    Routes.applicationGuildCommands(c.user.id, "SEU_SERVER_ID"),
+    Routes.applicationCommands(c.user.id)
     { body: commandData }
   );
 });
