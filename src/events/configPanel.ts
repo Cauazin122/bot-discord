@@ -11,116 +11,78 @@ export default {
 
   async execute(interaction) {
 
-    // ================= BOTÕES =================
-    if (interaction.isButton()) {
+    try {
 
-      if (interaction.customId === 'config_antilink') {
+      // ================= BOTÕES =================
+      if (interaction.isButton()) {
 
-        const embed = new EmbedBuilder()
-          .setTitle('🔗 Anti-Link')
-          .setDescription('Ative ou desative o anti-link neste canal.')
-          .setColor('Blue');
+        if (interaction.customId === 'config_antilink') {
 
-        const row = new ActionRowBuilder<StringSelectMenuBuilder>()
-          .addComponents(
-            new StringSelectMenuBuilder()
-              .setCustomId('select_antilink')
-              .addOptions([
-                { label: 'Ativar', value: 'on' },
-                { label: 'Desativar', value: 'off' }
-              ])
-          );
+          const embed = new EmbedBuilder()
+            .setTitle('🔗 Anti-Link')
+            .setDescription('Ative ou desative o anti-link neste canal.')
+            .setColor('Blue');
 
-        return interaction.reply({
-          embeds: [embed],
-          components: [row],
-          ephemeral: true
-        });
+          const row = new ActionRowBuilder<StringSelectMenuBuilder>()
+            .addComponents(
+              new StringSelectMenuBuilder()
+                .setCustomId('select_antilink')
+                .setPlaceholder('Escolha uma opção')
+                .addOptions([
+                  { label: 'Ativar', value: 'on' },
+                  { label: 'Desativar', value: 'off' }
+                ])
+            );
+
+          return interaction.reply({
+            embeds: [embed],
+            components: [row],
+            ephemeral: true
+          });
+        }
+
+        if (interaction.customId === 'config_logs') {
+
+          const embed = new EmbedBuilder()
+            .setTitle('📜 Sistema de Logs')
+            .setDescription('Configure o canal de logs.')
+            .setColor('Green');
+
+          const row = new ActionRowBuilder<StringSelectMenuBuilder>()
+            .addComponents(
+              new StringSelectMenuBuilder()
+                .setCustomId('select_logs')
+                .setPlaceholder('Escolha uma opção')
+                .addOptions([
+                  { label: 'Definir canal atual', value: 'set' },
+                  { label: 'Remover canal', value: 'remove' }
+                ])
+            );
+
+          return interaction.reply({
+            embeds: [embed],
+            components: [row],
+            ephemeral: true
+          });
+        }
+
+        if (interaction.customId === 'config_antispam') {
+          return interaction.reply({
+            content: '🚧 Anti-Spam em desenvolvimento...',
+            ephemeral: true
+          });
+        }
       }
 
-      if (interaction.customId === 'config_logs') {
+      // ================= SELECT =================
+      if (interaction.isStringSelectMenu()) {
 
-        const embed = new EmbedBuilder()
-          .setTitle('📜 Sistema de Logs')
-          .setDescription('Configure o canal de logs.')
-          .setColor('Green');
+        // 🔥 RESPONDE IMEDIATO (ANTI ERRO)
+        await interaction.deferReply({ ephemeral: true });
 
-        const row = new ActionRowBuilder<StringSelectMenuBuilder>()
-          .addComponents(
-            new StringSelectMenuBuilder()
-              .setCustomId('select_logs')
-              .addOptions([
-                { label: 'Definir canal', value: 'set' },
-                { label: 'Remover canal', value: 'remove' }
-              ])
-          );
+        const db = readDB();
+        const guildId = interaction.guild.id;
+        const channelId = interaction.channel.id;
 
-        return interaction.reply({
-          embeds: [embed],
-          components: [row],
-          ephemeral: true
-        });
-      }
-
-      if (interaction.customId === 'config_antispam') {
-        return interaction.reply({
-          content: '🚧 Anti-Spam em desenvolvimento...',
-          ephemeral: true
-        });
-      }
-    }
-
-    // ================= SELECT =================
-    if (interaction.isStringSelectMenu()) {
-
-      const db = readDB();
-      const guildId = interaction.guild.id;
-      const channelId = interaction.channel.id;
-
-      // 🔗 ANTI LINK
-      if (interaction.customId === 'select_antilink') {
-
-  if (!db.antiLink[guildId]) db.antiLink[guildId] = [];
-
-  if (interaction.values[0] === 'on') {
-    if (!db.antiLink[guildId].includes(channelId)) {
-      db.antiLink[guildId].push(channelId);
-    }
-  } else {
-    db.antiLink[guildId] =
-      db.antiLink[guildId].filter(id => id !== channelId);
-  }
-
-  writeDB(db);
-
-  // 🔥 CORREÇÃO
-  await interaction.deferUpdate();
-
-  return interaction.followUp({
-    content: '✅ Anti-Link atualizado com sucesso.',
-    ephemeral: true
-  });
-}
-
-      // 📜 LOGS
-      if (interaction.customId === 'select_logs') {
-
-  if (interaction.values[0] === 'set') {
-    db.logs[guildId] = channelId;
-  } else {
-    delete db.logs[guildId];
-  }
-
-  writeDB(db);
-
-  // 🔥 CORREÇÃO
-  await interaction.deferUpdate();
-
-  return interaction.followUp({
-    content: '✅ Sistema de logs atualizado.',
-    ephemeral: true
-  });
-}
-    }
-  }
-};
+        // 🔗 ANTI LINK
+        if (interaction.customId ===
