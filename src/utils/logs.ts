@@ -17,7 +17,7 @@ export async function sendLog(guild, data) {
     .addFields(
       { name: '👤 Usuário', value: `${data.user.tag} (${data.user.id})` },
       { name: '🛡️ Staff', value: `${data.staff.tag}` },
-      { name: '📄 Motivo', value: data.reason }
+      { name: '📄 Motivo', value: data.reason || 'Não informado' }
     )
     .setColor('Red')
     .setTimestamp();
