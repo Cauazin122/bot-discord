@@ -10,14 +10,14 @@ export default {
         .setDescription('Usuário a ser mutado')
         .setRequired(true)
     )
-    .addIntegerOption(option =>
-      option.setName('tempo')
-        .setDescription('Tempo em minutos')
-        .setRequired(true)
-    )
     .addStringOption(option =>
       option.setName('motivo')
         .setDescription('Motivo do mute')
+        .setRequired(true)
+    )
+    .addIntegerOption(option =>
+      option.setName('tempo')
+        .setDescription('Tempo em minutos')
         .setRequired(true)
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
