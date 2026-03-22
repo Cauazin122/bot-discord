@@ -1,10 +1,9 @@
 import fs from 'fs';
 
-const path = './database.json';
+const path = './src/database.json';
 
 export function readDB() {
-  const data = fs.readFileSync(path, 'utf-8');
-  return JSON.parse(data);
+  return JSON.parse(fs.readFileSync(path, 'utf8'));
 }
 
 export function writeDB(data) {
