@@ -55,7 +55,7 @@ client.once("clientReady", async (c) => {
 
   // 🔥 USE GUILD PRA TESTE
   await rest.put(
-    Routes.applicationCommands(c.user.id)
+    Routes.applicationCommands(c.user.id),
     { body: commandData }
   );
 });
