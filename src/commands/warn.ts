@@ -10,7 +10,10 @@ export default {
     .setName("warns")
     .setDescription("Ver warns de um usuário")
     .addUserOption(option =>
-      option.setName("usuario").setRequired(true)
+      option
+        .setName("usuario")
+        .setDescription("Usuário para ver os warns") // ✅ CORREÇÃO
+        .setRequired(true)
     ),
 
   async execute(interaction) {
