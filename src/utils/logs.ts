@@ -1,28 +1,20 @@
-import { EmbedBuilder } from 'discord.js';
-
-const logChannels = {
-  "1475319429322510418": "1483071071627378718",
-  "1074821077303304292": "1463602167460921547"
-};
+import { EmbedBuilder } from "discord.js";
+import GuildConfig from "../models/GuildConfig.js";
 
 export async function sendLog(guild, data) {
-  const channelId = logChannels[guild.id];
-  if (!channelId) return;
+  const config = await GuildConfig.findOne({ guildId: guild.id });
 
-  const channel = guild.channels.cache.get(channelId);
+  if (!config?.logs) return;
+
+  const channel = guild.channels.cache.get(config.logs);
   if (!channel) return;
-
-  const isMute = data.action === 'Mute';
 
   const embed = new EmbedBuilder()
     .setTitle(`📋 ${data.action}`)
     .addFields(
-      { name: '👤 Usuário', value: `${data.user.tag} (${data.user.id})` },
+      { name: '👤 Usuário', value: `${data.user.tag}` },
       { name: '🛡️ Staff', value: `${data.staff.tag}` },
-      {
-        name: isMute ? '⏱️ Tempo' : '📄 Motivo',
-        value: data.reason
-      }
+      { name: '📄 Motivo', value: data.reason }
     )
     .setColor('Red')
     .setTimestamp();
