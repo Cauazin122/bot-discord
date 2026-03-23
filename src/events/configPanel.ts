@@ -86,39 +86,27 @@ export default {
           return interaction.reply({
             embeds: [embed],
             components: [row],
-            ephemeral: true
-          });
-        }
+            ephemeral: // 🚫 ANTI SPAM
+if (interaction.customId === 'select_antispam') {
+  try {
+    // Define o status no DB
+    db.antispam[guildId] = interaction.values[0] === 'on';
 
-        // 🚫 ANTI SPAM
-        if (interaction.customId === 'config_antispam') {
+    writeDB(db);
 
-          const isActive = db.antispam[guildId] === true;
-
-          const embed = new EmbedBuilder()
-            .setTitle('🚫 Anti-Spam')
-            .setDescription(
-              `Status: **${isActive ? '🟢 ATIVO' : '🔴 DESATIVADO'}**`
-            )
-            .setColor('Red');
-
-          const row = new ActionRowBuilder<StringSelectMenuBuilder>()
-            .addComponents(
-              new StringSelectMenuBuilder()
-                .setCustomId('select_antispam')
-                .setPlaceholder('Escolha uma opção')
-                .addOptions([
-                  { label: 'Ativar', value: 'on' },
-                  { label: 'Desativar', value: 'off' }
-                ])
-            );
-
-          return interaction.reply({
-            embeds: [embed],
-            components: [row],
-            ephemeral: true
-          });
-        }
+    // Responde a interação sem usar defer + followUp
+    await interaction.reply({
+      content: `✅ Anti-Spam ${db.antispam[guildId] ? 'ativado' : 'desativado'}!`,
+      ephemeral: true
+    });
+  } catch (err) {
+    console.error('Erro ao atualizar Anti-Spam:', err);
+    if (!interaction.replied) {
+      await interaction.reply({
+        content: '❌ Erro ao atualizar Anti-Spam.',
+        ephemeral: true
+      });
+    }
 
         // ⚙️ AUTOMOD
         if (interaction.customId === 'config_automod') {
