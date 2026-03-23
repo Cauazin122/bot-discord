@@ -107,6 +107,8 @@ if (interaction.customId === 'select_antispam') {
         ephemeral: true
       });
     }
+  }
+          }
 
         // ⚙️ AUTOMOD
         if (interaction.customId === 'config_automod') {
