@@ -1,87 +1,86 @@
-import fs from "fs";
-import path from "path";
 import {
   SlashCommandBuilder,
   ChatInputCommandInteraction,
   EmbedBuilder,
 } from "discord.js";
 
+import GuildConfig from "../models/GuildConfig.js";
+
 export const data = new SlashCommandBuilder()
   .setName("avaliacoes")
-  .setDescription("Mostra suas avaliações de tickets")
-  .setDefaultMemberPermissions(0);
+  .setDescription("Mostra suas avaliações de tickets");
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   try {
-    const dbPath = path.join(process.cwd(), "database.json");
+    const guildId = interaction.guild!.id;
+    const userId = interaction.user.id;
 
-    const dbData = fs.readFileSync(dbPath, "utf-8");
-    const db = JSON.parse(dbData);
+    const guild = await GuildConfig.findOne({ guildId });
 
-    const userTag = interaction.user.tag;
-    const userAvaliacoes = db.avaliacoes.filter(
-      (av: any) => av.user === userTag
-    );
+    const userAvaliacoes =
+      guild?.avaliacoes.filter(av => av.userId === userId) || [];
 
-    if (!userAvaliacoes || userAvaliacoes.length === 0) {
+    // ❌ sem avaliações
+    if (!userAvaliacoes.length) {
       const embed = new EmbedBuilder()
         .setColor("#FFD700")
         .setTitle("⭐ Minhas Avaliações")
-        .setThumbnail(interaction.user.avatarURL())
+        .setThumbnail(interaction.user.displayAvatarURL())
         .setDescription("Você ainda não foi avaliado por nenhum membro!")
-        .addFields(
-          {
-            name: "ℹ️ Como receber avaliações?",
-            value: "Quando um membro fecha um ticket que você atendeu, ele receberá botões de avaliação (⭐) para avaliar o seu atendimento. Suas avaliações aparecerão aqui!",
-            inline: false,
-          }
-        )
+        .addFields({
+          name: "ℹ️ Como receber avaliações?",
+          value:
+            "Quando um membro fecha um ticket que você atendeu, ele poderá te avaliar com estrelas ⭐.",
+        })
         .setTimestamp();
 
-      await interaction.reply({ embeds: [embed] });
-      return;
+      return interaction.reply({ embeds: [embed] });
     }
 
-    const totalAvaliacoes = userAvaliacoes.length;
-    const somaEstrelas = userAvaliacoes.reduce(
-      (sum: number, av: any) => sum + parseInt(av.estrelas),
+    // 📊 cálculos
+    const total = userAvaliacoes.length;
+
+    const soma = userAvaliacoes.reduce(
+      (sum, av) => sum + av.nota,
       0
     );
-    const mediaEstrelas = (somaEstrelas / totalAvaliacoes).toFixed(2);
 
-    const avaliacoesTexto = userAvaliacoes
+    const media = (soma / total).toFixed(2);
+
+    // 📋 histórico
+    const texto = userAvaliacoes
+      .slice()
       .reverse()
-      .map((av: any) => {
-        const data = new Date(av.data).toLocaleDateString("pt-BR");
-        const feedback = av.feedback ? `\n   _"${av.feedback}"_` : "";
-        return `${av.estrelas}⭐ - ${data}${feedback}`;
+      .map(av => {
+        const data = new Date(av.date).toLocaleDateString("pt-BR");
+        return `${av.nota}⭐ - ${data}`;
       })
       .join("\n\n");
 
     const embed = new EmbedBuilder()
       .setColor("#FFD700")
       .setTitle("⭐ Minhas Avaliações")
-      .setThumbnail(interaction.user.avatarURL())
+      .setThumbnail(interaction.user.displayAvatarURL())
       .addFields(
         {
           name: "📊 Estatísticas",
-          value: `Total: ${totalAvaliacoes} | Média: ${mediaEstrelas}⭐`,
-          inline: false,
+          value: `Total: ${total} | Média: ${media}⭐`,
         },
         {
           name: "📋 Histórico",
-          value: avaliacoesTexto || "Sem avaliações",
-          inline: false,
+          value: texto || "Sem avaliações",
         }
       )
       .setTimestamp();
 
     await interaction.reply({ embeds: [embed] });
+
   } catch (error) {
     console.error("Erro ao buscar avaliações:", error);
+
     await interaction.reply({
       content: "Erro ao buscar avaliações.",
-      flags: 64,
+      ephemeral: true,
     });
   }
 }
