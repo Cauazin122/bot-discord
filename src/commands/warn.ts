@@ -1,28 +1,43 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
-import { addWarnAuto } from "../utils/autoMod.js";
+import {
+  SlashCommandBuilder,
+  EmbedBuilder
+} from "discord.js";
+
+import GuildConfig from "../models/GuildConfig.js";
 
 export default {
   data: new SlashCommandBuilder()
-    .setName("warn")
-    .setDescription("Dar warn em um usuário")
-    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
+    .setName("warns")
+    .setDescription("Ver warns de um usuário")
     .addUserOption(option =>
-      option.setName("usuario").setDescription("Usuário").setRequired(true)
-    )
-    .addStringOption(option =>
-      option.setName("motivo").setDescription("Motivo").setRequired(true)
+      option.setName("usuario").setRequired(true)
     ),
 
   async execute(interaction) {
-    const member = interaction.options.getMember("usuario");
-    const reason = interaction.options.getString("motivo");
+    const user = interaction.options.getUser("usuario");
+    const guildId = interaction.guild.id;
 
-    if (!member) {
-      return interaction.reply({ content: "Usuário inválido", ephemeral: true });
+    const guild = await GuildConfig.findOne({ guildId });
+
+    const warns = guild?.warns?.get(user.id) || [];
+    const config = guild?.autoMod || { mute: 3, kick: 5 };
+
+    if (!warns.length) {
+      return interaction.reply("❌ Sem warns.");
     }
 
-    await addWarnAuto(member, reason, interaction.user);
+    const embed = new EmbedBuilder()
+      .setTitle(`⚠️ Warns de ${user.tag}`)
+      .setDescription(
+        warns.map((w, i) =>
+          `**${i + 1}.** ${w.reason} (${w.staff})`
+        ).join("\n")
+      )
+      .addFields({
+        name: "⚙️ AutoMod",
+        value: `Mute: ${config.mute}\nKick: ${config.kick}`
+      });
 
-    await interaction.reply(`⚠️ ${member.user.tag} foi avisado.`);
+    await interaction.reply({ embeds: [embed] });
   }
 };
