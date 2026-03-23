@@ -3,67 +3,41 @@ import {
   PermissionFlagsBits
 } from 'discord.js';
 
-import { readDB, writeDB } from '../utils/database.js';
+import { SlashCommandBuilder } from "discord.js";
+import GuildConfig from "../models/GuildConfig.js";
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('removewarn')
-    .setDescription('Remover warns de um usuário')
-    .addUserOption(option =>
-      option.setName('usuario')
-        .setDescription('Usuário')
-        .setRequired(true)
-    )
-    .addIntegerOption(option =>
-      option.setName('numero')
-        .setDescription('Número do warn')
-        .setRequired(false)
-    )
-    .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers),
+    .setName("removewarn")
+    .setDescription("Remove warn")
+    .addUserOption(o => o.setName("usuario").setRequired(true))
+    .addIntegerOption(o =>
+      o.setName("numero").setDescription("Número do warn")
+    ),
 
   async execute(interaction) {
-    const user = interaction.options.getUser('usuario');
-    const numero = interaction.options.getInteger('numero');
-
-    const db = readDB();
+    const user = interaction.options.getUser("usuario");
+    const num = interaction.options.getInteger("numero");
     const guildId = interaction.guild.id;
 
-    if (!db.warns[guildId]) db.warns[guildId] = {};
-    if (!db.warns[guildId][user.id]) db.warns[guildId][user.id] = [];
+    const guild = await GuildConfig.findOne({ guildId });
+    if (!guild) return interaction.reply("Sem dados");
 
-    const userWarns = db.warns[guildId][user.id];
+    let warns = guild.warns.get(user.id) || [];
 
-    if (userWarns.length === 0) {
-      return interaction.reply({
-        content: '❌ Esse usuário não possui warns.',
-        ephemeral: true
-      });
+    if (!warns.length) {
+      return interaction.reply("Sem warns.");
     }
 
-    // 🔥 remover todos
-    if (!numero) {
-      db.warns[guildId][user.id] = [];
-      writeDB(db);
-
-      return interaction.reply({
-        content: `✅ Todos os warns de ${user.tag} foram removidos.`
-      });
+    if (num) {
+      warns.splice(num - 1, 1);
+    } else {
+      warns = [];
     }
 
-    const index = numero - 1;
+    guild.warns.set(user.id, warns);
+    await guild.save();
 
-    if (!userWarns[index]) {
-      return interaction.reply({
-        content: '❌ Warn inválido.',
-        ephemeral: true
-      });
-    }
-
-    userWarns.splice(index, 1);
-    writeDB(db);
-
-    return interaction.reply({
-      content: `✅ Warn ${numero} removido de ${user.tag}.`
-    });
+    await interaction.reply("✅ Warn removido.");
   }
 };
