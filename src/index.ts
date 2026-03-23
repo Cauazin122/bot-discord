@@ -16,6 +16,7 @@ import { handleClaimTicketInteraction } from "./events/claimTicketCreate.js";
 import antiSpam from "./events/antiSpam.js";
 import antiLink from "./events/antiLink.js";
 import configPanel from "./events/configPanel.js";
+import { connectMongo } from "./database/mongo.js";
 
 const app = express();
 const PORT = 3000;
@@ -123,5 +124,7 @@ client.on("interactionCreate", async (interaction) => {
 // 🔥 EVENTOS
 client.on(antiSpam.name, (...args) => antiSpam.execute(...args));
 client.on(antiLink.name, (...args) => antiLink.execute(...args));
+
+await connectMongo();
 
 client.login(token);
