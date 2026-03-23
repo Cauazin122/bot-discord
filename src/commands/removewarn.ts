@@ -1,18 +1,25 @@
 import {
   SlashCommandBuilder,
   PermissionFlagsBits
-} from 'discord.js';
+} from "discord.js";
 
-import { SlashCommandBuilder } from "discord.js";
 import GuildConfig from "../models/GuildConfig.js";
 
 export default {
   data: new SlashCommandBuilder()
     .setName("removewarn")
-    .setDescription("Remove warn")
-    .addUserOption(o => o.setName("usuario").setRequired(true))
+    .setDescription("Remove warn de um usuário")
+    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
+    .addUserOption(o =>
+      o
+        .setName("usuario")
+        .setDescription("Usuário alvo") // ✅ CORREÇÃO
+        .setRequired(true)
+    )
     .addIntegerOption(o =>
-      o.setName("numero").setDescription("Número do warn")
+      o
+        .setName("numero")
+        .setDescription("Número do warn (opcional)")
     ),
 
   async execute(interaction) {
