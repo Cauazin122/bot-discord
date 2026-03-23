@@ -11,12 +11,14 @@ export default {
     .setName('mute')
     .setDescription('Mutar um membro')
     .addUserOption(option =>
-      option.setName('usuario')
+      option
+        .setName('usuario')
         .setDescription('Usuário a ser mutado')
         .setRequired(true)
     )
     .addIntegerOption(option =>
-      option.setName('tempo')
+      option
+        .setName('tempo')
         .setDescription('Tempo em minutos')
         .setRequired(true)
     )
@@ -25,6 +27,10 @@ export default {
   async execute(interaction: ChatInputCommandInteraction) {
     const user = interaction.options.getUser('usuario');
     const tempo = interaction.options.getInteger('tempo');
+
+    if (!user || !tempo) {
+      return interaction.reply({ content: '❌ Dados inválidos.', ephemeral: true });
+    }
 
     const member = interaction.guild?.members.cache.get(user.id);
 
@@ -38,7 +44,6 @@ export default {
       content: `🔇 ${user.tag} foi mutado por ${tempo} minuto(s).`
     });
 
-    // 📜 LOG
     await sendLog(interaction.guild, {
       action: 'Mute',
       user: user,
