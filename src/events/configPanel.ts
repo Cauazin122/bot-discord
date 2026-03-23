@@ -11,6 +11,7 @@ export default {
 
   async execute(interaction) {
     try {
+      if (!interaction.guild) return;
 
       const db = readDB();
       const guildId = interaction.guild.id;
@@ -31,9 +32,7 @@ export default {
 
         // 🔗 ANTI LINK
         if (interaction.customId === 'config_antilink') {
-
-          const isActive =
-            db.antiLink[guildId]?.includes(channelId);
+          const isActive = db.antiLink[guildId]?.includes(channelId);
 
           const embed = new EmbedBuilder()
             .setTitle('🔗 Anti-Link')
@@ -62,7 +61,6 @@ export default {
 
         // 📜 LOGS
         if (interaction.customId === 'config_logs') {
-
           const isActive = db.logs[guildId] === channelId;
 
           const embed = new EmbedBuilder()
@@ -86,33 +84,39 @@ export default {
           return interaction.reply({
             embeds: [embed],
             components: [row],
-            ephemeral: // 🚫 ANTI SPAM
-if (interaction.customId === 'select_antispam') {
-  try {
-    // Define o status no DB
-    db.antispam[guildId] = interaction.values[0] === 'on';
+            ephemeral: true
+          });
+        }
 
-    writeDB(db);
+        // 🚫 ANTI SPAM
+        if (interaction.customId === 'config_antispam') {
+          const isActive = db.antispam[guildId] === true;
 
-    // Responde a interação sem usar defer + followUp
-    await interaction.reply({
-      content: `✅ Anti-Spam ${db.antispam[guildId] ? 'ativado' : 'desativado'}!`,
-      ephemeral: true
-    });
-  } catch (err) {
-    console.error('Erro ao atualizar Anti-Spam:', err);
-    if (!interaction.replied) {
-      await interaction.reply({
-        content: '❌ Erro ao atualizar Anti-Spam.',
-        ephemeral: true
-      });
-    }
-  }
-          }
+          const embed = new EmbedBuilder()
+            .setTitle('🚫 Anti-Spam')
+            .setDescription(`Status: **${isActive ? '🟢 ATIVO' : '🔴 DESATIVADO'}**`)
+            .setColor('Red');
+
+          const row = new ActionRowBuilder<StringSelectMenuBuilder>()
+            .addComponents(
+              new StringSelectMenuBuilder()
+                .setCustomId('select_antispam')
+                .setPlaceholder('Escolha uma opção')
+                .addOptions([
+                  { label: 'Ativar', value: 'on' },
+                  { label: 'Desativar', value: 'off' }
+                ])
+            );
+
+          return interaction.reply({
+            embeds: [embed],
+            components: [row],
+            ephemeral: true
+          });
+        }
 
         // ⚙️ AUTOMOD
         if (interaction.customId === 'config_automod') {
-
           const config = db.autoMod[guildId];
 
           const embed = new EmbedBuilder()
@@ -150,7 +154,6 @@ if (interaction.customId === 'select_antispam') {
 
         // 🔗 ANTI LINK
         if (interaction.customId === 'select_antilink') {
-
           if (!db.antiLink[guildId]) db.antiLink[guildId] = [];
 
           if (interaction.values[0] === 'on') {
@@ -158,15 +161,12 @@ if (interaction.customId === 'select_antispam') {
               db.antiLink[guildId].push(channelId);
             }
           } else {
-            db.antiLink[guildId] =
-              db.antiLink[guildId].filter(id => id !== channelId);
+            db.antiLink[guildId] = db.antiLink[guildId].filter(id => id !== channelId);
           }
 
           writeDB(db);
 
-          await interaction.deferUpdate();
-
-          return interaction.followUp({
+          return interaction.reply({
             content: '✅ Anti-Link atualizado!',
             ephemeral: true
           });
@@ -174,7 +174,6 @@ if (interaction.customId === 'select_antispam') {
 
         // 📜 LOGS
         if (interaction.customId === 'select_logs') {
-
           if (interaction.values[0] === 'set') {
             db.logs[guildId] = channelId;
           } else {
@@ -183,9 +182,7 @@ if (interaction.customId === 'select_antispam') {
 
           writeDB(db);
 
-          await interaction.deferUpdate();
-
-          return interaction.followUp({
+          return interaction.reply({
             content: '✅ Logs atualizado!',
             ephemeral: true
           });
@@ -193,22 +190,27 @@ if (interaction.customId === 'select_antispam') {
 
         // 🚫 ANTI SPAM
         if (interaction.customId === 'select_antispam') {
+          try {
+            db.antispam[guildId] = interaction.values[0] === 'on';
+            writeDB(db);
 
-          db.antispam[guildId] = interaction.values[0] === 'on';
-
-          writeDB(db);
-
-          await interaction.deferUpdate();
-
-          return interaction.followUp({
-            content: `✅ Anti-Spam ${db.antispam[guildId] ? 'ativado' : 'desativado'}!`,
-            ephemeral: true
-          });
+            return interaction.reply({
+              content: `✅ Anti-Spam ${db.antispam[guildId] ? 'ativado' : 'desativado'}!`,
+              ephemeral: true
+            });
+          } catch (err) {
+            console.error('Erro ao atualizar Anti-Spam:', err);
+            if (!interaction.replied) {
+              await interaction.reply({
+                content: '❌ Erro ao atualizar Anti-Spam.',
+                ephemeral: true
+              });
+            }
+          }
         }
 
         // ⚙️ AUTOMOD
         if (interaction.customId === 'select_automod') {
-
           const value = interaction.values[0];
 
           if (value.startsWith('mute')) {
@@ -221,9 +223,7 @@ if (interaction.customId === 'select_antispam') {
 
           writeDB(db);
 
-          await interaction.deferUpdate();
-
-          return interaction.followUp({
+          return interaction.reply({
             content: '✅ AutoMod atualizado!',
             ephemeral: true
           });
