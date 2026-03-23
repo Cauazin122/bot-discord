@@ -17,6 +17,7 @@ import antiSpam from "./events/antiSpam.js";
 import antiLink from "./events/antiLink.js";
 import configPanel from "./events/configPanel.js";
 import { connectMongo } from "./database/mongo.js";
+import { backupDatabase } from "./utils/backup.js";
 
 const app = express();
 const PORT = 3000;
