@@ -10,11 +10,14 @@ export default {
     .setName("removewarn")
     .setDescription("Remover warn")
     .addUserOption(o =>
-      o.setName("usuario").setRequired(true)
-    )
-    .addIntegerOption(o =>
-      o.setName("numero")
-    )
+  o.setName("usuario")
+    .setDescription("Usuário")
+    .setRequired(true)
+)
+.addIntegerOption(o =>
+  o.setName("numero")
+    .setDescription("Número do warn")
+)
     .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
 
   async execute(interaction) {
