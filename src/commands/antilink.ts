@@ -1,46 +1,47 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
-import { readDB, writeDB } from '../utils/database';
+import {
+  SlashCommandBuilder,
+  PermissionFlagsBits
+} from "discord.js";
+
+import GuildConfig from "../models/GuildConfig.js";
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('antilink')
-    .setDescription('Ativar ou desativar anti-link neste canal')
+    .setName("antilink")
+    .setDescription("Ativar/desativar anti-link no canal")
     .addStringOption(option =>
-      option.setName('acao')
-        .setDescription('Ativar ou desativar')
+      option
+        .setName("status")
+        .setDescription("on/off")
         .setRequired(true)
         .addChoices(
-          { name: 'ativar', value: 'on' },
-          { name: 'desativar', value: 'off' }
+          { name: "Ativar", value: "on" },
+          { name: "Desativar", value: "off" }
         )
     )
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
   async execute(interaction) {
-    const action = interaction.options.getString('acao');
-    const db = readDB();
-
+    const status = interaction.options.getString("status");
     const guildId = interaction.guild.id;
     const channelId = interaction.channel.id;
 
-    if (!db.antiLink[guildId]) {
-      db.antiLink[guildId] = [];
-    }
+    let guild = await GuildConfig.findOne({ guildId });
+    if (!guild) guild = await GuildConfig.create({ guildId });
 
-    if (action === 'on') {
-      if (!db.antiLink[guildId].includes(channelId)) {
-        db.antiLink[guildId].push(channelId);
+    if (status === "on") {
+      if (!guild.antiLink.includes(channelId)) {
+        guild.antiLink.push(channelId);
       }
-
-      await interaction.reply('✅ Anti-link ativado neste canal.');
+    } else {
+      guild.antiLink = guild.antiLink.filter(id => id !== channelId);
     }
 
-    if (action === 'off') {
-      db.antiLink[guildId] = db.antiLink[guildId].filter(id => id !== channelId);
+    await guild.save();
 
-      await interaction.reply('❌ Anti-link desativado neste canal.');
-    }
-
-    writeDB(db);
+    await interaction.reply({
+      content: `🔗 Anti-Link ${status === "on" ? "ativado" : "desativado"} neste canal.`,
+      ephemeral: true
+    });
   }
 };
