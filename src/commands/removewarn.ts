@@ -1,14 +1,10 @@
-import {
-  SlashCommandBuilder,
-  PermissionFlagsBits
-} from "discord.js";
-
+import { SlashCommandBuilder } from "discord.js";
 import GuildConfig from "../models/GuildConfig.js";
 
 export default {
   data: new SlashCommandBuilder()
     .setName("removewarn")
-    .setDescription("Remover warn de um usuário")
+    .setDescription("Remover warn")
     .addUserOption(o =>
       o.setName("usuario")
         .setDescription("Usuário")
@@ -16,20 +12,22 @@ export default {
     )
     .addIntegerOption(o =>
       o.setName("numero")
-        .setDescription("Número do warn (opcional)")
-    )
-    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
+        .setDescription("Número do warn")
+    ),
 
   async execute(interaction) {
+    await interaction.deferReply();
+
     const user = interaction.options.getUser("usuario");
     const num = interaction.options.getInteger("numero");
 
     const guild = await GuildConfig.findOne({ guildId: interaction.guild.id });
+    if (!guild) return interaction.editReply("Sem dados.");
 
     let warns = guild.warns.get(user.id) || [];
 
     if (!warns.length) {
-      return interaction.reply("❌ Sem warns.");
+      return interaction.editReply("Sem warns.");
     }
 
     if (num) {
@@ -41,6 +39,6 @@ export default {
     guild.warns.set(user.id, warns);
     await guild.save();
 
-    await interaction.reply("✅ Warn removido.");
+    await interaction.editReply("✅ Warn removido.");
   }
 };
