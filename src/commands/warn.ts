@@ -22,7 +22,10 @@ export default {
     const motivo = interaction.options.getString("motivo") || "Sem motivo";
 
     let guild = await GuildConfig.findOne({ guildId: interaction.guild.id });
-    if (!guild) guild = await GuildConfig.create({ guildId: interaction.guild.id });
+
+    if (!guild) {
+      guild = await GuildConfig.create({ guildId: interaction.guild.id });
+    }
 
     const warns = guild.warns.get(user.id) || [];
 
