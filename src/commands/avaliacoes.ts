@@ -6,10 +6,11 @@ import {
 
 import GuildConfig from "../models/GuildConfig.js";
 
-export const data = new SlashCommandBuilder()
-  .setName("avaliacoes")
-  .setDescription("Mostra suas avaliações de tickets");
-
+export default {
+  data: new SlashCommandBuilder()
+    .setName("avaliacoes")
+    .setDescription("Ver avaliações"),
+  
 export async function execute(interaction: ChatInputCommandInteraction) {
   try {
     const guildId = interaction.guild!.id;
