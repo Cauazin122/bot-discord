@@ -1,55 +1,28 @@
 import { ButtonInteraction } from "discord.js";
 import GuildConfig from "../models/GuildConfig.js";
 
-export async function handleRatingInteraction(interaction: ButtonInteraction) {
-  const customId = interaction.customId;
+export async function handleRating(interaction: ButtonInteraction) {
+  if (!interaction.customId.startsWith("rate_")) return;
 
-  if (!["rate_1", "rate_2", "rate_3", "rate_4", "rate_5"].includes(customId))
-    return;
+  const rating = interaction.customId.split("_")[1];
 
-  const rating = parseInt(customId.replace("rate_", ""));
-  const guildId = interaction.guild?.id;
+  let guild = await GuildConfig.findOne({
+    guildId: interaction.guild.id
+  });
 
-  try {
-    if (!guildId) {
-      return interaction.reply({
-        content: "Erro: servidor não encontrado.",
-        ephemeral: true,
-      });
-    }
+  if (!guild) guild = await GuildConfig.create({
+    guildId: interaction.guild.id
+  });
 
-    // 🔥 pega ou cria servidor
-    let guild = await GuildConfig.findOne({ guildId });
+  guild.avaliacoes.push({
+    user: interaction.user.tag,
+    estrelas: rating
+  });
 
-    if (!guild) {
-      guild = await GuildConfig.create({ guildId });
-    }
+  await guild.save();
 
-    // 🔥 salva avaliação (mesma lógica do seu sistema)
-    guild.avaliacoes.push({
-      userId: interaction.user.id,
-      nota: rating,
-      comentario: "Sem comentário",
-      staff: "Sistema",
-      date: new Date().toLocaleString(),
-    });
-
-    await guild.save();
-
-    // ✅ resposta (igual antes)
-    await interaction.reply({
-      content: `Avaliação salva: ${rating} ⭐`,
-      ephemeral: true,
-    });
-
-  } catch (error) {
-    console.error("Erro ao registrar avaliação:", error);
-
-    if (!interaction.replied) {
-      await interaction.reply({
-        content: "Erro ao registrar avaliação.",
-        ephemeral: true,
-      });
-    }
-  }
+  await interaction.reply({
+    content: `⭐ Avaliação: ${rating}`,
+    ephemeral: true
+  });
 }
