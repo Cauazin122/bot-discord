@@ -11,6 +11,8 @@ export default {
 
     if (!guild.antiLink.includes(message.channel.id)) return;
 
+    if (message.member.permissions.has("Administrator")) return;
+
     if (message.content.includes("http")) {
       await message.delete().catch(() => {});
     }
