@@ -15,6 +15,7 @@ export default {
     await interaction.deferReply();
 
     const user = interaction.options.getUser("usuario");
+
     const guild = await GuildConfig.findOne({ guildId: interaction.guild.id });
 
     const warns = guild?.warns?.get(user.id) || [];
@@ -24,7 +25,7 @@ export default {
     }
 
     const embed = new EmbedBuilder()
-      .setTitle(`Warns de ${user.tag}`)
+      .setTitle(`⚠️ Warns de ${user.tag}`)
       .setDescription(
         warns.map((w, i) => `${i + 1}. ${w.reason}`).join("\n")
       );
