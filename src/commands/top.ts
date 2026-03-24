@@ -1,87 +1,53 @@
 import {
   SlashCommandBuilder,
-  ChatInputCommandInteraction,
-  EmbedBuilder,
+  EmbedBuilder
 } from "discord.js";
 
 import GuildConfig from "../models/GuildConfig.js";
 
-export const data = new SlashCommandBuilder()
-  .setName("top")
-  .setDescription("Ranking dos melhores atendentes");
+export default {
+  data: new SlashCommandBuilder()
+    .setName("top")
+    .setDescription("Ranking de staff"),
 
-export async function execute(interaction: ChatInputCommandInteraction) {
-  try {
-    const guildId = interaction.guild!.id;
+  async execute(interaction) {
+    const guild = await GuildConfig.findOne({
+      guildId: interaction.guild.id
+    });
 
-    const guild = await GuildConfig.findOne({ guildId });
-
-    if (!guild?.avaliacoes.length) {
-      return interaction.reply({
-        content: "Nenhuma avaliação registrada ainda.",
-        ephemeral: true,
-      });
+    if (!guild || !guild.avaliacoes.length) {
+      return interaction.reply("Sem avaliações.");
     }
 
-    const stats: Record<
-      string,
-      { total: number; soma: number; primeira: number; ultima: number }
-    > = {};
+    const stats = {};
 
-    // 📊 agrupar
     guild.avaliacoes.forEach(av => {
-      if (!stats[av.userId]) {
-        stats[av.userId] = {
-          total: 0,
-          soma: 0,
-          primeira: new Date(av.date).getTime(),
-          ultima: new Date(av.date).getTime(),
-        };
+      if (!stats[av.user]) {
+        stats[av.user] = { total: 0, soma: 0 };
       }
 
-      stats[av.userId].total++;
-      stats[av.userId].soma += av.nota;
-
-      const time = new Date(av.date).getTime();
-      stats[av.userId].ultima = time;
+      stats[av.user].total++;
+      stats[av.user].soma += parseInt(av.estrelas);
     });
 
-    // 🏆 ranking
     const ranking = Object.entries(stats)
-      .map(([userId, s]) => ({
-        userId,
+      .map(([user, s]: any) => ({
+        user,
         media: (s.soma / s.total).toFixed(2),
-        total: s.total,
-        tempo: Math.floor((s.ultima - s.primeira) / (1000 * 60)),
+        total: s.total
       }))
-      .sort((a, b) => parseFloat(b.media) - parseFloat(a.media))
+      .sort((a, b) => b.media - a.media)
       .slice(0, 10);
 
-    // 🎯 texto
-    const texto = await Promise.all(
-      ranking.map(async (r, i) => {
-        const user = await interaction.client.users.fetch(r.userId).catch(() => null);
-
-        return `${i + 1}. ${user?.tag || "Usuário desconhecido"}
-   ⭐ ${r.media} (${r.total} avaliações)
-   ⏱️ Tempo: ${r.tempo}min`;
-      })
-    );
+    const text = ranking.map((u, i) =>
+      `${i + 1}. ${u.user}\n⭐ ${u.media} (${u.total})`
+    ).join("\n\n");
 
     const embed = new EmbedBuilder()
-      .setColor("#FFD700")
-      .setTitle("🏆 Top 10 Atendentes")
-      .setDescription(texto.join("\n\n") || "Sem dados")
-      .setTimestamp();
+      .setTitle("🏆 Ranking")
+      .setDescription(text)
+      .setColor("Gold");
 
     await interaction.reply({ embeds: [embed] });
-
-  } catch (error) {
-    console.error("Erro ao buscar ranking:", error);
-
-    await interaction.reply({
-      content: "Erro ao buscar ranking.",
-      ephemeral: true,
-    });
   }
-}
+};
