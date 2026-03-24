@@ -2,104 +2,48 @@ import express from "express";
 import {
   Client,
   GatewayIntentBits,
-  ActivityType,
   REST,
   Routes
 } from "discord.js";
 
 import { commands } from "./commands/index.js";
 import { handleInteraction } from "./events/interactionCreate.js";
-import { handleButtonInteraction } from "./events/buttonCreate.js";
-import { handleSelectMenuInteraction } from "./events/selectMenuCreate.js";
-import { handleClaimTicketInteraction } from "./events/claimTicketCreate.js";
-import antiSpam from "./events/antiSpam.js";
-import antiLink from "./events/antiLink.js";
-import configPanel from "./events/configPanel.js";
 import { connectMongo } from "./database/mongo.js";
 
 const app = express();
-app.get("/", (req, res) => res.send("Bot online!"));
+app.get("/", (req, res) => res.send("Bot online"));
 app.listen(3000);
 
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildMembers
   ]
 });
 
 const token = process.env.DISCORD_BOT_TOKEN;
 
-// 🔥 CONECTA MONGO ANTES DE TUDO
-await connectMongo();
-
 client.once("clientReady", async () => {
   console.log(`✅ Logado como ${client.user.tag}`);
 
-  const commandData = Object.values(commands)
-    .filter(cmd => cmd.data)
-    .map(cmd => cmd.data.toJSON());
+  const rest = new REST({ version: "10" }).setToken(token);
 
-  const rest = new REST().setToken(token);
+  const cmds = Object.values(commands).map(c => c.data.toJSON());
 
   try {
     await rest.put(
       Routes.applicationCommands(client.user.id),
-      { body: commandData }
+      { body: cmds }
     );
+
     console.log("✅ Comandos registrados");
   } catch (err) {
-    console.error("❌ Erro ao registrar comandos:", err);
-  }
-
-  client.user.setPresence({
-    activities: [{ name: "Sistema online 🚀", type: ActivityType.Watching }],
-    status: "online"
-  });
-});
-
-client.on("interactionCreate", async (interaction) => {
-  try {
-    if (interaction.isStringSelectMenu()) {
-
-      if (
-        interaction.customId === "select_antilink" ||
-        interaction.customId === "select_logs"
-      ) {
-        return configPanel.execute(interaction);
-      }
-
-      return handleSelectMenuInteraction(interaction);
-    }
-
-    if (interaction.isButton()) {
-      if (interaction.customId.startsWith("config_")) {
-        return configPanel.execute(interaction);
-      }
-
-      await handleClaimTicketInteraction(interaction);
-      return handleButtonInteraction(interaction);
-    }
-
-    if (interaction.isChatInputCommand()) {
-      return handleInteraction(interaction, commands);
-    }
-
-  } catch (err) {
-    console.error("❌ Erro geral:", err);
-
-    if (!interaction.replied) {
-      await interaction.reply({
-        content: "❌ Erro ao executar.",
-        ephemeral: true
-      });
-    }
+    console.error("Erro ao registrar comandos:", err);
   }
 });
 
-client.on(antiSpam.name, (...args) => antiSpam.execute(...args));
-client.on(antiLink.name, (...args) => antiLink.execute(...args));
+client.on("interactionCreate", i => handleInteraction(i, commands));
 
+await connectMongo();
 client.login(token);
