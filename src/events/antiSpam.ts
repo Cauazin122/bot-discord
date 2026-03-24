@@ -11,6 +11,8 @@ export default {
     const guild = await GuildConfig.findOne({ guildId: message.guild.id });
     if (!guild || !guild.antiSpam.enabled) return;
 
+    if (message.member.permissions.has("Administrator")) return;
+
     const now = Date.now();
     const data = userMessages.get(message.author.id) || [];
 
