@@ -3,7 +3,7 @@ import {
   PermissionFlagsBits
 } from "discord.js";
 
-import GuildConfig from "../models/GuildConfig.js";
+import { readDB, writeDB } from "../utils/database.js";
 
 export default {
   data: new SlashCommandBuilder()
@@ -13,7 +13,7 @@ export default {
     .addUserOption(o =>
       o
         .setName("usuario")
-        .setDescription("Usuário alvo") // ✅ CORREÇÃO
+        .setDescription("Usuário alvo")
         .setRequired(true)
     )
     .addIntegerOption(o =>
@@ -27,13 +27,18 @@ export default {
     const num = interaction.options.getInteger("numero");
     const guildId = interaction.guild.id;
 
-    const guild = await GuildConfig.findOne({ guildId });
-    if (!guild) return interaction.reply("Sem dados");
+    const db = readDB();
 
-    let warns = guild.warns.get(user.id) || [];
+    if (!db.warns) db.warns = {};
+    if (!db.warns[guildId]) db.warns[guildId] = {};
+
+    let warns = db.warns[guildId][user.id] || [];
 
     if (!warns.length) {
-      return interaction.reply("Sem warns.");
+      return interaction.reply({
+        content: "❌ Esse usuário não possui warns.",
+        ephemeral: true
+      });
     }
 
     if (num) {
@@ -42,9 +47,12 @@ export default {
       warns = [];
     }
 
-    guild.warns.set(user.id, warns);
-    await guild.save();
+    db.warns[guildId][user.id] = warns;
+    writeDB(db);
 
-    await interaction.reply("✅ Warn removido.");
+    await interaction.reply({
+      content: `✅ Warn removido. Total: ${warns.length}`,
+      ephemeral: true
+    });
   }
 };

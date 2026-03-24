@@ -1,13 +1,14 @@
 import { EmbedBuilder } from "discord.js";
-import GuildConfig from "../models/GuildConfig.js";
+import { readDB } from "./database.js";
 
 export async function sendLog(guild, data) {
-  const config = await GuildConfig.findOne({ guildId: guild.id });
+  const db = readDB();
+  const logChannelId = db.logs?.[guild.id];
 
-  if (!config?.logs) return;
+  if (!logChannelId) return;
 
-  const channel = guild.channels.cache.get(config.logs);
-  if (!channel) return;
+  const channel = guild.channels.cache.get(logChannelId);
+  if (!channel || !channel.isTextBased()) return;
 
   const embed = new EmbedBuilder()
     .setTitle(`📋 ${data.action}`)
@@ -19,5 +20,9 @@ export async function sendLog(guild, data) {
     .setColor('Red')
     .setTimestamp();
 
-  await channel.send({ embeds: [embed] });
+  try {
+    await channel.send({ embeds: [embed] });
+  } catch (err) {
+    console.error('Erro ao enviar log:', err);
+  }
 }
