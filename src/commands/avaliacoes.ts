@@ -5,14 +5,14 @@ import {
 
 export default {
   data: new SlashCommandBuilder()
-    .setName("top")
-    .setDescription("Ranking de avaliações"),
+    .setName("avaliacoes")
+    .setDescription("Ver suas avaliações"),
 
   async execute(interaction) {
     const embed = new EmbedBuilder()
-      .setTitle("🏆 Top usuários")
-      .setDescription("Ranking ainda em desenvolvimento.")
-      .setColor("Gold");
+      .setTitle("⭐ Avaliações")
+      .setDescription("Sistema funcionando corretamente.")
+      .setColor("Yellow");
 
     await interaction.reply({ embeds: [embed] });
   }
