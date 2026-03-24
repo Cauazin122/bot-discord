@@ -22,6 +22,7 @@ export default {
     const num = interaction.options.getInteger("numero");
 
     const guild = await GuildConfig.findOne({ guildId: interaction.guild.id });
+
     if (!guild) return interaction.editReply("Sem dados.");
 
     let warns = guild.warns.get(user.id) || [];
