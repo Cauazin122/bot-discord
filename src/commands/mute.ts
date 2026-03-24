@@ -1,54 +1,29 @@
-import {
-  SlashCommandBuilder,
-  PermissionFlagsBits,
-  ChatInputCommandInteraction
-} from 'discord.js';
-
-import { sendLog } from '../utils/logs.js';
+import { SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('mute')
-    .setDescription('Mutar um membro')
-    .addUserOption(option =>
-      option
-        .setName('usuario')
-        .setDescription('Usuário a ser mutado')
+    .setName("mute")
+    .setDescription("Mutar membro")
+    .addUserOption(o =>
+      o.setName("usuario")
+        .setDescription("Usuário")
         .setRequired(true)
     )
-    .addIntegerOption(option =>
-      option
-        .setName('tempo')
-        .setDescription('Tempo em minutos')
+    .addIntegerOption(o =>
+      o.setName("tempo")
+        .setDescription("Tempo em minutos")
         .setRequired(true)
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
 
-  async execute(interaction: ChatInputCommandInteraction) {
-    const user = interaction.options.getUser('usuario');
-    const tempo = interaction.options.getInteger('tempo');
+  async execute(interaction) {
+    const user = interaction.options.getUser("usuario");
+    const tempo = interaction.options.getInteger("tempo");
 
-    if (!user || !tempo) {
-      return interaction.reply({ content: '❌ Dados inválidos.', ephemeral: true });
-    }
+    const member = interaction.guild.members.cache.get(user.id);
 
-    const member = interaction.guild?.members.cache.get(user.id);
+    await member.timeout(tempo * 60000);
 
-    if (!member) {
-      return interaction.reply({ content: '❌ Usuário não encontrado.', ephemeral: true });
-    }
-
-    await member.timeout(tempo * 60 * 1000);
-
-    await interaction.reply({
-      content: `🔇 ${user.tag} foi mutado por ${tempo} minuto(s).`
-    });
-
-    await sendLog(interaction.guild, {
-      action: 'Mute',
-      user: user,
-      staff: interaction.user,
-      reason: `${tempo} minuto(s)`
-    });
+    await interaction.reply(`🔇 ${user.tag} mutado por ${tempo} min.`);
   }
 };
