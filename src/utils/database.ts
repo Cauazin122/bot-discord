@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const dbPath = path.join(process.cwd(), 'src', 'database.json');
+const dbPath = path.join(process.cwd(), 'database.json');
 
 export function readDB() {
   if (!fs.existsSync(dbPath)) {
