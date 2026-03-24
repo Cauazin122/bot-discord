@@ -1,11 +1,11 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
+import { SlashCommandBuilder } from "discord.js";
 
-export const data = new SlashCommandBuilder()
-  .setName("helpadm")
-  .setDescription("Lista todos os comandos disponíveis para administradores")
-  .setDefaultMemberPermissions(0);
-
-export async function execute(interaction: ChatInputCommandInteraction) {
+export default {
+  data: new SlashCommandBuilder()
+    .setName("helpadm")
+    .setDescription("Comandos de admin"),
+  
+async execute(interaction: ChatInputCommandInteraction) {
   const embed = new EmbedBuilder()
     .setColor(0x5865f2)
     .setTitle("📋 Comandos Disponíveis")
