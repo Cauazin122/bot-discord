@@ -8,16 +8,16 @@ import GuildConfig from "../models/GuildConfig.js";
 export default {
   data: new SlashCommandBuilder()
     .setName("removewarn")
-    .setDescription("Remover warn")
+    .setDescription("Remover warn de um usuário")
     .addUserOption(o =>
-  o.setName("usuario")
-    .setDescription("Usuário")
-    .setRequired(true)
-)
-.addIntegerOption(o =>
-  o.setName("numero")
-    .setDescription("Número do warn")
-)
+      o.setName("usuario")
+        .setDescription("Usuário")
+        .setRequired(true)
+    )
+    .addIntegerOption(o =>
+      o.setName("numero")
+        .setDescription("Número do warn (opcional)")
+    )
     .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
 
   async execute(interaction) {
@@ -29,7 +29,7 @@ export default {
     let warns = guild.warns.get(user.id) || [];
 
     if (!warns.length) {
-      return interaction.reply("Sem warns.");
+      return interaction.reply("❌ Sem warns.");
     }
 
     if (num) {
