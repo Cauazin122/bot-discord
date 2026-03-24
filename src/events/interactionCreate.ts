@@ -19,19 +19,26 @@ export async function handleInteraction(
   }
 
   try {
+    // 🔥 CORREÇÃO PRINCIPAL (evita erro 10062)
+    if (!interaction.deferred && !interaction.replied) {
+      await interaction.deferReply();
+    }
+
     await command.execute(interaction);
+
   } catch (error) {
     console.error(`Erro ao executar ${interaction.commandName}:`, error);
+
     try {
       if (interaction.replied || interaction.deferred) {
         await interaction.followUp({
           content: "Ocorreu um erro ao executar este comando.",
-          flags: 64,
+          ephemeral: true,
         });
       } else {
         await interaction.reply({
           content: "Ocorreu um erro ao executar este comando.",
-          flags: 64,
+          ephemeral: true,
         });
       }
     } catch (replyError) {
