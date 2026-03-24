@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction } from "discord.js";
 import ping from "./ping.js";
-import ajuda from "./ajuda.js";
+import help from "./help.js";
 import eco from "./echo.js";
 import info from "./info.js";
 import ticket from "./ticket.js";
