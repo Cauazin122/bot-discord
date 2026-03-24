@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 
 export const data = new SlashCommandBuilder()
-  .setName("ajuda")
+  .setName("help")
   .setDescription("Lista todos os comandos disponíveis");
 
 export async function execute(interaction: ChatInputCommandInteraction) {
