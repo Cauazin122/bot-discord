@@ -1,28 +1,24 @@
 import { EmbedBuilder } from "discord.js";
-import { readDB } from "./database.js";
+import GuildConfig from "../models/GuildConfig.js";
 
 export async function sendLog(guild, data) {
-  const db = readDB();
-  const logChannelId = db.logs?.[guild.id];
+  if (!guild) return;
 
-  if (!logChannelId) return;
+  const config = await GuildConfig.findOne({ guildId: guild.id });
+  if (!config || !config.logs) return;
 
-  const channel = guild.channels.cache.get(logChannelId);
-  if (!channel || !channel.isTextBased()) return;
+  const channel = guild.channels.cache.get(config.logs);
+  if (!channel) return;
 
   const embed = new EmbedBuilder()
-    .setTitle(`📋 ${data.action}`)
+    .setColor("#2b2d31")
+    .setTitle(`📌 ${data.action}`)
     .addFields(
-      { name: '👤 Usuário', value: `${data.user.tag}` },
-      { name: '🛡️ Staff', value: `${data.staff.tag}` },
-      { name: '📄 Motivo', value: data.reason }
+      { name: "👤 Usuário", value: `${data.user?.tag || "N/A"}` },
+      { name: "🛠️ Staff", value: `${data.staff?.tag || "Sistema"}` },
+      { name: "📄 Detalhes", value: data.reason || "Sem motivo" }
     )
-    .setColor('Red')
     .setTimestamp();
 
-  try {
-    await channel.send({ embeds: [embed] });
-  } catch (err) {
-    console.error('Erro ao enviar log:', err);
-  }
+  channel.send({ embeds: [embed] }).catch(() => {});
 }
