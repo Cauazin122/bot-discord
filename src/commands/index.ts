@@ -15,6 +15,7 @@ import removewarn from "./removewarn.js";
 import warns from "./warns.js";
 import antilink from "./antilink.js";
 import config from "./config.js";
+import automod from "./automod.js";
 
 export interface Command {
   data: SlashCommandBuilder;
@@ -37,5 +38,6 @@ export const commands: Record<string, Command> = {
   removewarn,
   warns,
   antilink,
-  config
+  config,
+  automod
 };
