@@ -18,7 +18,7 @@ import config from "./config.js";
 
 export const commands = {
   ping,
-  ajuda,
+  help,
   eco,
   info,
   ticket,
