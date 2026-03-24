@@ -1,51 +1,34 @@
 import {
   SlashCommandBuilder,
   EmbedBuilder
-} from 'discord.js';
+} from "discord.js";
 
-import { readDB } from '../utils/database.js';
+import GuildConfig from "../models/GuildConfig.js";
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('warns')
-    .setDescription('Ver os avisos de um usuário')
-    .addUserOption(option =>
-      option.setName('usuario')
-        .setDescription('Usuário')
-        .setRequired(true)
+    .setName("warns")
+    .setDescription("Ver warns")
+    .addUserOption(o =>
+      o.setName("usuario").setRequired(true)
     ),
 
   async execute(interaction) {
-    const user = interaction.options.getUser('usuario');
-    const guildId = interaction.guild.id;
+    const user = interaction.options.getUser("usuario");
 
-    const db = readDB();
+    const guild = await GuildConfig.findOne({ guildId: interaction.guild.id });
 
-    const warns = db.warns?.[guildId]?.[user.id] || [];
-    const config = db.autoMod?.[guildId] || { mute: 3, kick: 5 };
+    const warns = guild?.warns.get(user.id) || [];
 
-    if (warns.length === 0) {
-      return interaction.reply({
-        content: '❌ Esse usuário não possui warns.',
-        ephemeral: true
-      });
+    if (!warns.length) {
+      return interaction.reply("Sem warns.");
     }
 
-    const description = warns
-      .map((w, i) =>
-        `**${i + 1}.** 📄 Motivo: ${w.reason}\n👮 Staff: ${w.staff}\n📅 ${w.date}`
-      )
-      .join('\n\n');
-
     const embed = new EmbedBuilder()
-      .setTitle(`⚠️ Avisos de ${user.username}`)
-      .setDescription(description)
-      .addFields({
-        name: '⚙️ AutoMod',
-        value: `🔇 Mute: ${config.mute} warns\n👢 Kick: ${config.kick} warns`
-      })
-      .setColor('Orange')
-      .setTimestamp();
+      .setTitle(`Warns de ${user.tag}`)
+      .setDescription(
+        warns.map((w, i) => `${i + 1}. ${w.reason}`).join("\n")
+      );
 
     await interaction.reply({ embeds: [embed] });
   }
