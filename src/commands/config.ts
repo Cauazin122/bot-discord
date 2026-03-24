@@ -1,52 +1,11 @@
-import {
-  SlashCommandBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  EmbedBuilder,
-  PermissionFlagsBits
-} from 'discord.js';
+import { SlashCommandBuilder } from "discord.js";
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('config')
-    .setDescription('Painel de configuração do bot')
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
+    .setName("config")
+    .setDescription("Configurar bot"),
 
   async execute(interaction) {
-
-    const embed = new EmbedBuilder()
-      .setTitle('⚙️ Painel de Configuração')
-      .setDescription('Escolha uma opção abaixo:')
-      .setColor('Blue');
-
-    const row = new ActionRowBuilder<ButtonBuilder>()
-      .addComponents(
-        new ButtonBuilder()
-          .setCustomId('config_antilink')
-          .setLabel('Anti-Link')
-          .setStyle(ButtonStyle.Primary),
-
-        new ButtonBuilder()
-          .setCustomId('config_logs')
-          .setLabel('Logs')
-          .setStyle(ButtonStyle.Secondary),
-
-        new ButtonBuilder()
-          .setCustomId('config_antispam')
-          .setLabel('Anti-Spam')
-          .setStyle(ButtonStyle.Danger),
-
-        new ButtonBuilder()
-          .setCustomId('config_automod')
-          .setLabel('AutoMod')
-          .setStyle(ButtonStyle.Success)
-      );
-
-    await interaction.reply({
-      embeds: [embed],
-      components: [row],
-      ephemeral: true
-    });
+    await interaction.reply("⚙️ Painel de configuração em breve.");
   }
 };
