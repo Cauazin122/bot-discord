@@ -21,9 +21,6 @@ const app = express();
 app.get("/", (req, res) => res.send("Bot online!"));
 app.listen(3000);
 
-// 🔥 CONECTA ANTES DE TUDO
-await connectMongo();
-
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -35,7 +32,9 @@ const client = new Client({
 
 const token = process.env.DISCORD_BOT_TOKEN;
 
-// ✅ READY
+// 🔥 CONECTA MONGO ANTES DE TUDO
+await connectMongo();
+
 client.once("clientReady", async () => {
   console.log(`✅ Logado como ${client.user.tag}`);
 
@@ -56,18 +55,15 @@ client.once("clientReady", async () => {
   }
 
   client.user.setPresence({
-    activities: [{ name: "Gerenciando servidor 🚀", type: ActivityType.Watching }],
+    activities: [{ name: "Sistema online 🚀", type: ActivityType.Watching }],
     status: "online"
   });
 });
 
-// 🔥 INTERAÇÕES
 client.on("interactionCreate", async (interaction) => {
-
   try {
-
-    // SELECT MENU
     if (interaction.isStringSelectMenu()) {
+
       if (
         interaction.customId === "select_antilink" ||
         interaction.customId === "select_logs"
@@ -78,7 +74,6 @@ client.on("interactionCreate", async (interaction) => {
       return handleSelectMenuInteraction(interaction);
     }
 
-    // BOTÕES
     if (interaction.isButton()) {
       if (interaction.customId.startsWith("config_")) {
         return configPanel.execute(interaction);
@@ -88,9 +83,8 @@ client.on("interactionCreate", async (interaction) => {
       return handleButtonInteraction(interaction);
     }
 
-    // COMANDOS
     if (interaction.isChatInputCommand()) {
-      await handleInteraction(interaction, commands);
+      return handleInteraction(interaction, commands);
     }
 
   } catch (err) {
@@ -98,14 +92,13 @@ client.on("interactionCreate", async (interaction) => {
 
     if (!interaction.replied) {
       await interaction.reply({
-        content: "❌ Erro ao executar comando.",
+        content: "❌ Erro ao executar.",
         ephemeral: true
       });
     }
   }
 });
 
-// EVENTOS
 client.on(antiSpam.name, (...args) => antiSpam.execute(...args));
 client.on(antiLink.name, (...args) => antiLink.execute(...args));
 
