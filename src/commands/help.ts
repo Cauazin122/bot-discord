@@ -1,8 +1,9 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
+import { SlashCommandBuilder } from "discord.js";
 
-export const data = new SlashCommandBuilder()
-  .setName("ajuda")
-  .setDescription("Lista todos os comandos disponíveis");
+export default {
+  data: new SlashCommandBuilder()
+    .setName("help")
+    .setDescription("Ver comandos"),
 
 export async function execute(interaction: ChatInputCommandInteraction) {
   const embed = new EmbedBuilder()
