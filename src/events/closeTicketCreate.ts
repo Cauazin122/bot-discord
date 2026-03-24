@@ -1,5 +1,3 @@
-import fs from "fs";
-import path from "path";
 import {
   ButtonInteraction,
   EmbedBuilder,
@@ -10,7 +8,9 @@ import {
   TextInputBuilder,
   TextInputStyle,
 } from "discord.js";
+
 import { getGuildConfig } from "../config.js";
+import GuildConfig from "../models/GuildConfig.js";
 
 export async function handleCloseTicketInteraction(
   interaction: ButtonInteraction
@@ -19,46 +19,14 @@ export async function handleCloseTicketInteraction(
 
   const guild = interaction.guild;
   const guildConfig = getGuildConfig(guild?.id || "");
-  const staffRoles = guildConfig.STAFF_ROLES;
 
-  if (!interaction.member || !("roles" in interaction.member)) {
-    await interaction.reply({
-      content: "Não foi possível verificar suas permissões.",
-      flags: 64,
-    });
-    return;
-  }
-
-  const hasStaffRole = staffRoles.some((roleId) =>
-    interaction.member!.roles.cache.has(roleId)
-  );
-
-  if (!hasStaffRole) {
-    await interaction.reply({
-      content: "Apenas staffs podem fechar tickets.",
-      flags: 64,
-    });
-    return;
-  }
-
-  if (!guild || !guildConfig.LOG_CHANNEL) {
-    await interaction.reply({
-      content: "Canal de log não configurado.",
-      flags: 64,
-    });
-    return;
-  }
+  if (!guild) return;
 
   try {
     const ratingEmbed = new EmbedBuilder()
       .setColor("#FFD700")
       .setTitle("⭐ Avaliar Atendimento")
-      .setDescription("Clique em uma estrela para avaliar o staff que te atendeu")
-      .addFields({
-        name: "Como é a avaliação?",
-        value: "⭐ = Péssimo | ⭐⭐ = Ruim | ⭐⭐⭐ = Ok | ⭐⭐⭐⭐ = Bom | ⭐⭐⭐⭐⭐ = Excelente",
-        inline: false,
-      })
+      .setDescription("Clique para avaliar")
       .setTimestamp();
 
     const ratingRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -69,116 +37,60 @@ export async function handleCloseTicketInteraction(
       new ButtonBuilder().setCustomId("rate_5").setLabel("⭐⭐⭐⭐⭐").setStyle(ButtonStyle.Success)
     );
 
-    const ratingMessage = await interaction.reply({
+    const msg = await interaction.reply({
       embeds: [ratingEmbed],
       components: [ratingRow],
       fetchReply: true,
     });
 
-    const filter = (btn: any) => ["rate_1", "rate_2", "rate_3", "rate_4", "rate_5"].includes(btn.customId);
-    const collector = ratingMessage.createMessageComponentCollector({ filter, time: 60000 });
+    const collector = msg.createMessageComponentCollector({ time: 60000 });
 
-    let userRating = "Sem avaliação";
-    let userFeedback = "";
-
-    collector.on("collect", async (ratingInteraction) => {
-      const rating = ratingInteraction.customId.replace("rate_", "");
+    collector.on("collect", async (btn) => {
+      const rating = btn.customId.replace("rate_", "");
 
       const modal = new ModalBuilder()
-        .setCustomId(`feedback_modal_${rating}`)
-        .setTitle("Feedback Opcional");
+        .setCustomId(`feedback_${rating}`)
+        .setTitle("Feedback");
 
-      const feedbackInput = new TextInputBuilder()
-        .setCustomId("feedback_text")
-        .setLabel("Feedback (opcional)")
+      const input = new TextInputBuilder()
+        .setCustomId("feedback")
+        .setLabel("Feedback")
         .setStyle(TextInputStyle.Paragraph)
-        .setRequired(false)
-        .setMaxLength(500)
-        .setPlaceholder("Deixe seu feedback sobre o atendimento...");
+        .setRequired(false);
 
-      const feedbackRow = new ActionRowBuilder<TextInputBuilder>().addComponents(feedbackInput);
-      modal.addComponents(feedbackRow);
+      modal.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(input));
 
-      await ratingInteraction.showModal(modal);
+      await btn.showModal(modal);
 
-      try {
-        const modalSubmit = await ratingInteraction.awaitModalSubmit({ time: 300000 });
-        const feedback = modalSubmit.fields.getTextInputValue("feedback_text") || "";
+      const submit = await btn.awaitModalSubmit({ time: 300000 });
 
-        try {
-          const dbPath = path.join(process.cwd(), "database.json");
-          const dbData = fs.readFileSync(dbPath, "utf-8");
-          const db = JSON.parse(dbData);
+      const feedback = submit.fields.getTextInputValue("feedback") || "";
 
-          db.avaliacoes.push({
-            user: interaction.user.tag,
-            estrelas: rating,
-            feedback: feedback,
-            data: new Date().toISOString(),
-          });
+      // 🔥 SALVAR NO MONGO
+      let guildDB = await GuildConfig.findOne({ guildId: guild.id });
+      if (!guildDB) guildDB = await GuildConfig.create({ guildId: guild.id });
 
-          fs.writeFileSync(dbPath, JSON.stringify(db, null, 2));
+      guildDB.avaliacoes.push({
+        user: interaction.user.tag,
+        estrelas: rating,
+        feedback
+      });
 
-          userRating = `${rating}⭐`;
-          userFeedback = feedback;
+      await guildDB.save();
 
-          await modalSubmit.reply({
-            content: "✅ Avaliação e feedback salvos com sucesso!",
-            flags: 64,
-          });
+      await submit.reply({
+        content: "✅ Avaliação salva!",
+        ephemeral: true
+      });
 
-          collector.stop();
-        } catch (error) {
-          console.error("Erro ao salvar avaliação:", error);
-          await modalSubmit.reply({
-            content: "Erro ao salvar avaliação.",
-            flags: 64,
-          });
-        }
-      } catch (modalError) {
-        try {
-          await ratingInteraction.followUp({
-            content: "⏰ Tempo esgotado para enviar feedback. Avaliação não foi registrada.",
-            flags: 64,
-          });
-        } catch (e) {
-          console.error("Erro ao informar timeout:", e);
-        }
-      }
+      collector.stop();
     });
 
     collector.on("end", async () => {
-      try {
-        const logChannel = guild.channels.cache.get(guildConfig.LOG_CHANNEL);
-
-        if (logChannel && logChannel.isTextBased()) {
-          const embedLog = new EmbedBuilder()
-            .setColor("#95a5a6")
-            .setTitle("📝 Ticket Fechado")
-            .addFields(
-              { name: "👤 Usuário", value: `${interaction.user.tag}` },
-              { name: "⭐ Avaliação", value: userRating },
-              { name: "💬 Feedback", value: userFeedback || "Sem feedback" }
-            )
-            .setTimestamp();
-
-          await logChannel.send({ embeds: [embedLog] });
-        }
-
-        await interaction.channel?.send(`$$transcript <#${guildConfig.TRANSCRIPT_CHANNEL}>`);
-
-        setTimeout(() => {
-          interaction.channel?.delete().catch((err) => console.error("Erro ao deletar canal:", err));
-        }, 3000);
-      } catch (error) {
-        console.error("Erro ao finalizar ticket:", error);
-      }
+      await interaction.channel?.delete().catch(() => {});
     });
-  } catch (error) {
-    console.error("Erro ao fechar ticket:", error);
-    await interaction.reply({
-      content: "Erro ao fechar o ticket.",
-      flags: 64,
-    });
+
+  } catch (err) {
+    console.error(err);
   }
 }
