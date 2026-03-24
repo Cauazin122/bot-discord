@@ -1,48 +1,23 @@
-import { Interaction } from "discord.js";
 import { Command } from "../commands/index.js";
+import { Interaction } from "discord.js";
 
-export async function handleInteraction(
-  interaction: Interaction,
-  commands: Record<string, Command>
-) {
+export async function handleInteraction(interaction, commands) {
   if (!interaction.isChatInputCommand()) return;
 
   const command = commands[interaction.commandName];
-
-  if (!command) {
-    console.error(`Comando não encontrado: ${interaction.commandName}`);
-    await interaction.reply({
-      content: "Comando desconhecido.",
-      ephemeral: true,
-    });
-    return;
-  }
+  if (!command) return;
 
   try {
-    // 🔥 CORREÇÃO PRINCIPAL (evita erro 10062)
-    if (!interaction.deferred && !interaction.replied) {
-      await interaction.deferReply();
-    }
+    // 🔥 ESSENCIAL
+    await interaction.deferReply();
 
     await command.execute(interaction);
 
-  } catch (error) {
-    console.error(`Erro ao executar ${interaction.commandName}:`, error);
+  } catch (err) {
+    console.error(`Erro no comando ${interaction.commandName}:`, err);
 
-    try {
-      if (interaction.replied || interaction.deferred) {
-        await interaction.followUp({
-          content: "Ocorreu um erro ao executar este comando.",
-          ephemeral: true,
-        });
-      } else {
-        await interaction.reply({
-          content: "Ocorreu um erro ao executar este comando.",
-          ephemeral: true,
-        });
-      }
-    } catch (replyError) {
-      console.error("Erro ao responder interação:", replyError);
+    if (!interaction.replied) {
+      await interaction.editReply("❌ Erro ao executar comando.");
     }
   }
 }
