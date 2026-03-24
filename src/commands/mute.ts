@@ -1,4 +1,7 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
+import {
+  SlashCommandBuilder,
+  PermissionFlagsBits
+} from "discord.js";
 
 export default {
   data: new SlashCommandBuilder()
@@ -22,8 +25,12 @@ export default {
 
     const member = interaction.guild.members.cache.get(user.id);
 
+    if (!member) {
+      return interaction.reply("❌ Usuário não encontrado.");
+    }
+
     await member.timeout(tempo * 60000);
 
-    await interaction.reply(`🔇 ${user.tag} mutado por ${tempo} min.`);
+    await interaction.reply(`🔇 ${user.tag} mutado por ${tempo} minutos.`);
   }
 };
