@@ -6,6 +6,6 @@ export default {
     .setDescription("Configurar bot"),
 
   async execute(interaction) {
-    await interaction.reply("⚙️ Painel de configuração em breve.");
+    await interaction.reply("⚙️ Painel de config.");
   }
 };
