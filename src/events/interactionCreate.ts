@@ -1,4 +1,3 @@
-import { Command } from "../commands/index.js";
 import { Interaction } from "discord.js";
 
 export async function handleInteraction(interaction, commands) {
@@ -8,16 +7,24 @@ export async function handleInteraction(interaction, commands) {
   if (!command) return;
 
   try {
-    // 🔥 ESSENCIAL
-    await interaction.deferReply();
-
+    // ❌ NÃO USAR deferReply aqui
     await command.execute(interaction);
 
   } catch (err) {
     console.error(`Erro no comando ${interaction.commandName}:`, err);
 
-    if (!interaction.replied) {
-      await interaction.editReply("❌ Erro ao executar comando.");
-    }
+    try {
+      if (interaction.replied || interaction.deferred) {
+        await interaction.followUp({
+          content: "❌ Erro ao executar comando.",
+          ephemeral: true
+        });
+      } else {
+        await interaction.reply({
+          content: "❌ Erro ao executar comando.",
+          ephemeral: true
+        });
+      }
+    } catch {}
   }
 }
