@@ -7,9 +7,7 @@ export async function handleInteraction(interaction, commands) {
   if (!command) return;
 
   try {
-    // ❌ NÃO USAR deferReply aqui
     await command.execute(interaction);
-
   } catch (err) {
     console.error(`Erro no comando ${interaction.commandName}:`, err);
 
