@@ -1,17 +1,18 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction } from "discord.js";
+import { SlashCommandBuilder } from "discord.js";
 
-export const data = new SlashCommandBuilder()
-  .setName("eco")
-  .setDescription("Repete uma mensagem para você")
-  .addStringOption((option) =>
-    option
-      .setName("mensagem")
-      .setDescription("A mensagem a ecoar")
-      .setRequired(true)
-      .setMaxLength(1000)
-  );
+export default {
+  data: new SlashCommandBuilder()
+    .setName("echo")
+    .setDescription("Repete mensagem")
+    .addStringOption(o =>
+      o.setName("texto")
+        .setDescription("Mensagem")
+        .setRequired(true)
+    ),
 
-export async function execute(interaction: ChatInputCommandInteraction) {
-  const message = interaction.options.getString("mensagem", true);
-  await interaction.reply({ content: message });
-}
+  async execute(interaction) {
+    const texto = interaction.options.getString("texto");
+
+    await interaction.reply(texto);
+  }
+};
