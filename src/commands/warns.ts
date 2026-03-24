@@ -8,9 +8,11 @@ import GuildConfig from "../models/GuildConfig.js";
 export default {
   data: new SlashCommandBuilder()
     .setName("warns")
-    .setDescription("Ver warns")
+    .setDescription("Ver warns de um usuário")
     .addUserOption(o =>
-      o.setName("usuario").setRequired(true)
+      o.setName("usuario")
+        .setDescription("Usuário para ver warns")
+        .setRequired(true)
     ),
 
   async execute(interaction) {
@@ -21,13 +23,13 @@ export default {
     const warns = guild?.warns.get(user.id) || [];
 
     if (!warns.length) {
-      return interaction.reply("Sem warns.");
+      return interaction.reply("❌ Esse usuário não possui warns.");
     }
 
     const embed = new EmbedBuilder()
-      .setTitle(`Warns de ${user.tag}`)
+      .setTitle(`⚠️ Warns de ${user.tag}`)
       .setDescription(
-        warns.map((w, i) => `${i + 1}. ${w.reason}`).join("\n")
+        warns.map((w, i) => `**${i + 1}.** ${w.reason}`).join("\n")
       );
 
     await interaction.reply({ embeds: [embed] });
