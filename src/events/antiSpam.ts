@@ -1,4 +1,5 @@
 import { addWarnAuto } from '../utils/autoMod.js';
+import { readDB } from '../utils/database.js';
 
 const messageMap = new Map();
 
@@ -8,6 +9,10 @@ export default {
   async execute(message) {
     if (!message.guild) return;
     if (message.author.bot) return;
+
+    // 🔥 Check if anti-spam is enabled
+    const db = readDB();
+    if (!db.antispam || !db.antispam[message.guild.id]) return;
 
     // 🔥 Ignora staff
     if (message.member.permissions.has('Administrator')) return;
@@ -32,17 +37,27 @@ export default {
 
       try {
         await message.delete();
-      } catch {}
+      } catch (err) {
+        console.error('Erro ao deletar mensagem:', err);
+      }
 
-      await addWarnAuto(
-        message.member,
-        'Spam detectado',
-        message.client.user
-      );
+      try {
+        await addWarnAuto(
+          message.member,
+          'Spam detectado',
+          message.client.user
+        );
+      } catch (err) {
+        console.error('Erro ao adicionar warn automático:', err);
+      }
 
-      await message.channel.send({
-        content: `⚠️ ${message.author}, pare de spammar!`,
-      });
+      try {
+        await message.channel.send({
+          content: `⚠️ ${message.author}, pare de spammar!`,
+        });
+      } catch (err) {
+        console.error('Erro ao enviar mensagem:', err);
+      }
 
       messageMap.set(userId, []); // reset
     }
