@@ -11,8 +11,10 @@ export default {
     .setName("warn")
     .setDescription("Dar warn")
     .addUserOption(o =>
-      o.setName("usuario").setDescription("Usuário").setRequired(true)
-    )
+  o.setName("usuario")
+    .setDescription("Usuário para ver os warns")
+    .setRequired(true)
+)
     .addStringOption(o =>
       o.setName("motivo").setDescription("Motivo").setRequired(true)
     )
