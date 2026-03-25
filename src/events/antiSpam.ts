@@ -1,29 +1,36 @@
-import GuildConfig from "../models/GuildConfig.js";
+import Guild from '../models/Guild.js';
 
-const userMessages = new Map();
+const messageMap = new Map();
 
-export default {
-  name: "messageCreate",
+export async function handleAntiSpam(message) {
+  if (!message.guild || message.author.bot) return;
+  if (message.member.permissions.has('Administrator')) return;
 
-  async execute(message) {
-    if (!message.guild || message.author.bot) return;
+  const guild = await Guild.findOne({ guildId: message.guild.id });
+  if (!guild?.antiSpamEnabled) return;
 
-    const guild = await GuildConfig.findOne({ guildId: message.guild.id });
-    if (!guild || !guild.antiSpam.enabled) return;
+  const userId = message.author.id;
+  const now = Date.now();
 
-    if (message.member.permissions.has("Administrator")) return;
-
-    const now = Date.now();
-    const data = userMessages.get(message.author.id) || [];
-
-    const filtered = data.filter(t => now - t < guild.antiSpam.interval);
-
-    filtered.push(now);
-    userMessages.set(message.author.id, filtered);
-
-    if (filtered.length >= guild.antiSpam.maxMessages) {
-      await message.delete().catch(() => {});
-      await message.member.timeout(5000).catch(() => {});
-    }
+  if (!messageMap.has(userId)) {
+    messageMap.set(userId, []);
   }
-};
+
+  const timestamps = messageMap.get(userId);
+  const filtered = timestamps.filter(t => now - t < 5000);
+
+  filtered.push(now);
+  messageMap.set(userId, filtered);
+
+  if (filtered.length >= 5) {
+    try {
+      await message.delete();
+    } catch {}
+
+    try {
+      await message.channel.send(`⚠️ ${message.author}, pare de spammar!`);
+    } catch {}
+
+    messageMap.set(userId, []);
+  }
+}

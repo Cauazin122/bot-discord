@@ -1,11 +1,11 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder } from 'discord.js';
 
 export default {
   data: new SlashCommandBuilder()
-    .setName("ping")
-    .setDescription("Ver latência"),
+    .setName('ping')
+    .setDescription('Pong!'),
 
   async execute(interaction) {
-    await interaction.reply("🏓 Pong!");
+    await interaction.reply(`🏓 Pong! ${interaction.client.ws.ping}ms`);
   }
 };

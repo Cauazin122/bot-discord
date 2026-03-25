@@ -1,20 +1,17 @@
-import GuildConfig from "../models/GuildConfig.js";
+import Guild from '../models/Guild.js';
 
-export default {
-  name: "messageCreate",
+export async function handleAntiLink(message) {
+  if (!message.guild || message.author.bot) return;
+  if (message.member.permissions.has('Administrator')) return;
 
-  async execute(message) {
-    if (!message.guild || message.author.bot) return;
+  const guild = await Guild.findOne({ guildId: message.guild.id });
+  if (!guild?.antiLinkEnabled) return;
 
-    const guild = await GuildConfig.findOne({ guildId: message.guild.id });
-    if (!guild) return;
+  const linkRegex = /(https?:\/\/|www\.)/i;
+  if (!linkRegex.test(message.content)) return;
 
-    if (!guild.antiLink.includes(message.channel.id)) return;
-
-    if (message.member.permissions.has("Administrator")) return;
-
-    if (message.content.includes("http")) {
-      await message.delete().catch(() => {});
-    }
-  }
-};
+  try {
+    await message.delete();
+    await message.channel.send(`⚠️ ${message.author}, links não são permitidos!`);
+  } catch {}
+}

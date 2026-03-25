@@ -1,36 +1,34 @@
-import {
-  SlashCommandBuilder,
-  PermissionFlagsBits
-} from "discord.js";
+import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
+import { sendLog } from '../utils/logs.js';
 
 export default {
   data: new SlashCommandBuilder()
-    .setName("mute")
-    .setDescription("Mutar membro")
-    .addUserOption(o =>
-      o.setName("usuario")
-        .setDescription("Usuário")
-        .setRequired(true)
-    )
-    .addIntegerOption(o =>
-      o.setName("tempo")
-        .setDescription("Tempo em minutos")
-        .setRequired(true)
-    )
+    .setName('mute')
+    .setDescription('Mutar um usuário')
+    .addUserOption(o => o.setName('usuario').setDescription('Usuário').setRequired(true))
+    .addIntegerOption(o => o.setName('tempo').setDescription('Tempo em minutos').setRequired(true))
+    .addStringOption(o => o.setName('motivo').setDescription('Motivo'))
     .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
 
   async execute(interaction) {
-    const user = interaction.options.getUser("usuario");
-    const tempo = interaction.options.getInteger("tempo");
+    const user = interaction.options.getUser('usuario');
+    const time = interaction.options.getInteger('tempo');
+    const reason = interaction.options.getString('motivo') || 'Sem motivo';
 
-    const member = interaction.guild.members.cache.get(user.id);
-
-    if (!member) {
-      return interaction.reply("❌ Usuário não encontrado.");
+    const member = await interaction.guild.members.fetch(user.id);
+    if (!member.moderatable) {
+      return interaction.reply({ content: '❌ Não posso mutar esse usuário.', ephemeral: true });
     }
 
-    await member.timeout(tempo * 60000);
+    await member.timeout(time * 60 * 1000, reason);
 
-    await interaction.reply(`🔇 ${user.tag} mutado por ${tempo} minutos.`);
+    await sendLog(interaction.guild, {
+      action: 'Mute',
+      user,
+      staff: interaction.user,
+      reason
+    });
+
+    await interaction.reply(`🔇 ${user.tag} foi mutado por ${time} minuto(s).`);
   }
 };
