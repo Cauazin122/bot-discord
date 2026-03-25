@@ -1,35 +1,40 @@
-import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
-import GuildConfig from "../models/GuildConfig.js";
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import Guild from '../models/Guild.js';
 
 export default {
   data: new SlashCommandBuilder()
-    .setName("warns")
-    .setDescription("Ver warns")
-    .addUserOption(o =>
-      o.setName("usuario")
-        .setDescription("Usuário")
-        .setRequired(true)
-    ),
+    .setName('warns')
+    .setDescription('Ver warns de um usuário')
+    .addUserOption(o => o.setName('usuario').setDescription('Usuário').setRequired(true)),
 
   async execute(interaction) {
-    await interaction.deferReply();
+    const user = interaction.options.getUser('usuario');
+    const guildId = interaction.guild.id;
 
-    const user = interaction.options.getUser("usuario");
-
-    const guild = await GuildConfig.findOne({ guildId: interaction.guild.id });
-
-    const warns = guild?.warns?.get(user.id) || [];
-
-    if (!warns.length) {
-      return interaction.editReply("❌ Sem warns.");
+    const guild = await Guild.findOne({ guildId });
+    if (!guild) {
+      return interaction.reply({ content: '❌ Servidor não configurado.', ephemeral: true });
     }
 
-    const embed = new EmbedBuilder()
-      .setTitle(`⚠️ Warns de ${user.tag}`)
-      .setDescription(
-        warns.map((w, i) => `${i + 1}. ${w.reason}`).join("\n")
-      );
+    const warns = guild.warns.filter(w => w.userId === user.id);
+    if (!warns.length) {
+      return interaction.reply({ content: '❌ Usuário sem warns.', ephemeral: true });
+    }
 
-    await interaction.editReply({ embeds: [embed] });
+    const description = warns
+      .map((w, i) => `**${i + 1}.** ${w.reason}\n👮 ${w.staff}\n📅 ${w.date.toLocaleDateString('pt-BR')}`)
+      .join('\n\n');
+
+    const embed = new EmbedBuilder()
+      .setTitle(`⚠️ Warns de ${user.username}`)
+      .setDescription(description)
+      .addFields({
+        name: '⚙️ AutoMod',
+        value: `🔇 Mute: ${guild.autoMod.muteAt}\n👢 Kick: ${guild.autoMod.kickAt}`
+      })
+      .setColor('Orange')
+      .setTimestamp();
+
+    await interaction.reply({ embeds: [embed] });
   }
 };

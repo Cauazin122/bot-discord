@@ -1,30 +1,29 @@
-import fs from "fs";
-import GuildConfig from "../models/GuildConfig.js";
+import Guild from '../models/Guild.js';
 
-const OWNER_ID = "838197254313476147";
+const OWNER_ID = '838197254313476147';
 
 export async function backupDatabase(client) {
   try {
-    const data = await GuildConfig.find();
+    const guilds = await Guild.find();
 
     const fileName = `backup-${Date.now()}.json`;
     const filePath = `./${fileName}`;
 
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+    const fs = await import('fs');
+    fs.writeFileSync(filePath, JSON.stringify(guilds, null, 2));
 
-    console.log("💾 Backup salvo");
+    console.log('💾 Backup salvo');
 
-    // 🔥 envia no privado
     const user = await client.users.fetch(OWNER_ID);
-
     if (user) {
       await user.send({
-        content: "💾 Novo backup do bot:",
+        content: '💾 Novo backup do bot:',
         files: [filePath]
       });
     }
 
+    fs.unlinkSync(filePath);
   } catch (err) {
-    console.error("❌ Erro no backup:", err);
+    console.error('❌ Erro no backup:', err);
   }
 }

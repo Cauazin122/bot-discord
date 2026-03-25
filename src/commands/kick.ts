@@ -1,51 +1,32 @@
 import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
-import { sendLog } from '../utils/logs';
+import { sendLog } from '../utils/logs.js';
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('mute')
-    .setDescription('Mutar um usuário')
-    .addUserOption(option =>
-      option.setName('usuario')
-        .setDescription('Usuário')
-        .setRequired(true)
-    )
-    .addIntegerOption(option =>
-      option.setName('tempo')
-        .setDescription('Tempo em minutos')
-        .setRequired(true)
-    )
-    .addStringOption(option =>
-      option.setName('motivo')
-        .setDescription('Motivo do mute')
-        .setRequired(true)
-    )
-    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
+    .setName('kick')
+    .setDescription('Expulsar um usuário')
+    .addUserOption(o => o.setName('usuario').setDescription('Usuário').setRequired(true))
+    .addStringOption(o => o.setName('motivo').setDescription('Motivo').setRequired(true))
+    .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers),
 
   async execute(interaction) {
     const user = interaction.options.getUser('usuario');
-    const time = interaction.options.getInteger('tempo');
     const reason = interaction.options.getString('motivo');
 
-    const member = interaction.guild.members.cache.get(user.id);
-
-    if (!member) {
-      return interaction.reply({ content: 'Usuário não encontrado.', ephemeral: true });
+    const member = await interaction.guild.members.fetch(user.id);
+    if (!member.kickable) {
+      return interaction.reply({ content: '❌ Não posso expulsar esse usuário.', ephemeral: true });
     }
 
-    if (!member.moderatable) {
-      return interaction.reply({ content: 'Não posso mutar esse usuário.', ephemeral: true });
-    }
-
-    await member.timeout(time * 60 * 1000, reason);
-
-    await interaction.reply(`🔇 ${user.tag} foi mutado por ${time} minutos.`);
+    await member.kick(reason);
 
     await sendLog(interaction.guild, {
-      action: 'Usuário mutado',
+      action: 'Kick',
       user,
       staff: interaction.user,
       reason
     });
+
+    await interaction.reply(`👢 ${user.tag} foi expulso.`);
   }
 };

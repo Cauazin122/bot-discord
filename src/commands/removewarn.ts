@@ -1,45 +1,44 @@
-import { SlashCommandBuilder } from "discord.js";
-import GuildConfig from "../models/GuildConfig.js";
+import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
+import Guild from '../models/Guild.js';
+import User from '../models/User.js';
 
 export default {
   data: new SlashCommandBuilder()
-    .setName("removewarn")
-    .setDescription("Remover warn")
-    .addUserOption(o =>
-      o.setName("usuario")
-        .setDescription("Usuário")
-        .setRequired(true)
-    )
-    .addIntegerOption(o =>
-      o.setName("numero")
-        .setDescription("Número do warn")
-    ),
+    .setName('removewarn')
+    .setDescription('Remove warn de um usuário')
+    .addUserOption(o => o.setName('usuario').setDescription('Usuário').setRequired(true))
+    .addIntegerOption(o => o.setName('numero').setDescription('Número do warn'))
+    .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
 
   async execute(interaction) {
-    await interaction.deferReply();
+    const user = interaction.options.getUser('usuario');
+    const num = interaction.options.getInteger('numero');
+    const guildId = interaction.guild.id;
 
-    const user = interaction.options.getUser("usuario");
-    const num = interaction.options.getInteger("numero");
+    const guild = await Guild.findOne({ guildId });
+    if (!guild) {
+      return interaction.reply({ content: '❌ Servidor não configurado.', ephemeral: true });
+    }
 
-    const guild = await GuildConfig.findOne({ guildId: interaction.guild.id });
-
-    if (!guild) return interaction.editReply("Sem dados.");
-
-    let warns = guild.warns.get(user.id) || [];
-
-    if (!warns.length) {
-      return interaction.editReply("Sem warns.");
+    const userWarns = guild.warns.filter(w => w.userId === user.id);
+    if (!userWarns.length) {
+      return interaction.reply({ content: '❌ Usuário sem warns.', ephemeral: true });
     }
 
     if (num) {
-      warns.splice(num - 1, 1);
+      guild.warns = guild.warns.filter((w, i) => !(w.userId === user.id && i === num - 1));
     } else {
-      warns = [];
+      guild.warns = guild.warns.filter(w => w.userId !== user.id);
     }
 
-    guild.warns.set(user.id, warns);
+    const userData = await User.findOne({ userId: user.id, guildId });
+    if (userData) {
+      userData.warns = guild.warns.filter(w => w.userId === user.id).length;
+      await userData.save();
+    }
+
     await guild.save();
 
-    await interaction.editReply("✅ Warn removido.");
+    await interaction.reply(`✅ Warn removido. Total: ${guild.warns.filter(w => w.userId === user.id).length}`);
   }
 };
