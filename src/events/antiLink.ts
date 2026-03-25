@@ -14,9 +14,10 @@ export async function handleAntiLink(message) {
     await message.delete();
     await message.channel.send(`⚠️ ${message.author}, links não são permitidos!`);
 
-    // ================================
-    // 🚨 SISTEMA DE VIOLATIONS
-    // ================================
+    // 🔥 GARANTE QUE EXISTE
+    if (!guild.violations) guild.violations = [];
+    if (!guild.warns) guild.warns = [];
+
     let userViolation = guild.violations.find(
       v => v.userId === message.author.id && v.type === 'link'
     );
@@ -33,16 +34,11 @@ export async function handleAntiLink(message) {
       userViolation.lastViolation = new Date();
     }
 
-    // pega novamente atualizado
     userViolation = guild.violations.find(
       v => v.userId === message.author.id && v.type === 'link'
     );
 
-    // ================================
-    // ⚠️ 3 VIOLAÇÕES = WARN
-    // ================================
     if (userViolation.count >= 3) {
-
       guild.warns.push({
         userId: message.author.id,
         reason: 'Envio de links (AutoMod)',
@@ -50,7 +46,6 @@ export async function handleAntiLink(message) {
         date: new Date()
       });
 
-      // reseta contador (opcional mas recomendado)
       userViolation.count = 0;
 
       await message.channel.send(
@@ -61,6 +56,6 @@ export async function handleAntiLink(message) {
     await guild.save();
 
   } catch (err) {
-    console.error(err);
+    console.error('Erro no antiLink:', err);
   }
 }
