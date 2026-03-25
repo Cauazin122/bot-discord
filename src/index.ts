@@ -89,8 +89,13 @@ client.on('interactionCreate', async (interaction) => {
 
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
-  await handleAntiSpam(message);
-  await handleAntiLink(message);
+
+  try {
+    await handleAntiSpam(message);
+    await handleAntiLink(message);
+  } catch (err) {
+    console.error('Erro no messageCreate:', err);
+  }
 });
 
 await connectMongo();
