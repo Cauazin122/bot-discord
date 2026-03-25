@@ -91,8 +91,8 @@ client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
   try {
-    await handleAntiSpam(message);
-    await handleAntiLink(message);
+   handleAntiSpam(message).catch(console.error);
+handleAntiLink(message).catch(console.error);
   } catch (err) {
     console.error('Erro no messageCreate:', err);
   }
