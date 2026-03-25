@@ -76,11 +76,42 @@ export async function handleInteraction(interaction: Interaction, commands: Reco
       }
 
       if (value === 'tickets') {
-        embed = new EmbedBuilder()
-          .setTitle('🎫 Categoria de Tickets')
-          .setDescription('Defina a categoria onde os tickets serão criados.')
-          .setColor('Blue');
-      }
+
+  const categories = interaction.guild.channels.cache
+    .filter(c => c.type === 4) // 4 = Category
+    .map(c => ({
+      label: c.name,
+      value: c.id
+    }))
+    .slice(0, 25); // limite do Discord
+
+  if (categories.length === 0) {
+    return interaction.reply({
+      content: '❌ Nenhuma categoria encontrada no servidor.',
+      ephemeral: true
+    });
+  }
+
+  const { ActionRowBuilder, StringSelectMenuBuilder, EmbedBuilder } = await import('discord.js');
+
+  const embed = new EmbedBuilder()
+    .setTitle('🎫 Selecionar Categoria de Tickets')
+    .setDescription('Escolha a categoria onde os tickets serão criados.')
+    .setColor('Blue');
+
+  const row = new ActionRowBuilder<StringSelectMenuBuilder>()
+    .addComponents(
+      new StringSelectMenuBuilder()
+        .setCustomId('select_ticket_category')
+        .setPlaceholder('Selecione uma categoria...')
+        .addOptions(categories)
+    );
+
+  return interaction.update({
+    embeds: [embed],
+    components: [row] // 👈 troca o painel por esse seletor
+  });
+}
 
       if (value === 'automod') {
         embed = new EmbedBuilder()
