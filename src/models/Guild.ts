@@ -14,6 +14,14 @@ const ratingSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now }
 });
 
+// ✅ NOVO SCHEMA
+const violationSchema = new mongoose.Schema({
+  userId: String,
+  type: String, // ex: "spam", "link", "palavra_proibida"
+  count: { type: Number, default: 1 },
+  lastViolation: { type: Date, default: Date.now }
+});
+
 const guildSchema = new mongoose.Schema({
   guildId: { type: String, required: true, unique: true },
 
@@ -39,6 +47,9 @@ const guildSchema = new mongoose.Schema({
   // Data
   warns: [warnSchema],
   ratings: [ratingSchema],
+
+  // ✅ NOVO CAMPO
+  violations: [violationSchema],
 
   createdAt: { type: Date, default: Date.now }
 });
