@@ -1,6 +1,9 @@
 import Guild from '../models/Guild.js';
 
 const messageMap = new Map();
+setInterval(() => {
+  messageMap.clear();
+}, 60000); // limpa a cada 1 minuto
 
 export async function handleAntiSpam(message) {
   try {
