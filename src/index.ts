@@ -25,8 +25,12 @@ import top from './commands/top.js';
 const commands = { ping, warn, removewarn, warns, kick, ban, mute, unmute, ticket, config, avaliacoes, top };
 
 const app = express();
-app.get('/', (req, res) => res.send('Bot online!'));
-app.listen(3000, () => console.log('🌐 Servidor web ativo na porta 3000'));
+app.get('/health', (req, res) => res.send('Bot online!'));
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`🌐 Servidor web ativo na porta ${PORT}`);
+});
 
 const token = process.env.DISCORD_BOT_TOKEN;
 if (!token) throw new Error('DISCORD_BOT_TOKEN required');
