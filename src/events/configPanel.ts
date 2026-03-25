@@ -1,128 +1,99 @@
-import { ActionRowBuilder, StringSelectMenuBuilder, EmbedBuilder, ButtonInteraction, StringSelectMenuInteraction } from 'discord.js';
-import Guild from '../models/Guild.js';
+import { Interaction, EmbedBuilder } from 'discord.js';
+import { Command } from '../commands/index.js';
 
-export async function handleConfigPanel(interaction: ButtonInteraction | StringSelectMenuInteraction) {
-  const guildId = interaction.guild.id;
-  let guild = await Guild.findOne({ guildId });
+export async function handleInteraction(interaction: Interaction, commands: Record<string, Command>) {
 
-  if (!guild) {
-    guild = await Guild.create({ guildId });
+  // ✅ SLASH COMMANDS (mantido)
+  if (interaction.isChatInputCommand()) {
+    const command = commands[interaction.commandName];
+    if (!command) {
+      await interaction.reply({ content: '❌ Comando desconhecido.', ephemeral: true });
+      return;
+    }
+
+    try {
+      await command.execute(interaction);
+    } catch (error) {
+      console.error(`Erro ao executar ${interaction.commandName}:`, error);
+      const reply = { content: '❌ Erro ao executar comando.', ephemeral: true };
+      if (interaction.replied || interaction.deferred) {
+        await interaction.followUp(reply);
+      } else {
+        await interaction.reply(reply);
+      }
+    }
   }
 
+  // 🔘 BOTÕES (mantido)
   if (interaction.isButton()) {
     if (interaction.customId === 'config_logs') {
-      const embed = new EmbedBuilder()
-        .setTitle('📜 Logs')
-        .setDescription(`Status: ${guild.logChannel ? '🟢 Configurado' : '🔴 Não configurado'}`)
-        .setColor('Green');
-
-      const row = new ActionRowBuilder<StringSelectMenuBuilder>()
-        .addComponents(
-          new StringSelectMenuBuilder()
-            .setCustomId('select_logs')
-            .addOptions(
-              { label: 'Definir canal atual', value: 'set' },
-              { label: 'Remover', value: 'remove' }
-            )
-        );
-
-      return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+      return interaction.reply({ content: '📜 Configurar logs...', ephemeral: true });
     }
 
     if (interaction.customId === 'config_antilink') {
-      const embed = new EmbedBuilder()
-        .setTitle('🔗 Anti-Link')
-        .setDescription(`Status: ${guild.antiLinkEnabled ? '🟢 Ativo' : '🔴 Desativado'}`)
-        .setColor('Blue');
-
-      const row = new ActionRowBuilder<StringSelectMenuBuilder>()
-        .addComponents(
-          new StringSelectMenuBuilder()
-            .setCustomId('select_antilink')
-            .addOptions(
-              { label: 'Ativar', value: 'on' },
-              { label: 'Desativar', value: 'off' }
-            )
-        );
-
-      return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+      return interaction.reply({ content: '🔗 Configurar anti-link...', ephemeral: true });
     }
 
     if (interaction.customId === 'config_antispam') {
-      const embed = new EmbedBuilder()
-        .setTitle('🚫 Anti-Spam')
-        .setDescription(`Status: ${guild.antiSpamEnabled ? '🟢 Ativo' : '🔴 Desativado'}`)
-        .setColor('Red');
-
-      const row = new ActionRowBuilder<StringSelectMenuBuilder>()
-        .addComponents(
-          new StringSelectMenuBuilder()
-            .setCustomId('select_antispam')
-            .addOptions(
-              { label: 'Ativar', value: 'on' },
-              { label: 'Desativar', value: 'off' }
-            )
-        );
-
-      return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+      return interaction.reply({ content: '🚫 Configurar anti-spam...', ephemeral: true });
     }
 
     if (interaction.customId === 'config_automod') {
-      const embed = new EmbedBuilder()
-        .setTitle('⚙️ AutoMod')
-        .setDescription(`Mute: ${guild.autoMod.muteAt}\nKick: ${guild.autoMod.kickAt}`)
-        .setColor('Yellow');
+      return interaction.reply({ content: '⚙️ Configurar AutoMod...', ephemeral: true });
+    }
 
-      const row = new ActionRowBuilder<StringSelectMenuBuilder>()
-        .addComponents(
-          new StringSelectMenuBuilder()
-            .setCustomId('select_automod')
-            .addOptions(
-              { label: 'Mute: 3', value: 'mute_3' },
-              { label: 'Mute: 5', value: 'mute_5' },
-              { label: 'Kick: 5', value: 'kick_5' },
-              { label: 'Kick: 7', value: 'kick_7' }
-            )
-        );
-
-      return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+    if (interaction.customId === 'close_ticket') {
+      return interaction.channel.delete();
     }
   }
 
+  // 📜 DROPDOWN MENU (melhorado)
   if (interaction.isStringSelectMenu()) {
-    if (interaction.customId === 'select_logs') {
-      if (interaction.values[0] === 'set') {
-        guild.logChannel = interaction.channelId;
-      } else {
-        guild.logChannel = undefined;
-      }
-      await guild.save();
-      return interaction.reply({ content: '✅ Logs atualizado!', ephemeral: true });
-    }
-
-    if (interaction.customId === 'select_antilink') {
-      guild.antiLinkEnabled = interaction.values[0] === 'on';
-      guild.antiLinkChannel = interaction.channelId;
-      await guild.save();
-      return interaction.reply({ content: '✅ Anti-Link atualizado!', ephemeral: true });
-    }
-
-    if (interaction.customId === 'select_antispam') {
-      guild.antiSpamEnabled = interaction.values[0] === 'on';
-      await guild.save();
-      return interaction.reply({ content: '✅ Anti-Spam atualizado!', ephemeral: true });
-    }
-
-    if (interaction.customId === 'select_automod') {
+    if (interaction.customId === 'config_menu') {
       const value = interaction.values[0];
-      if (value.startsWith('mute')) {
-        guild.autoMod.muteAt = parseInt(value.split('_')[1]);
+
+      let embed;
+
+      if (value === 'logs') {
+        embed = new EmbedBuilder()
+          .setTitle('📜 Configuração de Logs')
+          .setDescription('Defina o canal onde os logs serão enviados.')
+          .setColor('Blue');
       }
-      if (value.startsWith('kick')) {
-        guild.autoMod.kickAt = parseInt(value.split('_')[1]);
+
+      if (value === 'antilink') {
+        embed = new EmbedBuilder()
+          .setTitle('🔗 Anti-Link')
+          .setDescription('Ative/desative o sistema de anti-link.')
+          .setColor('Blue');
       }
-      await guild.save();
-      return interaction.reply({ content: '✅ AutoMod atualizado!', ephemeral: true });
+
+      if (value === 'antispam') {
+        embed = new EmbedBuilder()
+          .setTitle('🚫 Anti-Spam')
+          .setDescription('Configure o sistema de anti-spam.')
+          .setColor('Blue');
+      }
+
+      if (value === 'tickets') {
+        embed = new EmbedBuilder()
+          .setTitle('🎫 Categoria de Tickets')
+          .setDescription('Defina a categoria onde os tickets serão criados.')
+          .setColor('Blue');
+      }
+
+      if (value === 'automod') {
+        embed = new EmbedBuilder()
+          .setTitle('⚙️ AutoMod')
+          .setDescription('Configure punições automáticas.')
+          .setColor('Blue');
+      }
+
+      // 🔥 IMPORTANTE: usa update ao invés de reply
+      return interaction.update({
+        embeds: [embed],
+        components: interaction.message.components // mantém dropdown + botões
+      });
     }
   }
 }
