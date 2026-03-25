@@ -1,20 +1,21 @@
 import Guild from '../models/Guild.js';
 
 export async function handleAntiLink(message) {
-  if (!message.guild || message.author.bot) return;
-  if (message.member.permissions.has('Administrator')) return;
-
-  const guild = await Guild.findOne({ guildId: message.guild.id });
-  if (!guild?.antiLinkEnabled) return;
-
-  const linkRegex = /(https?:\/\/|www\.)/i;
-  if (!linkRegex.test(message.content)) return;
-
   try {
-    await message.delete();
-    await message.channel.send(`⚠️ ${message.author}, links não são permitidos!`);
+    if (!message.guild || message.author.bot) return;
+    if (message.member?.permissions?.has('Administrator')) return;
 
-    // 🔥 GARANTE QUE EXISTE
+    const guild = await Guild.findOne({ guildId: message.guild.id });
+    if (!guild || !guild.antiLinkEnabled) return;
+
+    const linkRegex = /(https?:\/\/|www\.)/i;
+    if (!linkRegex.test(message.content)) return;
+
+    await message.delete().catch(() => {});
+
+    await message.channel.send(`⚠️ ${message.author}, links não são permitidos!`).catch(() => {});
+
+    // 🔥 GARANTE ESTRUTURA
     if (!guild.violations) guild.violations = [];
     if (!guild.warns) guild.warns = [];
 
@@ -23,20 +24,17 @@ export async function handleAntiLink(message) {
     );
 
     if (!userViolation) {
-      guild.violations.push({
+      userViolation = {
         userId: message.author.id,
         type: 'link',
         count: 1,
         lastViolation: new Date()
-      });
+      };
+      guild.violations.push(userViolation);
     } else {
       userViolation.count += 1;
       userViolation.lastViolation = new Date();
     }
-
-    userViolation = guild.violations.find(
-      v => v.userId === message.author.id && v.type === 'link'
-    );
 
     if (userViolation.count >= 3) {
       guild.warns.push({
@@ -50,10 +48,10 @@ export async function handleAntiLink(message) {
 
       await message.channel.send(
         `⚠️ ${message.author} recebeu um warn automático por envio de links.`
-      );
+      ).catch(() => {});
     }
 
-    await guild.save();
+    await guild.save().catch(console.error);
 
   } catch (err) {
     console.error('Erro no antiLink:', err);
