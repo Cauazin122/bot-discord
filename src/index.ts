@@ -3,7 +3,7 @@ import { Client, GatewayIntentBits, REST, Routes, ActivityType } from 'discord.j
 import { connectMongo } from './database/mongo.js';
 import { backupDatabase } from './utils/backup.js';
 import { handleInteraction } from './events/interactionCreate.js';
-import { handleConfigPanel } from './events/configPanel.js';
+import { handleInteraction as handleConfigPanel } from './events/configPanel.js';
 import { handleAntiSpam } from './events/antiSpam.js';
 import { handleAntiLink } from './events/antiLink.js';
 import { handleCloseTicket } from './events/closeTicket.js';
@@ -75,7 +75,7 @@ client.once('clientReady', async () => {
 client.on('interactionCreate', async (interaction) => {
   if (interaction.isStringSelectMenu() || interaction.isButton()) {
     if (interaction.customId.startsWith('config_') || interaction.customId.startsWith('select_')) {
-      return handleConfigPanel(interaction);
+      return handleConfigPanel(interaction, commands);
     }
     if (interaction.customId === 'close_ticket') {
       return handleCloseTicket(interaction);
