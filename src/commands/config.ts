@@ -1,4 +1,12 @@
-import { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
+import { 
+  SlashCommandBuilder, 
+  ActionRowBuilder, 
+  ButtonBuilder, 
+  ButtonStyle, 
+  EmbedBuilder, 
+  PermissionFlagsBits,
+  StringSelectMenuBuilder
+} from 'discord.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -12,7 +20,8 @@ export default {
       .setDescription('Escolha uma opção:')
       .setColor('Blue');
 
-    const row = new ActionRowBuilder<ButtonBuilder>()
+    // 🔘 BOTÕES (mantidos)
+    const buttons = new ActionRowBuilder<ButtonBuilder>()
       .addComponents(
         new ButtonBuilder().setCustomId('config_logs').setLabel('Logs').setStyle(ButtonStyle.Primary),
         new ButtonBuilder().setCustomId('config_antilink').setLabel('Anti-Link').setStyle(ButtonStyle.Secondary),
@@ -20,6 +29,40 @@ export default {
         new ButtonBuilder().setCustomId('config_automod').setLabel('AutoMod').setStyle(ButtonStyle.Success)
       );
 
-    await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+    // 📜 DROPDOWN MENU (NOVO)
+    const dropdown = new ActionRowBuilder<StringSelectMenuBuilder>()
+      .addComponents(
+        new StringSelectMenuBuilder()
+          .setCustomId('config_menu')
+          .setPlaceholder('Selecione uma opção...')
+          .addOptions(
+            {
+              label: '📜 Logs',
+              value: 'logs'
+            },
+            {
+              label: '🔗 Anti-Link',
+              value: 'antilink'
+            },
+            {
+              label: '🚫 Anti-Spam',
+              value: 'antispam'
+            },
+            {
+              label: '🎫 Categoria de Tickets',
+              value: 'tickets'
+            },
+            {
+              label: '⚙️ AutoMod',
+              value: 'automod'
+            }
+          )
+      );
+
+    await interaction.reply({ 
+      embeds: [embed], 
+      components: [dropdown, buttons], // 👈 adicionamos aqui
+      ephemeral: true 
+    });
   }
 };
