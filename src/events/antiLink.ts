@@ -1,59 +1,65 @@
 import Guild from '../models/Guild.js';
+import User from '../models/User.js';
+import { sendLog } from '../utils/logs.js';
 
 export async function handleAntiLink(message) {
+  if (!message.guild || message.author.bot) return;
+  if (message.member.permissions.has('Administrator')) return;
+
+  const guild = await Guild.findOne({ guildId: message.guild.id });
+  if (!guild?.antiLinkEnabled) return;
+
+  const linkRegex = /(https?:\/\/|www\.)/i;
+  if (!linkRegex.test(message.content)) return;
+
   try {
-    if (!message.guild || message.author.bot) return;
-    if (message.member?.permissions?.has('Administrator')) return;
+    await message.delete();
+    await message.channel.send(`⚠️ ${message.author}, links não são permitidos!`);
+  } catch {}
 
-    const guild = await Guild.findOne({ guildId: message.guild.id });
-    if (!guild || !guild.antiLinkEnabled) return;
+  // Rastrear violação
+  let violation = guild.violations.find(v => v.userId === message.author.id && v.type === 'antilink');
 
-    const linkRegex = /(https?:\/\/|www\.)/i;
-    if (!linkRegex.test(message.content)) return;
+  if (!violation) {
+    guild.violations.push({
+      userId: message.author.id,
+      type: 'antilink',
+      count: 1,
+      lastViolation: new Date()
+    });
+  } else {
+    violation.count += 1;
+    violation.lastViolation = new Date();
+  }
 
-    await message.delete().catch(() => {});
+  await guild.save();
 
-    await message.channel.send(`⚠️ ${message.author}, links não são permitidos!`).catch(() => {});
-
-    // 🔥 GARANTE ESTRUTURA
-    if (!guild.violations) guild.violations = [];
-    if (!guild.warns) guild.warns = [];
-
-    let userViolation = guild.violations.find(
-      v => v.userId === message.author.id && v.type === 'link'
-    );
-
-    if (!userViolation) {
-      userViolation = {
-        userId: message.author.id,
-        type: 'link',
-        count: 1,
-        lastViolation: new Date()
-      };
-      guild.violations.push(userViolation);
+  // 3 violações = 1 warn
+  if (violation && violation.count === 3) {
+    let userData = await User.findOne({ userId: message.author.id, guildId: message.guild.id });
+    if (!userData) {
+      userData = await User.create({ userId: message.author.id, guildId: message.guild.id, warns: 1 });
     } else {
-      userViolation.count += 1;
-      userViolation.lastViolation = new Date();
+      userData.warns += 1;
     }
+    await userData.save();
 
-    if (userViolation.count >= 3) {
-      guild.warns.push({
-        userId: message.author.id,
-        reason: 'Envio de links (AutoMod)',
-        staff: 'Sistema',
-        date: new Date()
-      });
+    guild.warns.push({
+      userId: message.author.id,
+      reason: 'Anti-link (3 violações)',
+      staff: message.client.user.tag,
+      date: new Date()
+    });
 
-      userViolation.count = 0;
+    // Reset violation
+    guild.violations = guild.violations.filter(v => !(v.userId === message.author.id && v.type === 'antilink'));
+    await guild.save();
 
-      await message.channel.send(
-        `⚠️ ${message.author} recebeu um warn automático por envio de links.`
-      ).catch(() => {});
-    }
-
-    await guild.save().catch(console.error);
-
-  } catch (err) {
-    console.error('Erro no antiLink:', err);
+    await sendLog(message.guild, {
+      action: 'Auto Warn (Anti-Link)',
+      user: message.author,
+      staff: message.client.user,
+      reason: '3 violações de anti-link'
+    });
   }
 }
