@@ -6,14 +6,14 @@ export default {
     .setName('mute')
     .setDescription('Mutar um usuário')
     .addUserOption(o => o.setName('usuario').setDescription('Usuário').setRequired(true))
+    .addStringOption(o => o.setName('motivo').setDescription('Motivo').setRequired(true))
     .addIntegerOption(o => o.setName('tempo').setDescription('Tempo em minutos').setRequired(true))
-    .addStringOption(o => o.setName('motivo').setDescription('Motivo'))
     .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
 
   async execute(interaction) {
     const user = interaction.options.getUser('usuario');
+    const reason = interaction.options.getString('motivo');
     const time = interaction.options.getInteger('tempo');
-    const reason = interaction.options.getString('motivo') || 'Sem motivo';
 
     const member = await interaction.guild.members.fetch(user.id);
     if (!member.moderatable) {
