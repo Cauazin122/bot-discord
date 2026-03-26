@@ -43,7 +43,7 @@ export default {
     await guild.save();
 
     await sendLog(interaction.guild, {
-      action: 'Warn',
+      action: 'Warns Removidas',
       user,
       staff: interaction.user,
       reason
