@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
 import Guild from '../models/Guild.js';
 import User from '../models/User.js';
+import { sendLog } from '../utils/logs.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -38,6 +39,13 @@ export default {
     }
 
     await guild.save();
+
+    await sendLog(interaction.guild, {
+      action: 'Warn',
+      user,
+      staff: interaction.user,
+      reason
+    });
 
     await interaction.reply(`✅ Warn removido. Total: ${guild.warns.filter(w => w.userId === user.id).length}`);
   }
