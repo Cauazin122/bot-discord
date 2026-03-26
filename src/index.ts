@@ -3,7 +3,7 @@ import { Client, GatewayIntentBits, REST, Routes, ActivityType } from 'discord.j
 import { connectMongo } from './database/mongo.js';
 import { backupDatabase } from './utils/backup.js';
 import { handleInteraction } from './events/interactionCreate.js';
-import { handleInteraction as handleConfigPanel } from './events/configPanel.js';
+import { handleConfigPanel } from './events/configPanel.js';
 import { handleAntiSpam } from './events/antiSpam.js';
 import { handleAntiLink } from './events/antiLink.js';
 import { handleCloseTicket } from './events/closeTicket.js';
@@ -21,16 +21,14 @@ import ticket from './commands/ticket.js';
 import config from './commands/config.js';
 import avaliacoes from './commands/avaliacoes.js';
 import top from './commands/top.js';
+import help from './commands/help.js';
+import helpadm from './commands/helpadm.js';
 
-const commands = { ping, warn, removewarn, warns, kick, ban, mute, unmute, ticket, config, avaliacoes, top };
+const commands = { ping, warn, removewarn, warns, kick, ban, mute, unmute, ticket, config, avaliacoes, top, help, helpadm };
 
 const app = express();
-app.get('/health', (req, res) => res.send('Bot online!'));
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log(`🌐 Servidor web ativo na porta ${PORT}`);
-});
+app.get('/', (req, res) => res.send('Bot online!'));
+app.listen(3000, () => console.log('🌐 Servidor web ativo na porta 3000'));
 
 const token = process.env.DISCORD_BOT_TOKEN;
 if (!token) throw new Error('DISCORD_BOT_TOKEN required');
@@ -77,10 +75,13 @@ client.once('clientReady', async () => {
 });
 
 client.on('interactionCreate', async (interaction) => {
-  if (interaction.isStringSelectMenu() || interaction.isButton()) {
+  if (interaction.isStringSelectMenu()) {
     if (interaction.customId.startsWith('config_') || interaction.customId.startsWith('select_')) {
-      return handleConfigPanel(interaction, commands);
+      return handleConfigPanel(interaction);
     }
+  }
+
+  if (interaction.isButton()) {
     if (interaction.customId === 'close_ticket') {
       return handleCloseTicket(interaction);
     }
@@ -93,13 +94,8 @@ client.on('interactionCreate', async (interaction) => {
 
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
-
-  try {
-   handleAntiSpam(message).catch(console.error);
-handleAntiLink(message).catch(console.error);
-  } catch (err) {
-    console.error('Erro no messageCreate:', err);
-  }
+  await handleAntiSpam(message);
+  await handleAntiLink(message);
 });
 
 await connectMongo();
