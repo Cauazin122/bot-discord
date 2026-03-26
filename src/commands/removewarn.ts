@@ -8,11 +8,13 @@ export default {
     .setName('removewarn')
     .setDescription('Remove warn de um usuário')
     .addUserOption(o => o.setName('usuario').setDescription('Usuário').setRequired(true))
+    .addStringOption(o => o.setName('motivo').setDescription('Motivo').setRequired(true))
     .addIntegerOption(o => o.setName('numero').setDescription('Número do warn'))
     .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers),
 
   async execute(interaction) {
     const user = interaction.options.getUser('usuario');
+    const reason = interaction.options.getString('motivo');
     const num = interaction.options.getInteger('numero');
     const guildId = interaction.guild.id;
 
