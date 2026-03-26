@@ -1,188 +1,180 @@
 import {
-  Interaction,
   EmbedBuilder,
   ActionRowBuilder,
-  StringSelectMenuBuilder
+  StringSelectMenuBuilder,
+  StringSelectMenuInteraction,
+  ChannelType
 } from 'discord.js';
-import { Command } from '../commands/index.js';
 import Guild from '../models/Guild.js';
 
-export async function handleInteraction(interaction: Interaction, commands: Record<string, Command>) {
+export async function handleConfigPanel(interaction: StringSelectMenuInteraction) {
+  const guildId = interaction.guild.id;
+  let guild = await Guild.findOne({ guildId });
 
-  // ================================
-  // ✅ SLASH COMMANDS
-  // ================================
-  if (interaction.isChatInputCommand()) {
-    const command = commands[interaction.commandName];
-    if (!command) {
-      await interaction.reply({ content: '❌ Comando desconhecido.', ephemeral: true });
-      return;
+  if (!guild) {
+    guild = await Guild.create({ guildId });
+  }
+
+  // MENU PRINCIPAL
+  if (interaction.customId === 'config_menu') {
+    const selected = interaction.values[0];
+
+    // 📜 LOGS
+    if (selected === 'logs') {
+      const embed = new EmbedBuilder()
+        .setTitle('📜 Configurar Logs')
+        .setDescription(`Status: ${guild.logChannel ? '🟢 Configurado' : '🔴 Não configurado'}`)
+        .setColor('Green');
+
+      const row = new ActionRowBuilder<StringSelectMenuBuilder>()
+        .addComponents(
+          new StringSelectMenuBuilder()
+            .setCustomId('select_logs')
+            .addOptions(
+              { label: 'Definir canal atual', value: 'set' },
+              { label: 'Remover', value: 'remove' }
+            )
+        );
+
+      return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
     }
 
-    try {
-      await command.execute(interaction);
-    } catch (error) {
-      console.error(`Erro ao executar ${interaction.commandName}:`, error);
-      const reply = { content: '❌ Erro ao executar comando.', ephemeral: true };
+    // 🔗 ANTI-LINK
+    if (selected === 'antilink') {
+      const embed = new EmbedBuilder()
+        .setTitle('🔗 Configurar Anti-Link')
+        .setDescription(`Status: ${guild.antiLinkEnabled ? '🟢 Ativo' : '🔴 Desativado'}`)
+        .setColor('Blue');
 
-      if (interaction.replied || interaction.deferred) {
-        await interaction.followUp(reply);
-      } else {
-        await interaction.reply(reply);
+      const row = new ActionRowBuilder<StringSelectMenuBuilder>()
+        .addComponents(
+          new StringSelectMenuBuilder()
+            .setCustomId('select_antilink')
+            .addOptions(
+              { label: 'Ativar', value: 'on' },
+              { label: 'Desativar', value: 'off' }
+            )
+        );
+
+      return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+    }
+
+    // 🚫 ANTI-SPAM
+    if (selected === 'antispam') {
+      const embed = new EmbedBuilder()
+        .setTitle('🚫 Configurar Anti-Spam')
+        .setDescription(`Status: ${guild.antiSpamEnabled ? '🟢 Ativo' : '🔴 Desativado'}`)
+        .setColor('Red');
+
+      const row = new ActionRowBuilder<StringSelectMenuBuilder>()
+        .addComponents(
+          new StringSelectMenuBuilder()
+            .setCustomId('select_antispam')
+            .addOptions(
+              { label: 'Ativar', value: 'on' },
+              { label: 'Desativar', value: 'off' }
+            )
+        );
+
+      return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+    }
+
+    // 🎫 TICKETS
+    if (selected === 'tickets') {
+      const categories = interaction.guild.channels.cache
+        .filter(c => c.type === ChannelType.GuildCategory)
+        .map(c => ({
+          label: c.name,
+          value: c.id
+        }))
+        .slice(0, 25);
+
+      if (categories.length === 0) {
+        return interaction.reply({
+          content: '❌ Nenhuma categoria encontrada.',
+          ephemeral: true
+        });
       }
+
+      const embed = new EmbedBuilder()
+        .setTitle('🎫 Selecionar Categoria')
+        .setDescription('Escolha onde os tickets serão criados.')
+        .setColor('Purple');
+
+      const row = new ActionRowBuilder<StringSelectMenuBuilder>()
+        .addComponents(
+          new StringSelectMenuBuilder()
+            .setCustomId('select_tickets')
+            .setPlaceholder('Selecione uma categoria...')
+            .addOptions(categories)
+        );
+
+      return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+    }
+
+    // ⚙️ AUTOMOD
+    if (selected === 'automod') {
+      const embed = new EmbedBuilder()
+        .setTitle('⚙️ Configurar AutoMod')
+        .setDescription(`Mute: ${guild.autoMod.muteAt}\nKick: ${guild.autoMod.kickAt}`)
+        .setColor('Yellow');
+
+      const row = new ActionRowBuilder<StringSelectMenuBuilder>()
+        .addComponents(
+          new StringSelectMenuBuilder()
+            .setCustomId('select_automod')
+            .addOptions(
+              { label: 'Mute: 3', value: 'mute_3' },
+              { label: 'Mute: 5', value: 'mute_5' },
+              { label: 'Mute: 7', value: 'mute_7' },
+              { label: 'Kick: 5', value: 'kick_5' },
+              { label: 'Kick: 7', value: 'kick_7' },
+              { label: 'Kick: 10', value: 'kick_10' }
+            )
+        );
+
+      return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
     }
   }
 
-  // ================================
-  // 🔘 BOTÕES
-  // ================================
-  if (interaction.isButton()) {
-
-    if (interaction.customId === 'config_logs') {
-      return interaction.reply({ content: '📜 Configurar logs...', ephemeral: true });
+  // SUB-SELEÇÕES
+  if (interaction.customId === 'select_logs') {
+    if (interaction.values[0] === 'set') {
+      guild.logChannel = interaction.channelId;
+    } else {
+      guild.logChannel = undefined;
     }
-
-    if (interaction.customId === 'config_antilink') {
-      return interaction.reply({ content: '🔗 Configurar anti-link...', ephemeral: true });
-    }
-
-    if (interaction.customId === 'config_antispam') {
-      return interaction.reply({ content: '🚫 Configurar anti-spam...', ephemeral: true });
-    }
-
-    if (interaction.customId === 'config_automod') {
-      return interaction.reply({ content: '⚙️ Configurar AutoMod...', ephemeral: true });
-    }
-
-    if (interaction.customId === 'close_ticket') {
-      return interaction.channel?.delete();
-    }
+    await guild.save();
+    return interaction.reply({ content: '✅ Logs atualizado!', ephemeral: true });
   }
 
-  // ================================
-  // 📜 DROPDOWNS
-  // ================================
-  if (interaction.isStringSelectMenu()) {
+  if (interaction.customId === 'select_antilink') {
+    guild.antiLinkEnabled = interaction.values[0] === 'on';
+    await guild.save();
+    return interaction.reply({ content: '✅ Anti-Link atualizado!', ephemeral: true });
+  }
 
-    // ================================
-    // 🎛️ MENU PRINCIPAL
-    // ================================
-    if (interaction.customId === 'config_menu') {
-      const value = interaction.values[0];
+  if (interaction.customId === 'select_antispam') {
+    guild.antiSpamEnabled = interaction.values[0] === 'on';
+    await guild.save();
+    return interaction.reply({ content: '✅ Anti-Spam atualizado!', ephemeral: true });
+  }
 
-      // 📜 LOGS
-      if (value === 'logs') {
-        const embed = new EmbedBuilder()
-          .setTitle('📜 Configuração de Logs')
-          .setDescription('Sistema de logs em breve...')
-          .setColor('Blue');
+  if (interaction.customId === 'select_tickets') {
+    guild.ticketCategory = interaction.values[0];
+    await guild.save();
+    return interaction.reply({ content: '✅ Categoria de tickets atualizada!', ephemeral: true });
+  }
 
-        return interaction.update({
-          embeds: [embed],
-          components: interaction.message.components
-        });
-      }
-
-      // 🔗 ANTILINK
-      if (value === 'antilink') {
-        const embed = new EmbedBuilder()
-          .setTitle('🔗 Anti-Link')
-          .setDescription('Sistema anti-link em breve...')
-          .setColor('Blue');
-
-        return interaction.update({
-          embeds: [embed],
-          components: interaction.message.components
-        });
-      }
-
-      // 🚫 ANTISPAM
-      if (value === 'antispam') {
-        const embed = new EmbedBuilder()
-          .setTitle('🚫 Anti-Spam')
-          .setDescription('Sistema anti-spam em breve...')
-          .setColor('Blue');
-
-        return interaction.update({
-          embeds: [embed],
-          components: interaction.message.components
-        });
-      }
-
-      // 🎫 TICKETS (🔥 PARTE IMPORTANTE)
-      if (value === 'tickets') {
-
-        const categories = interaction.guild.channels.cache
-          .filter(c => c.type === 4)
-          .map(c => ({
-            label: c.name,
-            value: c.id
-          }))
-          .slice(0, 25);
-
-        if (categories.length === 0) {
-          return interaction.reply({
-            content: '❌ Nenhuma categoria encontrada.',
-            ephemeral: true
-          });
-        }
-
-        const embed = new EmbedBuilder()
-          .setTitle('🎫 Selecionar Categoria')
-          .setDescription('Escolha onde os tickets serão criados.')
-          .setColor('Blue');
-
-        const row = new ActionRowBuilder<StringSelectMenuBuilder>()
-          .addComponents(
-            new StringSelectMenuBuilder()
-              .setCustomId('select_ticket_category')
-              .setPlaceholder('Selecione uma categoria...')
-              .addOptions(categories)
-          );
-
-        return interaction.update({
-          embeds: [embed],
-          components: [row]
-        });
-      }
-
-      // ⚙️ AUTOMOD
-      if (value === 'automod') {
-        const embed = new EmbedBuilder()
-          .setTitle('⚙️ AutoMod')
-          .setDescription('Sistema de punições automáticas em breve...')
-          .setColor('Blue');
-
-        return interaction.update({
-          embeds: [embed],
-          components: interaction.message.components
-        });
-      }
+  if (interaction.customId === 'select_automod') {
+    const value = interaction.values[0];
+    if (value.startsWith('mute')) {
+      guild.autoMod.muteAt = parseInt(value.split('_')[1]);
     }
-
-    // ================================
-    // 🎫 SALVAR CATEGORIA DE TICKET
-    // ================================
-    if (interaction.customId === 'select_ticket_category') {
-
-      const categoryId = interaction.values[0];
-
-      let guildData = await Guild.findOne({ guildId: interaction.guild.id });
-
-      if (!guildData) {
-        guildData = await Guild.create({
-          guildId: interaction.guild.id
-        });
-      }
-
-      guildData.ticketCategory = categoryId;
-      await guildData.save();
-
-      return interaction.update({
-        content: '✅ Categoria de tickets configurada com sucesso!',
-        embeds: [],
-        components: []
-      });
+    if (value.startsWith('kick')) {
+      guild.autoMod.kickAt = parseInt(value.split('_')[1]);
     }
+    await guild.save();
+    return interaction.reply({ content: '✅ AutoMod atualizado!', ephemeral: true });
   }
 }
