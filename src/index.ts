@@ -4,9 +4,11 @@ import { connectMongo } from './database/mongo.js';
 import { backupDatabase } from './utils/backup.js';
 import { handleInteraction } from './events/interactionCreate.js';
 import { handleConfigPanel } from './events/configPanel.js';
+import { handleTicketCreate } from './events/ticketCreate.js';
+import { handleClaimTicket } from './events/claimTicket.js';
+import { handleCloseTicket } from './events/closeTicket.js';
 import { handleAntiSpam } from './events/antiSpam.js';
 import { handleAntiLink } from './events/antiLink.js';
-import { handleCloseTicket } from './events/closeTicket.js';
 
 // Import all commands
 import ping from './commands/ping.js';
@@ -23,8 +25,13 @@ import avaliacoes from './commands/avaliacoes.js';
 import top from './commands/top.js';
 import help from './commands/help.js';
 import helpadm from './commands/helpadm.js';
+import eightball from './commands/8ball.js';
+import dice from './commands/dice.js';
+import coinflip from './commands/coinflip.js';
+import rps from './commands/rps.js';
+import avatar from './commands/avatar.js';
 
-const commands = { ping, warn, removewarn, warns, kick, ban, mute, unmute, ticket, config, avaliacoes, top, help, helpadm };
+const commands = { ping, warn, removewarn, warns, kick, ban, mute, unmute, ticket, config, avaliacoes, top, help, helpadm, eightball, dice, coinflip, rps, avatar };
 
 const app = express();
 app.get('/', (req, res) => res.send('Bot online!'));
@@ -38,7 +45,8 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.DirectMessages
   ]
 });
 
@@ -57,9 +65,9 @@ client.once('clientReady', async () => {
 
   const statuses = [
     { text: '💸 Make your money', type: ActivityType.Watching },
-    { text: 'Jogando GTA 6 🚗 💨', type: ActivityType.Playing },
     { text: '🎫 Gerenciando tickets', type: ActivityType.Watching },
-    { text: '📍 Suporte 24/7', type: ActivityType.Watching }
+    { text: '📍 Suporte 24/7', type: ActivityType.Watching },
+    { text: '/help para mais informações', type: ActivityType.Playing }
   ];
 
   let statusIndex = 0;
@@ -77,12 +85,18 @@ client.once('clientReady', async () => {
 
 client.on('interactionCreate', async (interaction) => {
   if (interaction.isStringSelectMenu()) {
+    if (interaction.customId === 'ticket_type') {
+      return handleTicketCreate(interaction);
+    }
     if (interaction.customId.startsWith('config_') || interaction.customId.startsWith('select_')) {
       return handleConfigPanel(interaction);
     }
   }
 
   if (interaction.isButton()) {
+    if (interaction.customId === 'claim_ticket') {
+      return handleClaimTicket(interaction);
+    }
     if (interaction.customId === 'close_ticket') {
       return handleCloseTicket(interaction);
     }

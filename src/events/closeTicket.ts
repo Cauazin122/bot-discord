@@ -11,7 +11,7 @@ export async function handleCloseTicket(interaction: ButtonInteraction) {
 
   const ratingEmbed = new EmbedBuilder()
     .setTitle('⭐ Avaliar Atendimento')
-    .setDescription('Clique em uma estrela para avaliar')
+    .setDescription('Clique em uma estrela para avaliar o atendimento recebido')
     .setColor('Gold');
 
   const row = new ActionRowBuilder<ButtonBuilder>()
@@ -24,6 +24,9 @@ export async function handleCloseTicket(interaction: ButtonInteraction) {
     );
 
   const msg = await interaction.reply({ embeds: [ratingEmbed], components: [row], fetchReply: true });
+
+  // Store the staff member who closed the ticket
+  const staffMember = interaction.user;
 
   const collector = msg.createMessageComponentCollector({ time: 60000 });
 
@@ -50,14 +53,33 @@ export async function handleCloseTicket(interaction: ButtonInteraction) {
       const feedback = submit.fields.getTextInputValue('feedback');
 
       guild.ratings.push({
-        userId: interaction.user.id,
+        userId: btn.user.id,
+        staffId: staffMember.id,
+        staffTag: staffMember.tag,
         stars: rating,
         feedback,
         date: new Date()
       });
 
       await guild.save();
-      await submit.reply({ content: '✅ Avaliação salva!', ephemeral: true });
+      await submit.reply({ content: '✅ Avaliação salva! Obrigado pelo feedback.', ephemeral: true });
+
+      // Post to ratingsChannel if configured
+      if (guild.ratingsChannel) {
+        const ratingsChannel = interaction.guild.channels.cache.get(guild.ratingsChannel);
+        if (ratingsChannel?.isTextBased()) {
+          const ratingPostEmbed = new EmbedBuilder()
+            .setTitle('⭐ Nova Avaliação')
+            .addFields(
+              { name: 'Staff', value: staffMember.tag, inline: true },
+              { name: 'Nota', value: '⭐'.repeat(rating), inline: true },
+              { name: 'Feedback', value: feedback || 'Sem feedback' }
+            )
+            .setColor('Gold')
+            .setTimestamp();
+          await ratingsChannel.send({ embeds: [ratingPostEmbed] });
+        }
+      }
 
       collector.stop();
     } catch {}
@@ -65,7 +87,7 @@ export async function handleCloseTicket(interaction: ButtonInteraction) {
 
   collector.on('end', async () => {
     try {
-      await interaction.channel.send(`📝 Ticket fechado por ${interaction.user.tag}`);
+      await interaction.channel.send(`📝 Ticket fechado por ${staffMember.tag}`);
       setTimeout(() => interaction.channel.delete().catch(() => {}), 3000);
     } catch {}
   });

@@ -4,15 +4,16 @@ import Guild from '../models/Guild.js';
 export default {
   data: new SlashCommandBuilder()
     .setName('avaliacoes')
-    .setDescription('Ver suas avaliações'),
+    .setDescription('Ver suas avaliações (apenas staff)'),
 
   async execute(interaction) {
     const guildData = await Guild.findOne({ guildId: interaction.guild.id });
-    if (!guildData) {
-      return interaction.reply({ content: '❌ Servidor não configurado.', ephemeral: true });
+
+    if (!guildData?.staffRoles.some(roleId => interaction.member.roles.cache.has(roleId))) {
+      return interaction.reply({ content: '❌ Apenas staff pode usar este comando.', ephemeral: true });
     }
 
-    const ratings = guildData.ratings.filter(r => r.userId === interaction.user.id);
+    const ratings = guildData.ratings.filter(r => r.staffId === interaction.user.id);
     if (!ratings.length) {
       const embed = new EmbedBuilder()
         .setTitle('⭐ Minhas Avaliações')
@@ -33,7 +34,8 @@ export default {
         { name: 'Total', value: `${ratings.length}` },
         { name: 'Histórico', value: description }
       )
-      .setColor('Gold');
+      .setColor('Gold')
+      .setTimestamp();
 
     await interaction.reply({ embeds: [embed] });
   }
