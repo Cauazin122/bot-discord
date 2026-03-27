@@ -1,10 +1,11 @@
-import { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, ChannelType } from 'discord.js';
+import { SlashCommandBuilder, ActionRowBuilder, StringSelectMenuBuilder, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
 import Guild from '../models/Guild.js';
 
 export default {
   data: new SlashCommandBuilder()
     .setName('ticket')
-    .setDescription('Criar um ticket'),
+    .setDescription('Criar um novo ticket')
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
   async execute(interaction) {
     const guildData = await Guild.findOne({ guildId: interaction.guild.id });
@@ -12,37 +13,24 @@ export default {
       return interaction.reply({ content: '❌ Categoria de tickets não configurada.', ephemeral: true });
     }
 
-    const channel = await interaction.guild.channels.create({
-      name: `ticket-${interaction.user.username}`,
-      type: ChannelType.GuildText,
-      parent: guildData.ticketCategory,
-      permissionOverwrites: [
-        {
-          id: interaction.guild.id,
-          deny: ['ViewChannel']
-        },
-        {
-          id: interaction.user.id,
-          allow: ['ViewChannel', 'SendMessages', 'ReadMessageHistory']
-        }
-      ]
-    });
-
     const embed = new EmbedBuilder()
-      .setTitle('🎫 Novo Ticket')
-      .setDescription(`Olá ${interaction.user}, bem-vindo ao suporte!`)
+      .setTitle('🎫 Criar Ticket')
+      .setDescription('Selecione o tipo de ticket que deseja abrir:')
       .setColor('Blue');
 
-    const row = new ActionRowBuilder<ButtonBuilder>()
+    const row = new ActionRowBuilder<StringSelectMenuBuilder>()
       .addComponents(
-        new ButtonBuilder()
-          .setCustomId('close_ticket')
-          .setLabel('Fechar Ticket')
-          .setStyle(ButtonStyle.Danger)
+        new StringSelectMenuBuilder()
+          .setCustomId('ticket_type')
+          .setPlaceholder('Escolha o tipo de ticket...')
+          .addOptions(
+            { label: '🛠️ Suporte', value: 'support', emoji: '🛠️' },
+            { label: '🚨 Denúncia', value: 'report', emoji: '🚨' },
+            { label: '❓ Dúvida', value: 'question', emoji: '❓' },
+            { label: '📝 Outro', value: 'other', emoji: '📝' }
+          )
       );
 
-    await channel.send({ embeds: [embed], components: [row] });
-
-    await interaction.reply({ content: `✅ Ticket criado: ${channel}`, ephemeral: true });
+    await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
   }
 };

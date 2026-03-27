@@ -10,11 +10,13 @@ export default {
       .setTitle('📋 Comandos Disponíveis')
       .setDescription('Aqui estão todos os comandos que você pode usar:')
       .addFields(
-        { name: '/ping', value: 'Verifica a latência do bot', inline: true },
-        { name: '/top', value: 'Top 10 membros com melhor avaliação', inline: true },
-        { name: '/warns', value: 'Ver warns de um usuário', inline: true }
+        { name: '🔧 Geral', value: '/ping · /help · /helpadm', inline: false },
+        { name: '⭐ Avaliações', value: '/avaliacoes · /top', inline: false },
+        { name: '🎫 Tickets', value: '/ticket (admin)', inline: false },
+        { name: '🎮 Diversão', value: '/8ball · /dice · /coinflip · /rps · /avatar', inline: false }
       )
       .setColor('Blue')
+      .setFooter({ text: 'Use /helpadm para ver comandos de moderação' })
       .setTimestamp();
 
     await interaction.reply({ embeds: [embed] });

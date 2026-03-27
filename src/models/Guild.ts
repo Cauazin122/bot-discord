@@ -9,15 +9,16 @@ const warnSchema = new mongoose.Schema({
 
 const ratingSchema = new mongoose.Schema({
   userId: String,
+  staffId: String,
+  staffTag: String,
   stars: Number,
   feedback: String,
   date: { type: Date, default: Date.now }
 });
 
-// ✅ NOVO SCHEMA
 const violationSchema = new mongoose.Schema({
   userId: String,
-  type: String, // ex: "spam", "link", "palavra_proibida"
+  type: String,
   count: { type: Number, default: 1 },
   lastViolation: { type: Date, default: Date.now }
 });
@@ -27,7 +28,7 @@ const guildSchema = new mongoose.Schema({
 
   // Channels
   logChannel: String,
-  antiLinkChannel: String,
+  ratingsChannel: String,
   ticketCategory: String,
   transcriptChannel: String,
 
@@ -47,8 +48,6 @@ const guildSchema = new mongoose.Schema({
   // Data
   warns: [warnSchema],
   ratings: [ratingSchema],
-
-  // ✅ NOVO CAMPO
   violations: [violationSchema],
 
   createdAt: { type: Date, default: Date.now }
