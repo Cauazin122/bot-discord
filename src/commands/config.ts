@@ -24,11 +24,13 @@ export default {
           .setCustomId('config_menu')
           .setPlaceholder('Selecione uma opção...')
           .addOptions(
-            { label: '📜 Logs', value: 'logs', emoji: '📜' },
-            { label: '🔗 Anti-Link', value: 'antilink', emoji: '🔗' },
-            { label: '🚫 Anti-Spam', value: 'antispam', emoji: '🚫' },
-            { label: '🎫 Categoria de Tickets', value: 'tickets', emoji: '🎫' },
-            { label: '⚙️ AutoMod', value: 'automod', emoji: '⚙️' }
+            { label: 'Logs', value: 'logs', emoji: '📜' },
+            { label: 'Canal de Avaliações', value: 'ratings', emoji: '⭐' },
+            { label: 'Roles de Staff', value: 'staffroles', emoji: '🛡️' },
+            { label: 'Anti-Link', value: 'antilink', emoji: '🔗' },
+            { label: 'Anti-Spam', value: 'antispam', emoji: '🚫' },
+            { label: 'Categoria de Tickets', value: 'tickets', emoji: '🎫' },
+            { label: 'AutoMod', value: 'automod', emoji: '⚙️' }
           )
       );
 
