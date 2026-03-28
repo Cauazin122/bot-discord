@@ -11,16 +11,10 @@ export default {
       .setTitle('📋 Comandos de Administração')
       .setDescription('Aqui estão todos os comandos de admin:')
       .addFields(
-        { name: '/warn', value: 'Avisar um usuário', inline: true },
-        { name: '/removewarn', value: 'Remover warn de um usuário', inline: true },
-        { name: '/warns', value: 'Ver warns de um usuário', inline: true },
-        { name: '/kick', value: 'Expulsar um usuário', inline: true },
-        { name: '/ban', value: 'Banir um usuário', inline: true },
-        { name: '/mute', value: 'Mutar um usuário', inline: true },
-        { name: '/unmute', value: 'Desmutar um usuário', inline: true },
-        { name: '/config', value: 'Painel de configuração do bot', inline: true },
-        { name: '/avaliacoes', value: 'Ver suas avaliações', inline: true },
-        { name: '/warns', value: 'Ver warns de um usuario', inline: true }
+        { name: '⚠️ Warns', value: '/warn · /removewarn · /warns', inline: false },
+        { name: '🔨 Moderação', value: '/kick · /ban · /mute · /unmute', inline: false },
+        { name: '⚙️ Configuração', value: '/config', inline: false },
+        { name: '🎫 Tickets', value: '/ticket', inline: false }
       )
       .setColor('Red')
       .setTimestamp();

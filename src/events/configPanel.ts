@@ -39,6 +39,53 @@ export async function handleConfigPanel(interaction: StringSelectMenuInteraction
       return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
     }
 
+    // ⭐ RATINGS CHANNEL
+    if (selected === 'ratings') {
+      const embed = new EmbedBuilder()
+        .setTitle('⭐ Configurar Canal de Avaliações')
+        .setDescription(`Status: ${guild.ratingsChannel ? '🟢 Configurado' : '🔴 Não configurado'}`)
+        .setColor('Yellow');
+
+      const row = new ActionRowBuilder<StringSelectMenuBuilder>()
+        .addComponents(
+          new StringSelectMenuBuilder()
+            .setCustomId('select_ratings')
+            .addOptions(
+              { label: 'Definir canal atual', value: 'set' },
+              { label: 'Remover', value: 'remove' }
+            )
+        );
+
+      return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+    }
+
+    // 🛡️ STAFF ROLES
+    if (selected === 'staffroles') {
+      const roles = interaction.guild.roles.cache
+        .filter(r => !r.managed && r.id !== interaction.guild.id)
+        .map(r => ({ label: r.name, value: r.id }))
+        .slice(0, 25);
+
+      if (roles.length === 0) {
+        return interaction.reply({ content: '❌ Nenhuma role encontrada.', ephemeral: true });
+      }
+
+      const embed = new EmbedBuilder()
+        .setTitle('🛡️ Configurar Roles de Staff')
+        .setDescription('Selecione as roles que terão acesso de staff:')
+        .setColor('Blue');
+
+      const row = new ActionRowBuilder<StringSelectMenuBuilder>()
+        .addComponents(
+          new StringSelectMenuBuilder()
+            .setCustomId('select_staffroles')
+            .setPlaceholder('Selecione uma role...')
+            .addOptions(roles)
+        );
+
+      return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+    }
+
     // 🔗 ANTI-LINK
     if (selected === 'antilink') {
       const embed = new EmbedBuilder()
@@ -176,5 +223,26 @@ export async function handleConfigPanel(interaction: StringSelectMenuInteraction
     }
     await guild.save();
     return interaction.reply({ content: '✅ AutoMod atualizado!', ephemeral: true });
+  }
+
+  if (interaction.customId === 'select_ratings') {
+    if (interaction.values[0] === 'set') {
+      guild.ratingsChannel = interaction.channelId;
+    } else {
+      guild.ratingsChannel = undefined;
+    }
+    await guild.save();
+    return interaction.reply({ content: '✅ Canal de avaliações atualizado!', ephemeral: true });
+  }
+
+  if (interaction.customId === 'select_staffroles') {
+    const roleId = interaction.values[0];
+    if (!guild.staffRoles.includes(roleId)) {
+      guild.staffRoles.push(roleId);
+    } else {
+      guild.staffRoles = guild.staffRoles.filter((r: string) => r !== roleId);
+    }
+    await guild.save();
+    return interaction.reply({ content: '✅ Roles de staff atualizadas!', ephemeral: true });
   }
 }
