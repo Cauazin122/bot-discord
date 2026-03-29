@@ -9,6 +9,7 @@ import { handleClaimTicket } from './events/claimTicket.js';
 import { handleCloseTicket } from './events/closeTicket.js';
 import { handleAntiSpam } from './events/antiSpam.js';
 import { handleAntiLink } from './events/antiLink.js';
+import { handleCalculatorButton, handleCalculatorModal } from './events/calculatorModal.js';
 
 // Import all commands
 import ping from './commands/ping.js';
@@ -30,8 +31,10 @@ import dice from './commands/dice.js';
 import coinflip from './commands/coinflip.js';
 import rps from './commands/rps.js';
 import avatar from './commands/avatar.js';
+import taxa from './commands/taxa.js';
+import calcular from './commands/calcular.js';
 
-const commands = { ping, warn, removewarn, warns, kick, ban, mute, unmute, ticket, config, avaliacoes, top, help, helpadm, eightball, dice, coinflip, rps, avatar };
+const commands = { ping, warn, removewarn, warns, kick, ban, mute, unmute, ticket, config, avaliacoes, top, help, helpadm, eightball, dice, coinflip, rps, avatar, taxa, calcular };
 
 const app = express();
 app.get('/', (req, res) => res.send('Bot online!'));
@@ -99,6 +102,18 @@ client.on('interactionCreate', async (interaction) => {
     }
     if (interaction.customId === 'close_ticket') {
       return handleCloseTicket(interaction);
+    }
+    if (interaction.customId === 'calc_robux_to_real') {
+      return handleCalculatorButton(interaction);
+    }
+    if (interaction.customId === 'config_back') {
+      return handleConfigPanel(interaction);
+    }
+  }
+
+  if (interaction.isModalSubmit()) {
+    if (interaction.customId === 'modal_robux_price') {
+      return handleCalculatorModal(interaction);
     }
   }
 

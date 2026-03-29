@@ -45,6 +45,10 @@ const guildSchema = new mongoose.Schema({
   // Staff roles
   staffRoles: [String],
 
+  // Taxa de conversão Robux → Real
+  taxaRobux: { type: Number, default: 0.05 },
+  margemVenda: { type: Number, default: 1.30 },
+
   // Data
   warns: [warnSchema],
   ratings: [ratingSchema],

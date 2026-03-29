@@ -2,12 +2,14 @@ import {
   EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
+  ButtonBuilder,
+  ButtonStyle,
   StringSelectMenuInteraction,
   ChannelType
 } from 'discord.js';
 import Guild from '../models/Guild.js';
 
-export async function handleConfigPanel(interaction: StringSelectMenuInteraction) {
+export async function handleConfigPanel(interaction: StringSelectMenuInteraction | any) {
   const guildId = interaction.guild.id;
   let guild = await Guild.findOne({ guildId });
 
@@ -36,7 +38,15 @@ export async function handleConfigPanel(interaction: StringSelectMenuInteraction
             )
         );
 
-      return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+      const backButton = new ActionRowBuilder<ButtonBuilder>()
+        .addComponents(
+          new ButtonBuilder()
+            .setCustomId('config_back')
+            .setLabel('← Voltar')
+            .setStyle(ButtonStyle.Secondary)
+        );
+
+      return interaction.update({ embeds: [embed], components: [row, backButton] });
     }
 
     // ⭐ RATINGS CHANNEL
@@ -56,7 +66,15 @@ export async function handleConfigPanel(interaction: StringSelectMenuInteraction
             )
         );
 
-      return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+      const backButton = new ActionRowBuilder<ButtonBuilder>()
+        .addComponents(
+          new ButtonBuilder()
+            .setCustomId('config_back')
+            .setLabel('← Voltar')
+            .setStyle(ButtonStyle.Secondary)
+        );
+
+      return interaction.update({ embeds: [embed], components: [row, backButton] });
     }
 
     // 🛡️ STAFF ROLES
@@ -83,7 +101,15 @@ export async function handleConfigPanel(interaction: StringSelectMenuInteraction
             .addOptions(roles)
         );
 
-      return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+      const backButton = new ActionRowBuilder<ButtonBuilder>()
+        .addComponents(
+          new ButtonBuilder()
+            .setCustomId('config_back')
+            .setLabel('← Voltar')
+            .setStyle(ButtonStyle.Secondary)
+        );
+
+      return interaction.update({ embeds: [embed], components: [row, backButton] });
     }
 
     // 🔗 ANTI-LINK
@@ -103,7 +129,15 @@ export async function handleConfigPanel(interaction: StringSelectMenuInteraction
             )
         );
 
-      return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+      const backButton = new ActionRowBuilder<ButtonBuilder>()
+        .addComponents(
+          new ButtonBuilder()
+            .setCustomId('config_back')
+            .setLabel('← Voltar')
+            .setStyle(ButtonStyle.Secondary)
+        );
+
+      return interaction.update({ embeds: [embed], components: [row, backButton] });
     }
 
     // 🚫 ANTI-SPAM
@@ -123,24 +157,26 @@ export async function handleConfigPanel(interaction: StringSelectMenuInteraction
             )
         );
 
-      return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+      const backButton = new ActionRowBuilder<ButtonBuilder>()
+        .addComponents(
+          new ButtonBuilder()
+            .setCustomId('config_back')
+            .setLabel('← Voltar')
+            .setStyle(ButtonStyle.Secondary)
+        );
+
+      return interaction.update({ embeds: [embed], components: [row, backButton] });
     }
 
     // 🎫 TICKETS
     if (selected === 'tickets') {
       const categories = interaction.guild.channels.cache
         .filter(c => c.type === ChannelType.GuildCategory)
-        .map(c => ({
-          label: c.name,
-          value: c.id
-        }))
+        .map(c => ({ label: c.name, value: c.id }))
         .slice(0, 25);
 
       if (categories.length === 0) {
-        return interaction.reply({
-          content: '❌ Nenhuma categoria encontrada.',
-          ephemeral: true
-        });
+        return interaction.reply({ content: '❌ Nenhuma categoria encontrada.', ephemeral: true });
       }
 
       const embed = new EmbedBuilder()
@@ -156,7 +192,15 @@ export async function handleConfigPanel(interaction: StringSelectMenuInteraction
             .addOptions(categories)
         );
 
-      return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+      const backButton = new ActionRowBuilder<ButtonBuilder>()
+        .addComponents(
+          new ButtonBuilder()
+            .setCustomId('config_back')
+            .setLabel('← Voltar')
+            .setStyle(ButtonStyle.Secondary)
+        );
+
+      return interaction.update({ embeds: [embed], components: [row, backButton] });
     }
 
     // ⚙️ AUTOMOD
@@ -180,8 +224,42 @@ export async function handleConfigPanel(interaction: StringSelectMenuInteraction
             )
         );
 
-      return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+      const backButton = new ActionRowBuilder<ButtonBuilder>()
+        .addComponents(
+          new ButtonBuilder()
+            .setCustomId('config_back')
+            .setLabel('← Voltar')
+            .setStyle(ButtonStyle.Secondary)
+        );
+
+      return interaction.update({ embeds: [embed], components: [row, backButton] });
     }
+  }
+
+  // VOLTAR AO MENU PRINCIPAL
+  if (interaction.customId === 'config_back') {
+    const embed = new EmbedBuilder()
+      .setTitle('⚙️ Painel de Configuração')
+      .setDescription('Escolha o que deseja configurar:')
+      .setColor('Blue');
+
+    const dropdown = new ActionRowBuilder<StringSelectMenuBuilder>()
+      .addComponents(
+        new StringSelectMenuBuilder()
+          .setCustomId('config_menu')
+          .setPlaceholder('Selecione uma opção...')
+          .addOptions(
+            { label: 'Logs', value: 'logs', emoji: '📜' },
+            { label: 'Canal de Avaliações', value: 'ratings', emoji: '⭐' },
+            { label: 'Roles de Staff', value: 'staffroles', emoji: '🛡️' },
+            { label: 'Anti-Link', value: 'antilink', emoji: '🔗' },
+            { label: 'Anti-Spam', value: 'antispam', emoji: '🚫' },
+            { label: 'Categoria de Tickets', value: 'tickets', emoji: '🎫' },
+            { label: 'AutoMod', value: 'automod', emoji: '⚙️' }
+          )
+      );
+
+    return interaction.update({ embeds: [embed], components: [dropdown] });
   }
 
   // SUB-SELEÇÕES
@@ -192,25 +270,130 @@ export async function handleConfigPanel(interaction: StringSelectMenuInteraction
       guild.logChannel = undefined;
     }
     await guild.save();
-    return interaction.reply({ content: '✅ Logs atualizado!', ephemeral: true });
+
+    const embed = new EmbedBuilder()
+      .setTitle('✅ Logs Atualizado')
+      .setDescription(`Canal: ${interaction.values[0] === 'set' ? `<#${interaction.channelId}>` : 'Removido'}`)
+      .setColor('Green');
+
+    const backButton = new ActionRowBuilder<ButtonBuilder>()
+      .addComponents(
+        new ButtonBuilder()
+          .setCustomId('config_back')
+          .setLabel('← Voltar')
+          .setStyle(ButtonStyle.Secondary)
+      );
+
+    return interaction.update({ embeds: [embed], components: [backButton] });
+  }
+
+  if (interaction.customId === 'select_ratings') {
+    if (interaction.values[0] === 'set') {
+      guild.ratingsChannel = interaction.channelId;
+    } else {
+      guild.ratingsChannel = undefined;
+    }
+    await guild.save();
+
+    const embed = new EmbedBuilder()
+      .setTitle('✅ Canal de Avaliações Atualizado')
+      .setDescription(`Canal: ${interaction.values[0] === 'set' ? `<#${interaction.channelId}>` : 'Removido'}`)
+      .setColor('Green');
+
+    const backButton = new ActionRowBuilder<ButtonBuilder>()
+      .addComponents(
+        new ButtonBuilder()
+          .setCustomId('config_back')
+          .setLabel('← Voltar')
+          .setStyle(ButtonStyle.Secondary)
+      );
+
+    return interaction.update({ embeds: [embed], components: [backButton] });
+  }
+
+  if (interaction.customId === 'select_staffroles') {
+    const roleId = interaction.values[0];
+    if (!guild.staffRoles.includes(roleId)) {
+      guild.staffRoles.push(roleId);
+    } else {
+      guild.staffRoles = guild.staffRoles.filter((r: string) => r !== roleId);
+    }
+    await guild.save();
+
+    const embed = new EmbedBuilder()
+      .setTitle('✅ Roles de Staff Atualizadas')
+      .setDescription(`Role: <@&${roleId}>`)
+      .setColor('Green');
+
+    const backButton = new ActionRowBuilder<ButtonBuilder>()
+      .addComponents(
+        new ButtonBuilder()
+          .setCustomId('config_back')
+          .setLabel('← Voltar')
+          .setStyle(ButtonStyle.Secondary)
+      );
+
+    return interaction.update({ embeds: [embed], components: [backButton] });
   }
 
   if (interaction.customId === 'select_antilink') {
     guild.antiLinkEnabled = interaction.values[0] === 'on';
     await guild.save();
-    return interaction.reply({ content: '✅ Anti-Link atualizado!', ephemeral: true });
+
+    const embed = new EmbedBuilder()
+      .setTitle('✅ Anti-Link Atualizado')
+      .setDescription(`Status: ${guild.antiLinkEnabled ? '🟢 Ativo' : '🔴 Desativado'}`)
+      .setColor('Green');
+
+    const backButton = new ActionRowBuilder<ButtonBuilder>()
+      .addComponents(
+        new ButtonBuilder()
+          .setCustomId('config_back')
+          .setLabel('← Voltar')
+          .setStyle(ButtonStyle.Secondary)
+      );
+
+    return interaction.update({ embeds: [embed], components: [backButton] });
   }
 
   if (interaction.customId === 'select_antispam') {
     guild.antiSpamEnabled = interaction.values[0] === 'on';
     await guild.save();
-    return interaction.reply({ content: '✅ Anti-Spam atualizado!', ephemeral: true });
+
+    const embed = new EmbedBuilder()
+      .setTitle('✅ Anti-Spam Atualizado')
+      .setDescription(`Status: ${guild.antiSpamEnabled ? '🟢 Ativo' : '🔴 Desativado'}`)
+      .setColor('Green');
+
+    const backButton = new ActionRowBuilder<ButtonBuilder>()
+      .addComponents(
+        new ButtonBuilder()
+          .setCustomId('config_back')
+          .setLabel('← Voltar')
+          .setStyle(ButtonStyle.Secondary)
+      );
+
+    return interaction.update({ embeds: [embed], components: [backButton] });
   }
 
   if (interaction.customId === 'select_tickets') {
     guild.ticketCategory = interaction.values[0];
     await guild.save();
-    return interaction.reply({ content: '✅ Categoria de tickets atualizada!', ephemeral: true });
+
+    const embed = new EmbedBuilder()
+      .setTitle('✅ Categoria de Tickets Atualizada')
+      .setDescription(`Categoria: <#${interaction.values[0]}>`)
+      .setColor('Green');
+
+    const backButton = new ActionRowBuilder<ButtonBuilder>()
+      .addComponents(
+        new ButtonBuilder()
+          .setCustomId('config_back')
+          .setLabel('← Voltar')
+          .setStyle(ButtonStyle.Secondary)
+      );
+
+    return interaction.update({ embeds: [embed], components: [backButton] });
   }
 
   if (interaction.customId === 'select_automod') {
@@ -222,27 +405,20 @@ export async function handleConfigPanel(interaction: StringSelectMenuInteraction
       guild.autoMod.kickAt = parseInt(value.split('_')[1]);
     }
     await guild.save();
-    return interaction.reply({ content: '✅ AutoMod atualizado!', ephemeral: true });
-  }
 
-  if (interaction.customId === 'select_ratings') {
-    if (interaction.values[0] === 'set') {
-      guild.ratingsChannel = interaction.channelId;
-    } else {
-      guild.ratingsChannel = undefined;
-    }
-    await guild.save();
-    return interaction.reply({ content: '✅ Canal de avaliações atualizado!', ephemeral: true });
-  }
+    const embed = new EmbedBuilder()
+      .setTitle('✅ AutoMod Atualizado')
+      .setDescription(`Mute: ${guild.autoMod.muteAt}\nKick: ${guild.autoMod.kickAt}`)
+      .setColor('Green');
 
-  if (interaction.customId === 'select_staffroles') {
-    const roleId = interaction.values[0];
-    if (!guild.staffRoles.includes(roleId)) {
-      guild.staffRoles.push(roleId);
-    } else {
-      guild.staffRoles = guild.staffRoles.filter((r: string) => r !== roleId);
-    }
-    await guild.save();
-    return interaction.reply({ content: '✅ Roles de staff atualizadas!', ephemeral: true });
+    const backButton = new ActionRowBuilder<ButtonBuilder>()
+      .addComponents(
+        new ButtonBuilder()
+          .setCustomId('config_back')
+          .setLabel('← Voltar')
+          .setStyle(ButtonStyle.Secondary)
+      );
+
+    return interaction.update({ embeds: [embed], components: [backButton] });
   }
 }
