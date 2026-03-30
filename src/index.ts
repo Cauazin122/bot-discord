@@ -32,9 +32,10 @@ import coinflip from './commands/coinflip.js';
 import rps from './commands/rps.js';
 import avatar from './commands/avatar.js';
 import taxa from './commands/taxa.js';
+import margem from './commands/margem.js';
 import calcular from './commands/calcular.js';
 
-const commands = { ping, warn, removewarn, warns, kick, ban, mute, unmute, ticket, config, avaliacoes, top, help, helpadm, eightball, dice, coinflip, rps, avatar, taxa, calcular };
+const commands = { ping, warn, removewarn, warns, kick, ban, mute, unmute, ticket, config, avaliacoes, top, help, helpadm, eightball, dice, coinflip, rps, avatar, taxa, margem, calcular };
 
 const app = express();
 app.get('/', (req, res) => res.send('Bot online!'));
