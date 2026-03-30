@@ -52,10 +52,10 @@ export async function handleCalculatorModal(interaction) {
     .addFields(
       { name: '🎮 Robux', value: `${robuxValue}`, inline: true },
       { name: '💵 Real', value: `R$ ${precoReal}`, inline: true },
-      { name: '📊 Detalhes', value: `${robuxValue} × R$ ${taxa.toFixed(2)} × ${margem} = R$ ${precoReal}` }
+      { name: '📊 Detalhes', value: `${robuxValue} × R$ ${taxa.toFixed(2)} × ${margem.toFixed(2)} = R$ ${precoReal}` }
     )
     .setColor('Green')
     .setTimestamp();
 
-  await interaction.reply({ embeds: [embed], ephemeral: false });
+  await interaction.reply({ embeds: [embed], ephemeral: true });
 }

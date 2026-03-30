@@ -12,13 +12,14 @@ export default {
 
     const taxa = guild?.taxaRobux || 0.05;
     const margem = guild?.margemVenda || 1.30;
+    const percentualMargem = ((margem - 1) * 100).toFixed(0);
 
     const embed = new EmbedBuilder()
       .setTitle('🎮 Calculadora de Preço')
       .setDescription('Clique no botão abaixo para calcular o preço de uma gamepass em Real')
       .addFields(
         { name: '💱 Taxa Atual', value: `1 Robux = R$ ${taxa.toFixed(2)}`, inline: true },
-        { name: '📊 Margem', value: `${((margem - 1) * 100).toFixed(0)}%`, inline: true }
+        { name: '📊 Margem', value: `${percentualMargem}%`, inline: true }
       )
       .setColor('Blue')
       .setTimestamp();
