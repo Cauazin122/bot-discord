@@ -88,16 +88,26 @@ export async function handleConfigPanel(interaction: StringSelectMenuInteraction
         return interaction.reply({ content: '❌ Nenhuma role encontrada.', ephemeral: true });
       }
 
+      // Mostrar roles selecionadas
+      const selectedRoles = guild.staffRoles.length > 0
+        ? guild.staffRoles.map(roleId => `<@&${roleId}>`).join('\n')
+        : 'Nenhuma role selecionada';
+
       const embed = new EmbedBuilder()
         .setTitle('🛡️ Configurar Roles de Staff')
         .setDescription('Selecione as roles que terão acesso de staff:')
+        .addFields(
+          { name: '✅ Roles Selecionadas', value: selectedRoles }
+        )
         .setColor('Blue');
 
       const row = new ActionRowBuilder<StringSelectMenuBuilder>()
         .addComponents(
           new StringSelectMenuBuilder()
             .setCustomId('select_staffroles')
-            .setPlaceholder('Selecione uma role...')
+            .setPlaceholder('Selecione uma ou mais roles...')
+            .setMinValues(1)
+            .setMaxValues(Math.min(roles.length, 25))
             .addOptions(roles)
         );
 
@@ -312,17 +322,20 @@ export async function handleConfigPanel(interaction: StringSelectMenuInteraction
   }
 
   if (interaction.customId === 'select_staffroles') {
-    const roleId = interaction.values[0];
-    if (!guild.staffRoles.includes(roleId)) {
-      guild.staffRoles.push(roleId);
-    } else {
-      guild.staffRoles = guild.staffRoles.filter((r: string) => r !== roleId);
-    }
+    // Substituir todas as roles selecionadas
+    guild.staffRoles = interaction.values;
     await guild.save();
+
+    const selectedRoles = guild.staffRoles.length > 0
+      ? guild.staffRoles.map(roleId => `<@&${roleId}>`).join('\n')
+      : 'Nenhuma role selecionada';
 
     const embed = new EmbedBuilder()
       .setTitle('✅ Roles de Staff Atualizadas')
-      .setDescription(`Role: <@&${roleId}>`)
+      .setDescription('Roles selecionadas:')
+      .addFields(
+        { name: '🛡️ Staff Roles', value: selectedRoles }
+      )
       .setColor('Green');
 
     const backButton = new ActionRowBuilder<ButtonBuilder>()
