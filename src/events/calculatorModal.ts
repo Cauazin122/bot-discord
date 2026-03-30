@@ -51,8 +51,7 @@ export async function handleCalculatorModal(interaction) {
     .setTitle('💰 Preço Calculado')
     .addFields(
       { name: '🎮 Robux', value: `${robuxValue}`, inline: true },
-      { name: '💵 Real', value: `R$ ${precoReal}`, inline: true },
-      { name: '📊 Detalhes', value: `${robuxValue} × R$ ${taxa.toFixed(2)} × ${margem.toFixed(2)} = R$ ${precoReal}` }
+      { name: '💵 Real', value: `R$ ${precoReal}`, inline: true }
     )
     .setColor('Green')
     .setTimestamp();
