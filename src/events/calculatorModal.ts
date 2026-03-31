@@ -46,12 +46,14 @@ export async function handleCalculatorModal(interaction) {
   const margem = guild?.margemVenda || 1.30;
 
   const precoReal = (robuxValue * taxa * margem).toFixed(2);
+  const precoGamepass = (robuxValue * taxa).toFixed(2);
 
   const embed = new EmbedBuilder()
     .setTitle('💰 Preço Calculado')
     .addFields(
-      { name: '🎮 Robux', value: `${robuxValue}`, inline: true },
-      { name: '💵 Real', value: `R$ ${precoReal}`, inline: true }
+      { name: '🎮 Robux Taxado', value: `R${precoReal}`, inline: true },
+      { name: '🎮 Robux sem taxa', value: `R${precoGamepass}`, inline: true },
+      { name: '💳 Gamepass', value: `R$ ${precoGamepass}`, inline: true }
     )
     .setColor('Green')
     .setTimestamp();
