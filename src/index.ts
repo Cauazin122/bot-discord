@@ -70,7 +70,6 @@ client.once('clientReady', async () => {
   }
 
   const statuses = [
-    { text: 'Make your money', type: ActivityType.Watching },
     { text: 'Gerenciando tickets', type: ActivityType.Watching },
     { text: 'Suporte 24/7', type: ActivityType.Watching },
     { text: '/help para mais informações', type: ActivityType.Playing }
