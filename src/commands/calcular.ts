@@ -16,10 +16,10 @@ export default {
 
     const embed = new EmbedBuilder()
       .setTitle('🎮 Calculadora de Preço')
-      .setDescription('Clique no botão abaixo para calcular o preço de uma gamepass em Real')
+      .setDescription('Seja bem vindo a nossa central de preços aqui você podera ver quantos robux custa a gamepass que deseja.')
       .addFields(
         { name: '💱 Taxa Atual', value: `1 Robux = R$ ${taxa.toFixed(2)}`, inline: true },
-        { name: '📊 Margem', value: `${percentualMargem}%`, inline: true }
+        { name: '❓ Como usar?', value: `Simples basta escrever quantos robux a gamepass custa e te falamos o preço dela`, inline: true}
       )
       .setColor('Blue')
       .setTimestamp();
