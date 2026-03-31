@@ -49,6 +49,24 @@ const guildSchema = new mongoose.Schema({
   taxaRobux: { type: Number, default: 0.05 },
   margemVenda: { type: Number, default: 1.30 },
 
+  // Customer roles (XP system)
+  customerRoles: {
+    firstPurchase: String,
+    tier1500: String,
+    tier2000: String,
+    tier2500: String,
+    tier3000: String,
+    tier3500: String,
+    tier4000: String,
+    tier5000: String,
+    tier6000: String,
+    tier7000: String,
+    tier10000: String,
+    tier15000: String,
+    tier20000: String,
+    tier100000: String
+  },
+
   // Data
   warns: [warnSchema],
   ratings: [ratingSchema],
