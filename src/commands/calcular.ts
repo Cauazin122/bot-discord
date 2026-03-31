@@ -4,7 +4,7 @@ import Guild from '../models/Guild.js';
 export default {
   data: new SlashCommandBuilder()
     .setName('calcular')
-    .setDescription('Calcular preço de gamepass em Real'),
+    .setDescription('Calcular preço de Gamepass e Robux'),
 
   async execute(interaction) {
     const guildId = interaction.guild.id;
@@ -16,7 +16,7 @@ export default {
 
     const embed = new EmbedBuilder()
       .setTitle('🎮 Calculadora de Preço')
-      .setDescription('Seja bem vindo a nossa central de preços aqui você podera ver quantos reais custa a gamepass que deseja.')
+      .setDescription('Seja bem vindo a nossa central de preços aqui você podera ver quantos reais custa a gamepass ou os robux (com e sem taxa) que deseja.')
       .addFields(
         { name: '💱 Taxa Atual', value: `1 Robux = R$ ${taxa.toFixed(2)}`, inline: true },
         { name: '❓ Como usar?', value: `Simples basta escrever quantos robux a gamepass custa e te falamos o preço dela`, inline: true}
