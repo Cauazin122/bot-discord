@@ -28,49 +28,97 @@ export default {
     .addNumberOption(o => o.setName('robux').setDescription('Quantidade de Robux').setRequired(true).setMinValue(1)),
 
   async execute(interaction) {
-    const user = interaction.options.getUser('usuario');
-    const robuxAmount = interaction.options.getNumber('robux');
-    const guildId = interaction.guild.id;
+    try {
+      const user = interaction.options.getUser('usuario');
+      const robuxAmount = interaction.options.getNumber('robux');
+      const guildId = interaction.guild.id;
 
-    let userData = await User.findOne({ userId: user.id, guildId });
-    if (!userData) {
-      userData = await User.create({ userId: user.id, guildId, totalRobux: robuxAmount });
-    } else {
-      userData.totalRobux += robuxAmount;
-      await userData.save();
-    }
+      // Buscar ou criar usuário
+      let userData = await User.findOne({ userId: user.id, guildId });
+      if (!userData) {
+        userData = await User.create({ userId: user.id, guildId, totalRobux: robuxAmount });
+      } else {
+        userData.totalRobux += robuxAmount;
+        await userData.save();
+      }
 
-    const guild = await Guild.findOne({ guildId });
-    if (!guild?.customerRoles) {
-      return interaction.reply({ content: '❌ Cargos de cliente não configurados.', ephemeral: true });
-    }
+      // Buscar ou criar guild
+      let guild = await Guild.findOne({ guildId });
+      if (!guild) {
+        guild = await Guild.create({ guildId });
+      }
 
-    // Dar todos os cargos que o usuário atingiu (sem desperdiçar XP)
-    const member = await interaction.guild.members.fetch(user.id);
-    const rolesGiven = [];
+      // Verificar se customerRoles existe
+      if (!guild.customerRoles) {
+        guild.customerRoles = {};
+        await guild.save();
+      }
 
-    for (const threshold of ROLE_THRESHOLDS) {
-      if (userData.totalRobux >= threshold.robux && guild.customerRoles[threshold.key]) {
-        try {
-          await member.roles.add(guild.customerRoles[threshold.key]);
-          rolesGiven.push(threshold.label);
-        } catch (err) {
-          console.error(`Erro ao adicionar role ${threshold.key}:`, err);
+      // Contar quantos cargos estão configurados
+      const configuredRoles = Object.values(guild.customerRoles).filter(r => r).length;
+      if (configuredRoles === 0) {
+        return interaction.reply({
+          content: '❌ Nenhum cargo de cliente configurado. Use `/configcargos` para configurar.',
+          ephemeral: true
+        });
+      }
+
+      // Buscar membro
+      let member;
+      try {
+        member = await interaction.guild.members.fetch(user.id);
+      } catch (err) {
+        return interaction.reply({
+          content: '❌ Usuário não encontrado no servidor.',
+          ephemeral: true
+        });
+      }
+
+      // Dar todos os cargos que o usuário atingiu
+      const rolesGiven = [];
+      const rolesAlreadyHad = [];
+
+      for (const threshold of ROLE_THRESHOLDS) {
+        if (userData.totalRobux >= threshold.robux && guild.customerRoles[threshold.key]) {
+          try {
+            const roleId = guild.customerRoles[threshold.key];
+            if (!member.roles.cache.has(roleId)) {
+              await member.roles.add(roleId);
+              rolesGiven.push(threshold.label);
+            } else {
+              rolesAlreadyHad.push(threshold.label);
+            }
+          } catch (err) {
+            console.error(`Erro ao adicionar role ${threshold.key}:`, err);
+          }
         }
       }
+
+      const embed = new EmbedBuilder()
+        .setTitle('✅ XP Adicionado')
+        .addFields(
+          { name: '👤 Usuário', value: user.tag, inline: true },
+          { name: '💰 Robux Adicionado', value: `${robuxAmount}`, inline: true },
+          { name: '📊 Total', value: `${userData.totalRobux} Rbx`, inline: true },
+          {
+            name: '🎖️ Cargos Novos',
+            value: rolesGiven.length > 0 ? rolesGiven.join('\n') : 'Nenhum cargo novo'
+          },
+          {
+            name: '✅ Cargos Já Possuía',
+            value: rolesAlreadyHad.length > 0 ? rolesAlreadyHad.join('\n') : 'Nenhum'
+          }
+        )
+        .setColor('Green')
+        .setTimestamp();
+
+      await interaction.reply({ embeds: [embed], ephemeral: true });
+    } catch (error) {
+      console.error('Erro no comando addxp:', error);
+      await interaction.reply({
+        content: '❌ Erro ao processar comando. Verifique os logs.',
+        ephemeral: true
+      });
     }
-
-    const embed = new EmbedBuilder()
-      .setTitle('✅ XP Adicionado')
-      .addFields(
-        { name: '👤 Usuário', value: user.tag, inline: true },
-        { name: '💰 Robux Adicionado', value: `${robuxAmount}`, inline: true },
-        { name: '📊 Total', value: `${userData.totalRobux} Rbx`, inline: true },
-        { name: '🎖️ Cargos Recebidos', value: rolesGiven.length > 0 ? rolesGiven.join('\n') : 'Nenhum cargo novo' }
-      )
-      .setColor('Green')
-      .setTimestamp();
-
-    await interaction.reply({ embeds: [embed], ephemeral: true });
   }
 };
