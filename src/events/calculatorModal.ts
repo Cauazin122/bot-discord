@@ -51,8 +51,8 @@ export async function handleCalculatorModal(interaction) {
   const embed = new EmbedBuilder()
     .setTitle('💰 Preço Calculado')
     .addFields(
-      { name: '🎮 Robux Taxado', value: `R${precoReal}`, inline: true },
-      { name: '🎮 Robux sem taxa', value: `R${precoGamepass}`, inline: true },
+      { name: '🎮 Robux Taxado', value: `R$ ${precoReal}`, inline: true },
+      { name: '🎮 Robux sem taxa', value: `R$ ${precoGamepass}`, inline: true },
       { name: '💳 Gamepass', value: `R$ ${precoGamepass}`, inline: true }
     )
     .setColor('Green')
