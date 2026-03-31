@@ -13,11 +13,11 @@ export async function handleCalculatorButton(interaction: ButtonInteraction) {
 
   const modal = new ModalBuilder()
     .setCustomId('modal_robux_price')
-    .setTitle('Preço da Gamepass em Robux');
+    .setTitle('Preço de Robux e Gamepass');
 
   const robuxInput = new TextInputBuilder()
     .setCustomId('robux_value')
-    .setLabel('Preço em Robux')
+    .setLabel('Coloque os Robux que deseja')
     .setStyle(TextInputStyle.Short)
     .setPlaceholder('Ex: 50')
     .setRequired(true);
