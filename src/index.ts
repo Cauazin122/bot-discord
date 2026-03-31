@@ -11,7 +11,6 @@ import { handleAntiSpam } from './events/antiSpam.js';
 import { handleAntiLink } from './events/antiLink.js';
 import { handleCalculatorButton, handleCalculatorModal } from './events/calculatorModal.js';
 
-// Import all commands
 import ping from './commands/ping.js';
 import warn from './commands/warn.js';
 import removewarn from './commands/removewarn.js';
@@ -34,8 +33,11 @@ import avatar from './commands/avatar.js';
 import taxa from './commands/taxa.js';
 import margem from './commands/margem.js';
 import calcular from './commands/calcular.js';
+import addxp from './commands/addxp.js';
+import nivel from './commands/nivel.js';
+import configcargos from './commands/configcargos.js';
 
-const commands = { ping, warn, removewarn, warns, kick, ban, mute, unmute, ticket, config, avaliacoes, top, help, helpadm, eightball, dice, coinflip, rps, avatar, taxa, margem, calcular };
+const commands = { ping, warn, removewarn, warns, kick, ban, mute, unmute, ticket, config, avaliacoes, top, help, helpadm, eightball, dice, coinflip, rps, avatar, taxa, margem, calcular, addxp, nivel, configcargos };
 
 const app = express();
 app.get('/', (req, res) => res.send('Bot online!'));
@@ -83,7 +85,6 @@ client.once('clientReady', async () => {
     statusIndex = (statusIndex + 1) % statuses.length;
   }, 10000);
 
-  // Backup a cada 6 horas
   setInterval(() => backupDatabase(client), 6 * 60 * 60 * 1000);
 });
 
