@@ -34,10 +34,11 @@ import taxa from './commands/taxa.js';
 import margem from './commands/margem.js';
 import calcular from './commands/calcular.js';
 import addxp from './commands/addxp.js';
+import removexp from './commands/removexp.js';
 import nivel from './commands/nivel.js';
 import configcargos from './commands/configcargos.js';
 
-const commands = { ping, warn, removewarn, warns, kick, ban, mute, unmute, ticket, config, avaliacoes, top, help, helpadm, eightball, dice, coinflip, rps, avatar, taxa, margem, calcular, addxp, nivel, configcargos };
+const commands = { ping, warn, removewarn, warns, kick, ban, mute, unmute, ticket, config, avaliacoes, top, help, helpadm, eightball, dice, coinflip, rps, avatar, taxa, margem, calcular, addxp, removexp, nivel, configcargos };
 
 const app = express();
 app.get('/', (req, res) => res.send('Bot online!'));
@@ -70,6 +71,7 @@ client.once('clientReady', async () => {
   }
 
   const statuses = [
+    { text: 'Make your money', type: ActivityType.Watching },
     { text: 'Gerenciando tickets', type: ActivityType.Watching },
     { text: 'Suporte 24/7', type: ActivityType.Watching },
     { text: '/help para mais informações', type: ActivityType.Playing }
