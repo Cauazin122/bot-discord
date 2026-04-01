@@ -28,6 +28,8 @@ export default {
     .addNumberOption(o => o.setName('robux').setDescription('Quantidade de Robux').setRequired(true).setMinValue(1)),
 
   async execute(interaction) {
+    await interaction.deferReply({ ephemeral: true });
+
     try {
       const user = interaction.options.getUser('usuario');
       const robuxAmount = interaction.options.getNumber('robux');
@@ -42,55 +44,54 @@ export default {
         await userData.save();
       }
 
-      // Buscar ou criar guild
+      // Buscar guild
       let guild = await Guild.findOne({ guildId });
       if (!guild) {
-        guild = await Guild.create({ guildId });
+        return await interaction.editReply({
+          content: '❌ Servidor não configurado. Contate um administrador.'
+        });
       }
 
-      // Verificar se customerRoles existe
-      if (!guild.customerRoles) {
-        guild.customerRoles = {};
-        await guild.save();
-      }
-
-      // Contar quantos cargos estão configurados
-      const configuredRoles = Object.values(guild.customerRoles).filter(r => r).length;
-      if (configuredRoles === 0) {
-        return interaction.reply({
-          content: '❌ Nenhum cargo de cliente configurado. Use `/configcargos` para configurar.',
-          ephemeral: true
+      // Verificar se customerRoles existe e tem cargos
+      if (!guild.customerRoles || Object.keys(guild.customerRoles).length === 0) {
+        return await interaction.editReply({
+          content: '❌ Nenhum cargo de cliente configurado. Use `/configcargos` para configurar.'
         });
       }
 
       // Buscar membro
       let member;
       try {
-        member = await interaction.guild.members.fetch(user.id);
+        member = await interaction.guild.members.fetch({ user: user.id, force: false });
       } catch (err) {
-        return interaction.reply({
-          content: '❌ Usuário não encontrado no servidor.',
-          ephemeral: true
+        return await interaction.editReply({
+          content: '❌ Usuário não encontrado no servidor.'
         });
       }
 
-      // Dar todos os cargos que o usuário atingiu
-      const rolesGiven = [];
-      const rolesAlreadyHad = [];
+      // Coletar IDs de roles a adicionar (sem fazer requisições)
+      const rolesToAdd = [];
+      const rolesLabels = [];
 
       for (const threshold of ROLE_THRESHOLDS) {
         if (userData.totalRobux >= threshold.robux && guild.customerRoles[threshold.key]) {
-          try {
-            const roleId = guild.customerRoles[threshold.key];
-            if (!member.roles.cache.has(roleId)) {
-              await member.roles.add(roleId);
-              rolesGiven.push(threshold.label);
-            } else {
-              rolesAlreadyHad.push(threshold.label);
-            }
-          } catch (err) {
-            console.error(`Erro ao adicionar role ${threshold.key}:`, err);
+          const roleId = guild.customerRoles[threshold.key];
+          if (roleId && !member.roles.cache.has(roleId)) {
+            rolesToAdd.push(roleId);
+            rolesLabels.push(threshold.label);
           }
+        }
+      }
+
+      // Adicionar todos os cargos de uma vez (batch)
+      if (rolesToAdd.length > 0) {
+        try {
+          await member.roles.add(rolesToAdd);
+        } catch (err) {
+          console.error('Erro ao adicionar roles:', err);
+          return await interaction.editReply({
+            content: '❌ Erro ao adicionar cargos. Verifique as permissões do bot.'
+          });
         }
       }
 
@@ -101,23 +102,18 @@ export default {
           { name: '💰 Robux Adicionado', value: `${robuxAmount}`, inline: true },
           { name: '📊 Total', value: `${userData.totalRobux} Rbx`, inline: true },
           {
-            name: '🎖️ Cargos Novos',
-            value: rolesGiven.length > 0 ? rolesGiven.join('\n') : 'Nenhum cargo novo'
-          },
-          {
-            name: '✅ Cargos Já Possuía',
-            value: rolesAlreadyHad.length > 0 ? rolesAlreadyHad.join('\n') : 'Nenhum'
+            name: '🎖️ Cargos Recebidos',
+            value: rolesLabels.length > 0 ? rolesLabels.join('\n') : 'Nenhum cargo novo'
           }
         )
         .setColor('Green')
         .setTimestamp();
 
-      await interaction.reply({ embeds: [embed], ephemeral: true });
+      await interaction.editReply({ embeds: [embed] });
     } catch (error) {
       console.error('Erro no comando addxp:', error);
-      await interaction.reply({
-        content: '❌ Erro ao processar comando. Verifique os logs.',
-        ephemeral: true
+      await interaction.editReply({
+        content: '❌ Erro ao processar comando. Verifique os logs.'
       });
     }
   }
