@@ -10,6 +10,7 @@ import { handleCloseTicket } from './events/closeTicket.js';
 import { handleAntiSpam } from './events/antiSpam.js';
 import { handleAntiLink } from './events/antiLink.js';
 import { handleCalculatorButton, handleCalculatorModal } from './events/calculatorModal.js';
+import { handleHelpMenu, handleHelpBack } from './events/helpMenu.js';
 
 import ping from './commands/ping.js';
 import warn from './commands/warn.js';
@@ -24,7 +25,6 @@ import config from './commands/config.js';
 import avaliacoes from './commands/avaliacoes.js';
 import top from './commands/top.js';
 import help from './commands/help.js';
-import helpadm from './commands/helpadm.js';
 import eightball from './commands/8ball.js';
 import dice from './commands/dice.js';
 import coinflip from './commands/coinflip.js';
@@ -38,7 +38,7 @@ import removexp from './commands/removexp.js';
 import nivel from './commands/nivel.js';
 import configcargos from './commands/configcargos.js';
 
-const commands = { ping, warn, removewarn, warns, kick, ban, mute, unmute, ticket, config, avaliacoes, top, help, helpadm, eightball, dice, coinflip, rps, avatar, taxa, margem, calcular, addxp, removexp, nivel, configcargos };
+const commands = { ping, warn, removewarn, warns, kick, ban, mute, unmute, ticket, config, avaliacoes, top, help, eightball, dice, coinflip, rps, avatar, taxa, margem, calcular, addxp, removexp, nivel, configcargos };
 
 const app = express();
 app.get('/', (req, res) => res.send('Bot online!'));
@@ -94,6 +94,9 @@ client.on('interactionCreate', async (interaction) => {
     if (interaction.customId === 'ticket_type') {
       return handleTicketCreate(interaction);
     }
+    if (interaction.customId === 'help_category') {
+      return handleHelpMenu(interaction);
+    }
     if (interaction.customId.startsWith('config_') || interaction.customId.startsWith('select_')) {
       return handleConfigPanel(interaction);
     }
@@ -111,6 +114,9 @@ client.on('interactionCreate', async (interaction) => {
     }
     if (interaction.customId === 'config_back') {
       return handleConfigPanel(interaction);
+    }
+    if (interaction.customId === 'help_back') {
+      return handleHelpBack(interaction);
     }
   }
 
