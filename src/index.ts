@@ -1,5 +1,5 @@
 import express from 'express';
-import { Client, GatewayIntentBits, REST, Routes, ActivityType } from 'discord.js';
+import { Client, GatewayIntentBits, REST, Routes, ActivityType, EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder } from 'discord.js';
 import { connectMongo } from './database/mongo.js';
 import { backupDatabase } from './utils/backup.js';
 import { handleInteraction } from './events/interactionCreate.js';
@@ -11,6 +11,7 @@ import { handleAntiSpam } from './events/antiSpam.js';
 import { handleAntiLink } from './events/antiLink.js';
 import { handleCalculatorButton, handleCalculatorModal } from './events/calculatorModal.js';
 import { handleHelpMenu, handleHelpBack } from './events/helpMenu.js';
+import { handleFAQ } from './events/faqSystem.js';
 
 import ping from './commands/ping.js';
 import warn from './commands/warn.js';
@@ -118,6 +119,27 @@ client.on('interactionCreate', async (interaction) => {
     if (interaction.customId === 'help_back') {
       return handleHelpBack(interaction);
     }
+    if (interaction.customId === 'create_ticket_from_faq') {
+      const ticketEmbed = new EmbedBuilder()
+        .setTitle('🎫 Criar Ticket')
+        .setDescription('Selecione o tipo de ticket que deseja abrir:')
+        .setColor('Blue');
+
+      const ticketDropdown = new ActionRowBuilder<StringSelectMenuBuilder>()
+        .addComponents(
+          new StringSelectMenuBuilder()
+            .setCustomId('ticket_type')
+            .setPlaceholder('Selecione um tipo...')
+            .addOptions(
+              { label: '🆘 Suporte',  value: 'support',  emoji: '🆘' },
+              { label: '⚠️ Denúncia', value: 'report',   emoji: '⚠️' },
+              { label: '❓ Pergunta', value: 'question', emoji: '❓' },
+              { label: '📝 Outro',    value: 'other',    emoji: '📝' }
+            )
+        );
+
+      return interaction.reply({ embeds: [ticketEmbed], components: [ticketDropdown], ephemeral: true });
+    }
   }
 
   if (interaction.isModalSubmit()) {
@@ -135,6 +157,7 @@ client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
   await handleAntiSpam(message);
   await handleAntiLink(message);
+  await handleFAQ(message);
 });
 
 await connectMongo();

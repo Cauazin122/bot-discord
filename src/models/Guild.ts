@@ -23,6 +23,11 @@ const violationSchema = new mongoose.Schema({
   lastViolation: { type: Date, default: Date.now }
 });
 
+const faqCooldownSchema = new mongoose.Schema({
+  userId: String,
+  lastFaqTime: { type: Date, default: Date.now }
+});
+
 const guildSchema = new mongoose.Schema({
   guildId: { type: String, required: true, unique: true },
 
@@ -66,6 +71,9 @@ const guildSchema = new mongoose.Schema({
     tier20000: String,
     tier100000: String
   },
+
+  // FAQ Cooldowns
+  faqCooldowns: [faqCooldownSchema],
 
   // Data
   warns: [warnSchema],
