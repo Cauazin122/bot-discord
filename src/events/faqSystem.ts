@@ -5,8 +5,6 @@ const FAQ_KEYWORDS = {
   legitimidade: {
     keywords: ['é real', 'fake', 'legítimo', 'confiável', 'é verdade', 'é seguro', 'é confiável'],
     answer: '✅ **Somos uma loja legítima de Roblox!**\n\n' +
-            '• Temos centenas de clientes satisfeitos\n' +
-            '• Avaliações 5⭐ de clientes reais\n' +
             '• Suporte 24/7 disponível\n' +
             '• Garantia de satisfação\n\n' +
             'Se ainda tiver dúvidas, abra um ticket para falar com nossa equipe!'
@@ -15,7 +13,6 @@ const FAQ_KEYWORDS = {
     keywords: ['como pagar', 'qual forma de pagamento', 'aceita pix', 'cartão', 'boleto'],
     answer: '💳 **Formas de Pagamento**\n\n' +
             '• PIX (instantâneo)\n' +
-            '• Cartão de Crédito\n' +
             '• Transferência Bancária\n\n' +
             'Todas as transações são seguras e criptografadas.\n' +
             'Abra um ticket para mais informações!'
@@ -23,11 +20,9 @@ const FAQ_KEYWORDS = {
   entrega: {
     keywords: ['quanto tempo', 'demora quanto', 'quando recebo', 'prazo de entrega'],
     answer: '⏱️ **Tempo de Entrega**\n\n' +
-            '• PIX: 5-15 minutos\n' +
-            '• Cartão: 15-30 minutos\n' +
-            '• Transferência: 1-2 horas\n\n' +
-            'Você receberá uma confirmação por DM assim que o pedido for processado.\n' +
-            'Abra um ticket se não receber!'
+            '• Todas as entregas serão feitas na hora\n' +
+            '• Robux via gamepass demora entre 5 a 6 dias (padrão do roblox)\n' +
+            'Caso não receba em ate 72 horas abra um ticket!'
   },
   suporte: {
     keywords: ['suporte', 'problema', 'erro', 'não recebi', 'dúvida'],
