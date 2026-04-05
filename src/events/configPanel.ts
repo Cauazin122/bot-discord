@@ -77,6 +77,34 @@ export async function handleConfigPanel(interaction: StringSelectMenuInteraction
       return interaction.update({ embeds: [embed], components: [row, backButton] });
     }
 
+    // ❓ FAQ CHANNEL
+    if (selected === 'faqchannel') {
+      const embed = new EmbedBuilder()
+        .setTitle('❓ Configurar Canal de FAQ')
+        .setDescription(`Status: ${guild.faqChannel ? '🟢 Configurado' : '🔴 Não configurado'}\n\nO bot só responderá perguntas neste canal.`)
+        .setColor('Blue');
+
+      const row = new ActionRowBuilder<StringSelectMenuBuilder>()
+        .addComponents(
+          new StringSelectMenuBuilder()
+            .setCustomId('select_faqchannel')
+            .addOptions(
+              { label: 'Definir canal atual', value: 'set' },
+              { label: 'Remover', value: 'remove' }
+            )
+        );
+
+      const backButton = new ActionRowBuilder<ButtonBuilder>()
+        .addComponents(
+          new ButtonBuilder()
+            .setCustomId('config_back')
+            .setLabel('← Voltar')
+            .setStyle(ButtonStyle.Secondary)
+        );
+
+      return interaction.update({ embeds: [embed], components: [row, backButton] });
+    }
+
     // 🛡️ STAFF ROLES
     if (selected === 'staffroles') {
       const roles = interaction.guild.roles.cache
@@ -261,6 +289,7 @@ export async function handleConfigPanel(interaction: StringSelectMenuInteraction
           .addOptions(
             { label: 'Logs', value: 'logs', emoji: '📜' },
             { label: 'Canal de Avaliações', value: 'ratings', emoji: '⭐' },
+            { label: 'Canal de FAQ', value: 'faqchannel', emoji: '❓' },
             { label: 'Roles de Staff', value: 'staffroles', emoji: '🛡️' },
             { label: 'Anti-Link', value: 'antilink', emoji: '🔗' },
             { label: 'Anti-Spam', value: 'antispam', emoji: '🚫' },
@@ -307,6 +336,30 @@ export async function handleConfigPanel(interaction: StringSelectMenuInteraction
 
     const embed = new EmbedBuilder()
       .setTitle('✅ Canal de Avaliações Atualizado')
+      .setDescription(`Canal: ${interaction.values[0] === 'set' ? `<#${interaction.channelId}>` : 'Removido'}`)
+      .setColor('Green');
+
+    const backButton = new ActionRowBuilder<ButtonBuilder>()
+      .addComponents(
+        new ButtonBuilder()
+          .setCustomId('config_back')
+          .setLabel('← Voltar')
+          .setStyle(ButtonStyle.Secondary)
+      );
+
+    return interaction.update({ embeds: [embed], components: [backButton] });
+  }
+
+  if (interaction.customId === 'select_faqchannel') {
+    if (interaction.values[0] === 'set') {
+      guild.faqChannel = interaction.channelId;
+    } else {
+      guild.faqChannel = undefined;
+    }
+    await guild.save();
+
+    const embed = new EmbedBuilder()
+      .setTitle('✅ Canal de FAQ Atualizado')
       .setDescription(`Canal: ${interaction.values[0] === 'set' ? `<#${interaction.channelId}>` : 'Removido'}`)
       .setColor('Green');
 

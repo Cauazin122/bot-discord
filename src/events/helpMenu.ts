@@ -56,7 +56,7 @@ const CATEGORIES = {
     title: '⚙️ Configuração',
     description: 'Comandos de configuração do servidor',
     commands: [
-      { name: '/config', desc: 'Painel de configuração do bot' }
+      { name: '/config', desc: 'Painel de configuração do bot (logs, FAQ, tickets, etc)' }
     ]
   },
   info: {
@@ -65,6 +65,15 @@ const CATEGORIES = {
     commands: [
       { name: '/ping', desc: 'Ver latência do bot' },
       { name: '/help', desc: 'Ver este menu de ajuda' }
+    ]
+  },
+  faq: {
+    title: '❓ Sistema de FAQ',
+    description: 'Respostas automáticas para dúvidas comuns',
+    commands: [
+      { name: 'Automático', desc: 'O bot responde automaticamente no canal de FAQ quando detecta palavras-chave como "é real?", "fake", "legítimo", "confiável", etc' },
+      { name: 'Cooldown', desc: 'Cada usuário recebe apenas 1 resposta a cada 5 minutos para evitar spam' },
+      { name: 'Ticket', desc: 'Cada resposta inclui um botão para abrir um ticket se o usuário ainda tiver dúvidas' }
     ]
   }
 };
@@ -117,7 +126,8 @@ export async function handleHelpBack(interaction: ButtonInteraction) {
       { name: '📊 Ranking', value: 'top, warns, nivel', inline: false },
       { name: '💰 Loja', value: 'calcular, taxa, margem, configcargos, addxp, removexp', inline: false },
       { name: '⚙️ Configuração', value: 'config', inline: false },
-      { name: '❓ Informações', value: 'ping, help', inline: false }
+      { name: '❓ Informações', value: 'ping, help', inline: false },
+      { name: '❓ Sistema de FAQ', value: 'Respostas automáticas para dúvidas comuns', inline: false }
     )
     .setColor('Blue')
     .setFooter({ text: 'Clique em uma categoria para ver mais detalhes' })
@@ -135,7 +145,8 @@ export async function handleHelpBack(interaction: ButtonInteraction) {
           { label: '📊 Ranking', value: 'ranking', emoji: '📊' },
           { label: '💰 Loja', value: 'loja', emoji: '💰' },
           { label: '⚙️ Configuração', value: 'config', emoji: '⚙️' },
-          { label: '❓ Informações', value: 'info', emoji: '❓' }
+          { label: '❓ Informações', value: 'info', emoji: '❓' },
+          { label: '❓ Sistema de FAQ', value: 'faq', emoji: '❓' }
         )
     );
 
