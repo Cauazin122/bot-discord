@@ -45,6 +45,15 @@ export async function handleFAQ(message: Message) {
   const userId = message.author.id;
   const content = message.content.toLowerCase();
 
+  // Buscar guild
+  const guild = await Guild.findOne({ guildId });
+  if (!guild) return;
+
+  // Verificar se FAQ channel está configurado
+  if (guild.faqChannel && message.channelId !== guild.faqChannel) {
+    return; // Só responde no canal de FAQ configurado
+  }
+
   // Verificar se a mensagem contém palavras-chave
   let matchedCategory: string | null = null;
   for (const [category, data] of Object.entries(FAQ_KEYWORDS)) {
@@ -55,12 +64,6 @@ export async function handleFAQ(message: Message) {
   }
 
   if (!matchedCategory) return;
-
-  // Buscar guild
-  let guild = await Guild.findOne({ guildId });
-  if (!guild) {
-    guild = await Guild.create({ guildId });
-  }
 
   // Verificar cooldown
   if (!guild.faqCooldowns) {

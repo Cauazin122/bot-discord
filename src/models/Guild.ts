@@ -36,6 +36,7 @@ const guildSchema = new mongoose.Schema({
   ratingsChannel: String,
   ticketCategory: String,
   transcriptChannel: String,
+  faqChannel: String,
 
   // Features
   antiSpamEnabled: { type: Boolean, default: false },

@@ -26,6 +26,7 @@ export default {
           .addOptions(
             { label: 'Logs', value: 'logs', emoji: '📜' },
             { label: 'Canal de Avaliações', value: 'ratings', emoji: '⭐' },
+            { label: 'Canal de FAQ', value: 'faqchannel', emoji: '❓' },
             { label: 'Roles de Staff', value: 'staffroles', emoji: '🛡️' },
             { label: 'Anti-Link', value: 'antilink', emoji: '🔗' },
             { label: 'Anti-Spam', value: 'antispam', emoji: '🚫' },
