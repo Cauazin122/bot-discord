@@ -48,11 +48,14 @@ export async function handleCalculatorModal(interaction) {
   const precoReal = (robuxValue * taxa * margem).toFixed(2);
   const precoGamepass = (robuxValue * taxa).toFixed(2);
 
+  // Robux que o usuário recebe após Roblox tirar 30%
+  const robuxRecebido = Math.floor(robuxValue * 0.70);
+
   const embed = new EmbedBuilder()
     .setTitle('💰 Preço Calculado')
     .addFields(
       { name: '🎮 Robux Taxado', value: `R$ ${precoReal} (${robuxValue}rbx)`, inline: true },
-      { name: '🎮 Robux sem taxa', value: `R$ ${precoGamepass} (${robuxValue}rbx)`, inline: true },
+      { name: '🎮 Robux sem taxa', value: `R$ ${precoGamepass} (${robuxRecebido}rbx)`, inline: true },
       { name: '💳 Gamepass', value: `R$ ${precoGamepass} (${robuxValue}rbx)`, inline: true }
     )
     .setColor('Green')
