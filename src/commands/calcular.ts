@@ -19,7 +19,7 @@ export default {
       .setDescription('Seja bem vindo a nossa central de preços aqui você podera ver quantos reais custa a gamepass ou os robux (com e sem taxa) que deseja.')
       .addFields(
         { name: '💱 Taxa Atual', value: `1 Robux = R$ ${taxa.toFixed(2)}`, inline: true },
-        { name: '❓ Como usar?', value: `Simples basta escrever quantos robux a gamepass custa e te falamos o preço dela`, inline: true}
+        { name: '❓ Como usar?', value: `Simples basta escrever quantos robux você quer receber ou quantos robux a gamepass que você deseja custa e te falamos o preço dela`, inline: true}
       )
       .setColor('Blue')
       .setTimestamp();
