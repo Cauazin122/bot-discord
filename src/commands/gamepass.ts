@@ -76,7 +76,6 @@ export default {
         { name: '🏷️ Valor da Gamepass', value: `Crie uma gamepass no valor de: **${valorGamepass} Robux** (R$ ${valorReais})`, inline: false },
         { name: '📊 Detalhes', value: explicacao, inline: false },
         { name: '💰 Recebimento', value: recebimento, inline: false },
-        { name: '💱 Taxa Utilizada', value: `1 Robux = R$ ${taxa.toFixed(2)}`, inline: true }
       )
       .setColor(cor)
       .setTimestamp()
