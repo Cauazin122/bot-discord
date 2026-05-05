@@ -38,8 +38,9 @@ import addxp from './commands/addxp.js';
 import removexp from './commands/removexp.js';
 import nivel from './commands/nivel.js';
 import configcargos from './commands/configcargos.js';
+import gamepass from './commands/gamepass.js';
 
-const commands = { ping, warn, removewarn, warns, kick, ban, mute, unmute, ticket, config, avaliacoes, top, help, eightball, dice, coinflip, rps, avatar, taxa, margem, calcular, addxp, removexp, nivel, configcargos };
+const commands = { ping, warn, removewarn, warns, kick, ban, mute, unmute, ticket, config, avaliacoes, top, help, eightball, dice, coinflip, rps, avatar, taxa, margem, calcular, addxp, removexp, nivel, configcargos, gamepass };
 
 const app = express();
 app.get('/', (req, res) => res.send('Bot online!'));
