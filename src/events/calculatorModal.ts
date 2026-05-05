@@ -59,7 +59,7 @@ export async function handleCalculatorModal(interaction) {
     .setTitle('💰 Preço Calculado')
     .addFields(
       {
-        name: '🎮 Robux Taxado:', value: `R$ ${precoReal}\n📝 Crie uma gamepass no valor de: **${robuxGamepass} Rbx**\n**__(Após Roblox tirar 30%, você receberá ${robuxValue} Rbx)__**`,
+        name: '🎮 Robux Taxado:', value: `R$ ${precoReal}\n📝 Crie uma gamepass no valor de: **${robuxGamepass} Rbx**`,
         inline: false
       },
       { name: '🎮 Robux sem taxa', value: `R$ ${precoGamepass} **(${robuxValue}rbx)**\n**__Receberá apenas ${robuxRecebido}rbx__**`, inline: false },
