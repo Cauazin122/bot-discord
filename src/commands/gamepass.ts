@@ -67,13 +67,13 @@ export default {
     const cor = tipo === 'com_taxa' ? 0x57f287 : 0xfee75c; // Verde : Amarelo
 
     const embed = new EmbedBuilder()
-      .setTitle('🎮 Gamepass — Instruções de Preço')
+      .setTitle('✅ Pagamento aprovado — Instruções para criar a gamepass')
       .setDescription(descricao || 'Siga as instruções abaixo para configurar o preço da sua gamepass corretamente.')
       .addFields(
         { name: '📋 Tipo', value: tipoLabel, inline: true },
         { name: '🎯 Robux Desejados', value: `**${robuxDesejado} Robux**`, inline: true },
         { name: '\u200b', value: '\u200b', inline: true },
-        { name: '🏷️ Valor da Gamepass', value: `Crie uma gamepass no valor de: **${valorGamepass} Robux** (R$ ${valorReais})`, inline: false },
+        { name: '🏷️ Valor da Gamepass', value: `Crie uma gamepass no valor de: **${valorGamepass} Robux**`, inline: false },
         { name: '📊 Detalhes', value: explicacao, inline: false },
         { name: '💰 Recebimento', value: recebimento, inline: false },
       )
