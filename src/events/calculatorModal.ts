@@ -59,11 +59,11 @@ export async function handleCalculatorModal(interaction) {
     .setTitle('💰 Preço Calculado')
     .addFields(
       {
-        name: '🎮 Robux Taxado:', value: `R$ ${precoReal}\n📝 Crie uma gamepass no valor de: **${robuxGamepass} Rbx**\n(Após Roblox tirar 30%, você receberá ${robuxValue} Rbx)`,
+        name: '🎮 Robux Taxado:', value: `R$ ${precoReal}\n📝 Crie uma gamepass no valor de: **${robuxGamepass} Rbx**\n**__(Após Roblox tirar 30%, você receberá ${robuxValue} Rbx)__**`,
         inline: false
       },
-      { name: '🎮 Robux sem taxa', value: `R$ ${precoGamepass} (${robuxValue}rbx), (Receberá apenas ${robuxRecebido}rbx)`, inline: true },
-      { name: '💳 Gamepass', value: `R$ ${precoGamepass} (${robuxValue}rbx)`, inline: true }
+      { name: '🎮 Robux sem taxa', value: `R$ ${precoGamepass} **(${robuxValue}rbx)**\n**__Receberá apenas ${robuxRecebido}rbx__**`, inline: false },
+      { name: '💳 Gamepass', value: `R$ ${precoGamepass} **(${robuxValue}rbx)**`, inline: false }
     )
     .setColor('Green')
     .setTimestamp();
