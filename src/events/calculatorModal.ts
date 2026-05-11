@@ -101,23 +101,36 @@ export async function handleCalculatorModal(interaction) {
       });
     }
 
-    // Robux equivalente ao valor em Reais sem margem
-    const robuxSemMargem = Math.floor(realValue / taxa);
-
     // Robux que o vendedor precisa cobrar considerando a margem de lucro
     const robuxComMargem = Math.floor(realValue / (taxa * margem));
 
-    // Robux que o usuário receberá após Roblox descontar 30%
-    const robuxAposDesconto = Math.floor(robuxComMargem * 0.70);
+    // Robux necessário na gamepass para que o usuário receba robuxComMargem após Roblox tirar 30%
+    const robuxGamepassReal = Math.ceil(robuxComMargem / 0.70);
 
-    const percentualMargem = ((margem - 1) * 100).toFixed(0);
+    // Robux equivalente ao valor em Reais sem margem
+    const robuxSemMargem = Math.floor(realValue / taxa);
+
+    // Robux que o usuário receberá após Roblox descontar 30% (sem margem)
+    const robuxAposDesconto = Math.floor(robuxSemMargem * 0.70);
 
     const embed = new EmbedBuilder()
       .setTitle('💵 Conversão Real → Robux')
       .addFields(
-        { name: '💰 Valor em Reais', value: `R$ ${realValue.toFixed(2)}`, inline: false },
-        { name: '🎮 Robux Taxado', value: `**${robuxValue} Rbx**\n📝 Crie uma gamepass no valor de: **${robuxGamepass} Rbx**`, inline: false },
-        { name: '✅ Robux Sem Taxa', value: `**${robuxValue} Rbx**`, inline: false }
+        {
+          name: '🎮 Robux Taxado:',
+          value: `R$ ${realValue.toFixed(2)}\n📝 Crie uma gamepass no valor de: **${robuxGamepassReal} Rbx**`,
+          inline: false
+        },
+        {
+          name: '🎮 Robux sem taxa',
+          value: `R$ ${realValue.toFixed(2)} **(${robuxSemMargem}rbx)**\n**__Receberá apenas ${robuxAposDesconto}rbx__**`,
+          inline: false
+        },
+        {
+          name: '💳 Gamepass',
+          value: `R$ ${realValue.toFixed(2)} **(${robuxSemMargem}rbx)**`,
+          inline: false
+        }
       )
       .setColor('Gold')
       .setTimestamp();
