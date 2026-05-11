@@ -30,7 +30,12 @@ export default {
           .setCustomId('calc_robux_to_real')
           .setLabel('Calcular Robux → Real')
           .setStyle(ButtonStyle.Primary)
-          .setEmoji('🧮')
+          .setEmoji('🧮'),
+        new ButtonBuilder()
+          .setCustomId('calc_real_to_robux')
+          .setLabel('Calcular Real → Robux')
+          .setStyle(ButtonStyle.Success)
+          .setEmoji('💵')
       );
 
     await interaction.reply({ embeds: [embed], components: [row] });
