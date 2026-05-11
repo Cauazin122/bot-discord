@@ -101,23 +101,36 @@ export async function handleCalculatorModal(interaction) {
       });
     }
 
-    // Robux equivalente ao valor em Reais sem margem
-    const robuxSemMargem = Math.floor(realValue / taxa);
-
-    // Robux que o vendedor precisa cobrar considerando a margem de lucro
+    // Robux com margem (taxado): quanto o comprador paga em Robux considerando a margem
     const robuxComMargem = Math.floor(realValue / (taxa * margem));
 
-    // Robux que o usuário receberá após Roblox descontar 30%
-    const robuxAposDesconto = Math.floor(robuxComMargem * 0.70);
+    // Robux para gamepass (com margem): valor que deve ser colocado na gamepass para receber robuxComMargem após -30%
+    const robuxGamepass = Math.ceil(robuxComMargem / 0.70);
 
-    const percentualMargem = ((margem - 1) * 100).toFixed(0);
+    // Robux sem margem: conversão direta de Real para Robux sem aplicar margem
+    const robuxSemMargem = Math.floor(realValue / taxa);
+
+    // Robux recebido após Roblox descontar 30%
+    const robuxRecebido = Math.floor(robuxSemMargem * 0.70);
 
     const embed = new EmbedBuilder()
       .setTitle('💵 Conversão Real → Robux')
       .addFields(
-        { name: '💰 Valor em Reais', value: `R$ ${realValue.toFixed(2)}`, inline: false },
-        { name: '🎮 Robux Taxado', value: `**${robuxValue} Rbx**\n📝 Crie uma gamepass no valor de: **${robuxGamepass} Rbx**`, inline: false },
-        { name: '✅ Robux Sem Taxa', value: `**${robuxValue} Rbx**`, inline: false }
+        {
+          name: '💰 Real Taxado:',
+          value: `R$ ${realValue.toFixed(2)}\n📝 Crie uma gamepass no valor de: **${robuxGamepass} Rbx**`,
+          inline: false
+        },
+        {
+          name: '💰 Real sem taxa',
+          value: `R$ ${realValue.toFixed(2)} **(${robuxSemMargem}rbx)**\n**__Receberá apenas ${robuxRecebido}rbx__**`,
+          inline: false
+        },
+        {
+          name: '🎮 Robux',
+          value: `R$ ${realValue.toFixed(2)} **(${robuxSemMargem}rbx)**`,
+          inline: false
+        }
       )
       .setColor('Gold')
       .setTimestamp();
