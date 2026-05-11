@@ -115,10 +115,9 @@ export async function handleCalculatorModal(interaction) {
     const embed = new EmbedBuilder()
       .setTitle('💵 Conversão Real → Robux')
       .addFields(
-        { name: '💰 Valor em Reais', value: `R$ ${realValue.toFixed(2)}`, inline: false },
-        { name: '🎮 Robux equivalente (sem margem)', value: `**${robuxSemMargem} Rbx**`, inline: false },
-        { name: `📈 Robux com margem (${percentualMargem}%)`, value: `**${robuxComMargem} Rbx**\n📝 Crie a gamepass com este valor`, inline: false },
-        { name: '✅ Robux recebidos (após -30% Roblox)', value: `**${robuxAposDesconto} Rbx**`, inline: false }
+        { name: '💰 Valor em Reais', value: `R$ ${precoReal}`, inline: false },
+        { name: '🎮 Robux Taxado', value: `**${robuxValue} Rbx**\n📝 Crie uma gamepass no valor de: **${robuxGamepass} Rbx**`, inline: false },
+        { name: '✅ Robux Sem Taxa', value: `**${robuxValue} Rbx**`, inline: false }
       )
       .setColor('Gold')
       .setTimestamp();
