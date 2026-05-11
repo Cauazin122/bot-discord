@@ -27,25 +27,6 @@ export async function handleCalculatorButton(interaction: ButtonInteraction) {
   await interaction.showModal(modal);
 }
 
-export async function handleRealToRobuxButton(interaction: ButtonInteraction) {
-  if (interaction.customId !== 'calc_real_to_robux') return;
-
-  const modal = new ModalBuilder()
-    .setCustomId('modal_real_price')
-    .setTitle('Conversão Real → Robux');
-
-  const realInput = new TextInputBuilder()
-    .setCustomId('real_value')
-    .setLabel('Coloque o valor em Reais que deseja')
-    .setStyle(TextInputStyle.Short)
-    .setPlaceholder('Ex: 50.00')
-    .setRequired(true);
-
-  modal.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(realInput));
-
-  await interaction.showModal(modal);
-}
-
 export async function handleCalculatorModal(interaction) {
   if (interaction.customId !== 'modal_robux_price' && interaction.customId !== 'modal_real_price') return;
 
