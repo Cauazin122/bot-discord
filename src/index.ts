@@ -115,9 +115,6 @@ client.on('interactionCreate', async (interaction) => {
     if (interaction.customId === 'calc_robux_to_real') {
       return handleCalculatorButton(interaction);
     }
-    if (interaction.customId === 'calc_real_to_robux') {
-      return handleRealToRobuxButton(interaction);
-    }
     if (interaction.customId === 'config_back') {
       return handleConfigPanel(interaction);
     }
