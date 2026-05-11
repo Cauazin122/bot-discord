@@ -39,8 +39,9 @@ import removexp from './commands/removexp.js';
 import nivel from './commands/nivel.js';
 import configcargos from './commands/configcargos.js';
 import gamepass from './commands/gamepass.js';
+import pix from './commands/pix.js';
 
-const commands = { ping, warn, removewarn, warns, kick, ban, mute, unmute, ticket, config, avaliacoes, top, help, eightball, dice, coinflip, rps, avatar, taxa, margem, calcular, addxp, removexp, nivel, configcargos, gamepass };
+const commands = { ping, warn, removewarn, warns, kick, ban, mute, unmute, ticket, config, avaliacoes, top, help, eightball, dice, coinflip, rps, avatar, taxa, margem, calcular, addxp, removexp, nivel, configcargos, gamepass, pix };
 
 const app = express();
 app.get('/', (req, res) => res.send('Bot online!'));
@@ -119,6 +120,18 @@ client.on('interactionCreate', async (interaction) => {
     }
     if (interaction.customId === 'help_back') {
       return handleHelpBack(interaction);
+    }
+    if (interaction.customId === 'copy_pix_key') {
+      return interaction.reply({
+        content: '✅ Chave PIX copiada para a área de transferência!\n```\n2201a56a-c1b7-4df5-9ca7-48c965683993\n```',
+        ephemeral: true
+      });
+    }
+    if (interaction.customId === 'copy_pix_email') {
+      return interaction.reply({
+        content: '✅ Email copiado para a área de transferência!\n```\nflixshopofc@gmail.com\n```',
+        ephemeral: true
+      });
     }
     if (interaction.customId === 'create_ticket_from_faq') {
       const ticketEmbed = new EmbedBuilder()
