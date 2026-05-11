@@ -123,13 +123,13 @@ client.on('interactionCreate', async (interaction) => {
     }
     if (interaction.customId === 'copy_pix_key') {
       return interaction.reply({
-        content: '✅ Chave PIX copiada para a área de transferência!\n```\n2201a56a-c1b7-4df5-9ca7-48c965683993\n```',
+        content: '2201a56a-c1b7-4df5-9ca7-48c965683993',
         ephemeral: true
       });
     }
     if (interaction.customId === 'copy_pix_email') {
       return interaction.reply({
-        content: '✅ Email copiado para a área de transferência!\n```\nflixshopofc@gmail.com\n```',
+        content: 'flixshopofc@gmail.com',
         ephemeral: true
       });
     }
