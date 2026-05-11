@@ -9,7 +9,7 @@ import { handleClaimTicket } from './events/claimTicket.js';
 import { handleCloseTicket } from './events/closeTicket.js';
 import { handleAntiSpam } from './events/antiSpam.js';
 import { handleAntiLink } from './events/antiLink.js';
-import { handleCalculatorButton, handleCalculatorModal } from './events/calculatorModal.js';
+import { handleCalculatorButton, handleRealToRobuxButton, handleCalculatorModal } from './events/calculatorModal.js';
 import { handleHelpMenu, handleHelpBack } from './events/helpMenu.js';
 import { handleFAQ } from './events/faqSystem.js';
 
@@ -115,6 +115,9 @@ client.on('interactionCreate', async (interaction) => {
     if (interaction.customId === 'calc_robux_to_real') {
       return handleCalculatorButton(interaction);
     }
+    if (interaction.customId === 'calc_real_to_robux') {
+      return handleRealToRobuxButton(interaction);
+    }
     if (interaction.customId === 'config_back') {
       return handleConfigPanel(interaction);
     }
@@ -157,7 +160,7 @@ client.on('interactionCreate', async (interaction) => {
   }
 
   if (interaction.isModalSubmit()) {
-    if (interaction.customId === 'modal_robux_price') {
+    if (interaction.customId === 'modal_robux_price' || interaction.customId === 'modal_real_price') {
       return handleCalculatorModal(interaction);
     }
   }
