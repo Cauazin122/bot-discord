@@ -28,7 +28,16 @@ export async function handleCalculatorButton(interaction: ButtonInteraction) {
 }
 
 export async function handleCalculatorModal(interaction) {
-  if (interaction.customId !== 'modal_robux_price' && interaction.customId !== 'modal_real_price') return;
+  if (interaction.customId !== 'modal_robux_price') return;
+
+  const robuxValue = parseFloat(interaction.fields.getTextInputValue('robux_value'));
+
+  if (isNaN(robuxValue) || robuxValue <= 0) {
+    return interaction.reply({
+      content: '❌ Valor inválido! Digite um número maior que 0.',
+      ephemeral: true
+    });
+  }
 
   const guildId = interaction.guild.id;
   const guild = await Guild.findOne({ guildId });
@@ -36,40 +45,28 @@ export async function handleCalculatorModal(interaction) {
   const taxa = guild?.taxaRobux || 0.05;
   const margem = guild?.margemVenda || 1.30;
 
-  if (interaction.customId === 'modal_robux_price') {
-    const robuxValue = parseFloat(interaction.fields.getTextInputValue('robux_value'));
+  const precoReal = (robuxValue * taxa * margem).toFixed(2);
+  const precoGamepass = (robuxValue * taxa).toFixed(2);
 
-    if (isNaN(robuxValue) || robuxValue <= 0) {
-      return interaction.reply({
-        content: '❌ Valor inválido! Digite um número maior que 0.',
-        ephemeral: true
-      });
-    }
+  // Robux que o usuário recebe após Roblox tirar 30%
+  const robuxRecebido = Math.floor(robuxValue * 0.70);
 
-    const precoReal = (robuxValue * taxa * margem).toFixed(2);
-    const precoGamepass = (robuxValue * taxa).toFixed(2);
+  // Robux necessário na gamepass para que o usuário receba o valor desejado
+  // Se o usuário quer receber X, e Roblox tira 30%, precisa de X ÷ 0.70
+  const robuxGamepass = Math.ceil(robuxValue / 0.70);
 
-    // Robux que o usuário recebe após Roblox tirar 30%
-    const robuxRecebido = Math.floor(robuxValue * 0.70);
+  const embed = new EmbedBuilder()
+    .setTitle('💰 Preço Calculado')
+    .addFields(
+      {
+        name: '🎮 Robux Taxado:', value: `R$ ${precoReal}\n📝 Crie uma gamepass no valor de: **${robuxGamepass} Rbx**`,
+        inline: false
+      },
+      { name: '🎮 Robux sem taxa', value: `R$ ${precoGamepass} **(${robuxValue}rbx)**\n**__Receberá apenas ${robuxRecebido}rbx__**`, inline: false },
+      { name: '💳 Gamepass', value: `R$ ${precoGamepass} **(${robuxValue}rbx)**`, inline: false }
+    )
+    .setColor('Green')
+    .setTimestamp();
 
-    // Robux necessário na gamepass para que o usuário receba o valor desejado
-    // Se o usuário quer receber X, e Roblox tira 30%, precisa de X ÷ 0.70
-    const robuxGamepass = Math.ceil(robuxValue / 0.70);
-
-    const embed = new EmbedBuilder()
-      .setTitle('💰 Preço Calculado')
-      .addFields(
-        {
-          name: '🎮 Robux Taxado:', value: `R$ ${precoReal}\n📝 Crie uma gamepass no valor de: **${robuxGamepass} Rbx**`,
-          inline: false
-        },
-        { name: '🎮 Robux sem taxa', value: `R$ ${precoGamepass} **(${robuxValue}rbx)**\n**__Receberá apenas ${robuxRecebido}rbx__**`, inline: false },
-        { name: '💳 Gamepass', value: `R$ ${precoGamepass} **(${robuxValue}rbx)**`, inline: false }
-      )
-      .setColor('Green')
-      .setTimestamp();
-
-    return interaction.reply({ embeds: [embed], ephemeral: true });
-  }
-
-  
+  await interaction.reply({ embeds: [embed], ephemeral: true });
+}
