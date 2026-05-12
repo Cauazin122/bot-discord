@@ -31,12 +31,12 @@ export default {
     .addNumberOption(o =>
       o.setName('expiracao')
         .setDescription('Validade em dias (deixe vazio para sem expiração)')
-        .setRequired(false)
+        .setRequired(true)
         .setMinValue(1)
     ),
 
   async execute(interaction) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ ephemeral: false });
 
     try {
       const discount = interaction.options.getNumber('desconto');
