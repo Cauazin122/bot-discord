@@ -31,7 +31,7 @@ export default {
     .addNumberOption(o =>
       o.setName('expiracao')
         .setDescription('Validade em dias (deixe vazio para sem expiração)')
-        .setRequired(true)
+        .setRequired(false)
         .setMinValue(1)
     ),
 
