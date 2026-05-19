@@ -42,8 +42,9 @@ import gamepass from './commands/gamepass.js';
 import pix from './commands/pix.js';
 import criarcupom from './commands/criarcupom.js';
 import resgatarcupom from './commands/resgatarcupom.js';
+import removercupom from './commands/removercupom.js';
 
-const commands = { ping, warn, removewarn, warns, kick, ban, mute, unmute, ticket, config, avaliacoes, top, help, eightball, dice, coinflip, rps, avatar, taxa, margem, calcular, addxp, removexp, nivel, configcargos, gamepass, pix, criarcupom, resgatarcupom };
+const commands = { ping, warn, removewarn, warns, kick, ban, mute, unmute, ticket, config, avaliacoes, top, help, eightball, dice, coinflip, rps, avatar, taxa, margem, calcular, addxp, removexp, nivel, configcargos, gamepass, pix, criarcupom, resgatarcupom, removercupom };
 
 const app = express();
 app.get('/', (req, res) => res.send('Bot online!'));
